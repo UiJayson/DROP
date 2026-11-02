@@ -1,0 +1,15 @@
+node_modules
+.turbo
+.next
+.expo
+dist
+coverage
+pnpm-lock.yaml
+supabase/.temp
+supabase/.branches
+*.tsbuildinfo
+apps/passenger/assets
+apps/rider/assets
+apps/admin/src/app/icon.png
+*.sql
+docs/**
