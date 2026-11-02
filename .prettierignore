@@ -13,3 +13,4 @@ apps/rider/assets
 apps/admin/src/app/icon.png
 *.sql
 docs/**
+.cursor/skills
