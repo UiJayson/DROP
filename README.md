@@ -2,15 +2,15 @@
 
 DROP is an app for booking a Keke (a tricycle) in Lagos. When someone says “Drop”, they want that Keke to themselves, not a shared route along a fixed line.
 
-This folder is the starting point for the project. It has the passenger app, the rider app, the admin website, and the database tables. You can open each app and see a welcome screen. You cannot book a trip yet.
+This folder is the starting point for the project. It has the passenger app, the rider app, the admin website, and the database tables. After phone sign-in, a passenger can request a Drop and a rider can accept or counter. The trip itself (PIN, cash, rating) is still the tappable prototype.
 
 ## The three apps
 
-| App       | Who it is for                | What you see today                                  |
-| --------- | ---------------------------- | --------------------------------------------------- |
-| Passenger | Someone who wants a ride     | Phone sign-in, then the booking prototype           |
-| Rider     | A Keke rider                 | Phone sign-in, then licence and NIN signup          |
-| Admin     | The DROP team, on a computer | A list of riders waiting to be approved or rejected |
+| App       | Who it is for                | What you see today                                            |
+| --------- | ---------------------------- | ------------------------------------------------------------- |
+| Passenger | Someone who wants a ride     | Phone sign-in, then a real request when Supabase is connected |
+| Rider     | A Keke rider                 | Phone sign-in, licence and NIN, then accept or counter        |
+| Admin     | The DROP team, on a computer | A list of riders waiting to be approved or rejected           |
 
 ## What to install first
 
@@ -68,7 +68,7 @@ You do not need to fill in any passwords to see these screens. Without a Supabas
 
 ## The database
 
-The database stores people, Kekes, trip requests, and fares. The tables are created here. Booking is not switched on yet.
+The database stores people, Kekes, trip requests, and fares. A passenger's request looks for approved riders who are online, first within 1.5 km, then 3 km, then 5 km. A rider who already has passengers in the Keke can still accept. The fare is locked when the passenger picks an offer.
 
 Install Docker, start it, then run:
 
@@ -108,6 +108,8 @@ When you have a Supabase project, paste its URL and anon key into those files. T
 
 The apps also start without a Sentry address. Sentry is optional error reporting. Add `EXPO_PUBLIC_SENTRY_DSN` or `NEXT_PUBLIC_SENTRY_DSN` only when you have one.
 
+Google Maps is optional. Leave `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` blank and the passenger app uses a few Ikeja sample places, with the fare based on a straight line. Paste a key to search real places and use the road distance. In Google Cloud, turn on Places API (New) and Routes API, then restrict the key to the DROP apps. Do not put the key in git.
+
 ## Check that the project is healthy
 
 ```bash
@@ -125,10 +127,12 @@ pnpm test
 - `apps/admin` — admin website (Next.js)
 - `packages/shared` — shared types and fare rules (money is stored in kobo, where ₦1 = 100 kobo)
 - `packages/ui-tokens` — colours and type sizes (black `#0A0A0B`, Keke Yellow `#FFC629`)
-- `packages/api-client` — the list of server actions the apps will call later. It does not call them yet.
+- `packages/api-client` — phone sign-in, and the booking calls (fare, request, offer, select)
 - `supabase` — database migrations, sample data, and the privacy tests
 - `docs` — the product and design notes
 
 ## What is not built yet
 
-Real map booking, rider offers, the trip PIN, and cash confirmation are still the prototype you can tap through after sign-in. A live NIN company and a live SMS provider are not connected yet. Those are the next choices. See `docs/06-signup-and-nin.md`.
+The trip after a rider is chosen — the boarding PIN check, live tracking, and cash confirmation — is still the prototype. A live NIN company, a live SMS provider, and a Google Maps key are not connected until you add them. See `docs/06-signup-and-nin.md`.
+
+Do not apply the database files to a Supabase project that already has real riders or passengers. Use the database on your computer, or a Supabase project you created for practice.

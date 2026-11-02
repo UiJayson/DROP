@@ -41,6 +41,7 @@ export type PassengerState = {
   autoAccept: boolean;
   offerId: string | null;
   hiddenOfferIds: string[];
+  serverMinKobo: number | null;
   live: boolean;
   paid: boolean;
   dispute: boolean;
@@ -62,6 +63,8 @@ export type PassengerAction =
   | { type: 'stepFare'; direction: -1 | 1 }
   | { type: 'toggleAutoAccept' }
   | { type: 'request' }
+  | { type: 'armLiveFare'; offerKobo: number; minKobo: number }
+  | { type: 'lockLiveOffer'; id: string }
   | { type: 'showOffers' }
   | { type: 'noOffers' }
   | { type: 'raise'; naira: 100 | 200 }
@@ -105,6 +108,7 @@ function blankTrip(state: PassengerState): PassengerState {
     autoAccept: false,
     offerId: null,
     hiddenOfferIds: [],
+    serverMinKobo: null,
     live: false,
     paid: false,
     dispute: false,
@@ -128,6 +132,7 @@ export function seedPassenger(route: PassengerRoute): PassengerState {
     autoAccept: false,
     offerId: null,
     hiddenOfferIds: [],
+    serverMinKobo: null,
     live: false,
     paid: route === 'rate',
     dispute: false,
@@ -238,16 +243,30 @@ export function passengerReducer(state: PassengerState, action: PassengerAction)
     case 'setLandmark':
       return { ...state, landmark: action.note };
     case 'stepFare': {
-      const quote = state.placeId ? quoteForPlace(state.placeId) : defaultQuote();
+      const quote =
+        state.placeId && state.placeId !== 'live' ? quoteForPlace(state.placeId) : undefined;
       return {
         ...state,
         offerKobo: stepOffer(
           state.offerKobo,
           action.direction,
-          quote?.minKobo ?? defaultQuote().minKobo,
+          state.serverMinKobo ?? quote?.minKobo ?? defaultQuote().minKobo,
         ),
       };
     }
+    case 'armLiveFare':
+      return {
+        ...state,
+        route: 'fare',
+        placeId: 'live',
+        offerKobo: action.offerKobo,
+        serverMinKobo: action.minKobo,
+        notice: null,
+        offerId: null,
+        hiddenOfferIds: [],
+      };
+    case 'lockLiveOffer':
+      return { ...state, offerId: action.id, route: 'arriving', live: false, notice: null };
     case 'toggleAutoAccept':
       return { ...state, autoAccept: !state.autoAccept };
     case 'request': {

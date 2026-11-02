@@ -21,3 +21,11 @@ export function readPublicSupabase(env: {
   }
   return { url, anonKey };
 }
+
+/** Blank means Places search and road distance stay on the Ikeja sample. */
+export function readGoogleMapsKey(env: {
+  EXPO_PUBLIC_GOOGLE_MAPS_API_KEY?: string;
+}): string | null {
+  const key = (env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '').trim();
+  return key === '' ? null : key;
+}

@@ -21,6 +21,7 @@ export type RiderState = {
   route: RiderRoute;
   online: boolean;
   seats: Seats;
+  passengerOfferKobo: number;
   counterKobo: number;
   decision: 'none' | 'accept' | 'counter' | 'skip';
   pin: string;
@@ -37,7 +38,9 @@ export type RiderState = {
 export type RiderAction =
   | { type: 'toggleOnline' }
   | { type: 'setSeats'; seats: Seats }
-  | { type: 'openRequest' }
+  | { type: 'openRequest'; offerKobo?: number }
+  | { type: 'syncOffer'; offerKobo: number }
+  | { type: 'notSelected' }
   | { type: 'accept' }
   | { type: 'openCounter' }
   | { type: 'setCounter'; amountKobo: number }
@@ -62,11 +65,13 @@ export type RiderAction =
 const passengerOffer = () => defaultQuote().midpointKobo;
 
 function fresh(route: RiderRoute, extras: Partial<RiderState> = {}): RiderState {
+  const passengerOfferKobo = extras.passengerOfferKobo ?? passengerOffer();
   return {
     route,
     online: route !== 'offline',
     seats: 2,
-    counterKobo: passengerOffer() + 10_000,
+    passengerOfferKobo,
+    counterKobo: extras.counterKobo ?? passengerOfferKobo + 10_000,
     decision: 'none',
     pin: '',
     pinAttempts: 0,
@@ -81,12 +86,12 @@ function fresh(route: RiderRoute, extras: Partial<RiderState> = {}): RiderState 
   };
 }
 
-export function seedRider(route: RiderRoute): RiderState {
-  return fresh(route);
+export function seedRider(route: RiderRoute, seats?: Seats): RiderState {
+  return seats === undefined ? fresh(route) : fresh(route, { seats });
 }
 
 export function riderReducer(state: RiderState, action: RiderAction): RiderState {
-  const offer = passengerOffer();
+  const offer = state.passengerOfferKobo;
   switch (action.type) {
     case 'dismissNotice':
       return { ...state, notice: null };
@@ -96,11 +101,38 @@ export function riderReducer(state: RiderState, action: RiderAction): RiderState
     }
     case 'setSeats':
       return { ...state, seats: action.seats };
-    case 'openRequest':
+    case 'openRequest': {
       if (!state.online) {
         return state;
       }
-      return { ...state, route: 'request', live: true, decision: 'none', notice: null };
+      const passengerOfferKobo = action.offerKobo ?? state.passengerOfferKobo;
+      return {
+        ...state,
+        route: 'request',
+        live: true,
+        decision: 'none',
+        notice: null,
+        passengerOfferKobo,
+        counterKobo: passengerOfferKobo + 10_000,
+      };
+    }
+    case 'syncOffer': {
+      if (action.offerKobo === state.passengerOfferKobo) {
+        return state;
+      }
+      return {
+        ...state,
+        passengerOfferKobo: action.offerKobo,
+        counterKobo: Math.max(state.counterKobo, action.offerKobo + FARE_STEP_KOBO),
+      };
+    }
+    case 'notSelected':
+      return fresh(state.online ? 'home' : 'offline', {
+        online: state.online,
+        seats: state.seats,
+        passengerOfferKobo: state.passengerOfferKobo,
+        notice: 'Not selected. You are still online.',
+      });
     case 'accept':
       return { ...state, route: 'waiting', decision: 'accept', live: false };
     case 'openCounter':
@@ -126,6 +158,7 @@ export function riderReducer(state: RiderState, action: RiderAction): RiderState
       return fresh(state.online ? 'home' : 'offline', {
         online: state.online,
         seats: state.seats,
+        passengerOfferKobo: state.passengerOfferKobo,
         notice: 'Skipped. Skipping does not change your rating.',
       });
     case 'expire':
@@ -135,6 +168,7 @@ export function riderReducer(state: RiderState, action: RiderAction): RiderState
       return fresh(state.online ? 'home' : 'offline', {
         online: state.online,
         seats: state.seats,
+        passengerOfferKobo: state.passengerOfferKobo,
         notice: 'Request expired.',
       });
     case 'demoChosen':

@@ -25,6 +25,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useMemo, useReducer, useState, type ReactNode } from 'react';
 
 import { AccountProvider } from './account';
+import { BookingProvider } from './booking';
 
 const previewScreens = ['phone', 'code', 'name', 'app'] as const;
 
@@ -113,7 +114,7 @@ export function PassengerSession({ children }: { children: ReactNode }) {
       <AccountProvider
         value={{ phoneMask: '+234 80 ••• ••00', signOut: () => setLocalPreview(null) }}
       >
-        {children}
+        <BookingProvider client={null}>{children}</BookingProvider>
       </AccountProvider>
     );
   }
@@ -330,7 +331,7 @@ export function PassengerSession({ children }: { children: ReactNode }) {
         signOut: () => void signOut(),
       }}
     >
-      {children}
+      <BookingProvider client={supabase}>{children}</BookingProvider>
     </AccountProvider>
   );
 }

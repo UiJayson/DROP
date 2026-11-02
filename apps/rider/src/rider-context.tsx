@@ -1,7 +1,14 @@
 import { readInitialScreen } from '@drop/ui';
 import { createContext, useContext, useReducer, type Dispatch, type ReactNode } from 'react';
 
-import { riderReducer, riderRoutes, seedRider, type RiderAction, type RiderState } from './flow';
+import {
+  riderReducer,
+  riderRoutes,
+  seedRider,
+  type RiderAction,
+  type RiderState,
+  type Seats,
+} from './flow';
 
 type RiderApi = {
   state: RiderState;
@@ -12,13 +19,20 @@ const RiderContext = createContext<RiderApi | null>(null);
 
 export function RiderProvider({
   startOffline = false,
+  initialSeats,
   children,
 }: {
   startOffline?: boolean;
+  initialSeats?: Seats;
   children: ReactNode;
 }) {
   const initial = startOffline ? 'offline' : readInitialScreen(riderRoutes, 'home');
-  const [state, dispatch] = useReducer(riderReducer, initial, seedRider);
+  const [state, dispatch] = useReducer(
+    riderReducer,
+    { route: initial, seats: initialSeats },
+    (seed: { route: (typeof riderRoutes)[number]; seats?: Seats }) =>
+      seedRider(seed.route, seed.seats),
+  );
   return <RiderContext.Provider value={{ state, dispatch }}>{children}</RiderContext.Provider>;
 }
 

@@ -1,6 +1,8 @@
 /**
- * Edge function names from the architecture doc.
- * Calling them is a later milestone. This list is only the contract.
+ * Server action names from the architecture doc.
+ * Matching (fare quote through select) runs as Postgres functions so the
+ * fare lock and the one-trip rule happen in one transaction. The names here
+ * stay in the contract; the apps call the snake_case functions in booking.ts.
  */
 export const edgeFunctionNames = [
   'fare-quote',

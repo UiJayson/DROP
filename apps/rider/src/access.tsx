@@ -2,13 +2,15 @@ import { createContext, useContext, type ReactNode } from 'react';
 
 type RiderAccess = {
   banner: string | null;
-  changeOnline: (online: boolean) => Promise<string | null>;
+  changeOnline: (online: boolean, seats?: number) => Promise<string | null>;
+  changeSeats: (online: boolean, seats: number) => Promise<string | null>;
   signOut: () => void;
 };
 
 const RiderAccessContext = createContext<RiderAccess>({
   banner: null,
   changeOnline: async () => null,
+  changeSeats: async () => null,
   signOut: () => undefined,
 });
 

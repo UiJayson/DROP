@@ -1,9 +1,18 @@
-import { formatNaira, type PrototypeOffer } from '@drop/shared';
-import { Button, DemoBridge, Enter, Header, MapCanvas, Screen, StatusPill } from '@drop/ui';
+import {
+  dropoffMinutes,
+  etaMinutes,
+  formatNaira,
+  nairaToKobo,
+  radiusSearchLabel,
+  type PrototypeOffer,
+} from '@drop/shared';
+import { Button, DemoBridge, Enter, Header, MapCanvas, Notice, Screen, StatusPill } from '@drop/ui';
 import { spacing } from '@drop/ui-tokens';
+import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useBooking } from '../booking';
 import { selectedOffer, visibleOffers } from '../flow';
 import { layout } from '../layout';
 import { usePassenger } from '../passenger-context';
@@ -19,13 +28,86 @@ export function MatchScreen() {
   return <Searching />;
 }
 
+function useSecondsLeft(iso: string | null): number | null {
+  const [left, setLeft] = useState<number | null>(null);
+  useEffect(() => {
+    if (!iso) {
+      return undefined;
+    }
+    const tick = () => {
+      setLeft(Math.max(0, Math.ceil((Date.parse(iso) - Date.now()) / 1000)));
+    };
+    const start = setTimeout(tick, 0);
+    const id = setInterval(tick, 1000);
+    return () => {
+      clearTimeout(start);
+      clearInterval(id);
+    };
+  }, [iso]);
+  if (!iso) {
+    return null;
+  }
+  return left;
+}
+
+function useNowMs(): number {
+  const [now, setNow] = useState(0);
+  useEffect(() => {
+    const tick = () => setNow(Date.now());
+    const start = setTimeout(tick, 0);
+    const id = setInterval(tick, 1000);
+    return () => {
+      clearTimeout(start);
+      clearInterval(id);
+    };
+  }, []);
+  return now;
+}
+
+function clock(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  return `${mins}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
 function Searching() {
   const { state, dispatch } = usePassenger();
+  const booking = useBooking();
   const insets = useSafeAreaInsets();
-  const offers = state.route === 'offers' ? visibleOffers(state) : [];
-  const viewing = state.autoAccept
-    ? `Looking for the first rider at ${formatNaira(state.offerKobo)}`
-    : '5 riders are viewing your request';
+  const now = useNowMs();
+  const liveOffers = booking.offers
+    .filter((offer) => offer.status === 'open' && (now === 0 || Date.parse(offer.expiresAt) > now))
+    .map((offer) => ({
+      id: offer.id,
+      name: offer.name,
+      rating: offer.rating,
+      rides: offer.rides,
+      plate: offer.plate,
+      colour: offer.colour,
+      etaMin: etaMinutes(offer.etaS),
+      dropoffMin: dropoffMinutes(offer.seats),
+      seats: offer.seats,
+      amountKobo: offer.amountKobo,
+      kind: offer.kind,
+    }));
+  const offers =
+    booking.enabled && state.route === 'offers'
+      ? liveOffers
+      : state.route === 'offers'
+        ? visibleOffers(state)
+        : [];
+  const left = useSecondsLeft(booking.enabled ? booking.expiresAt : null);
+  useEffect(() => {
+    if (booking.enabled && state.route === 'searching' && left === 0) {
+      dispatch({ type: 'noOffers' });
+    }
+  }, [booking.enabled, dispatch, left, state.route]);
+  const viewing = booking.enabled
+    ? booking.recipientCount === 0
+      ? 'Looking for Kekes near your pickup.'
+      : `${booking.recipientCount} ${booking.recipientCount === 1 ? 'rider has' : 'riders have'} your request.`
+    : state.autoAccept
+      ? `Looking for the first rider at ${formatNaira(state.offerKobo)}`
+      : '5 riders are viewing your request';
 
   return (
     <Screen testID={state.route === 'offers' ? 'screen-offers' : 'screen-searching'}>
@@ -49,7 +131,10 @@ function Searching() {
             <>
               <Text style={layout.footnote}>Time left</Text>
               <Text style={layout.fare} accessibilityLiveRegion="polite">
-                1:00
+                {left == null ? '1:00' : clock(left)}
+              </Text>
+              <Text style={layout.footnote}>
+                {radiusSearchLabel(booking.enabled ? booking.radiusM : null)}
               </Text>
               <Text style={layout.body}>{viewing}</Text>
               <Text style={layout.headline}>{formatNaira(state.offerKobo)} · Cash</Text>
@@ -65,16 +150,25 @@ function Searching() {
             </>
           )}
         </ScrollView>
-        <Button
-          label="No riders yet"
-          variant="secondary"
-          onPress={() => dispatch({ type: 'noOffers' })}
-          testID="no-offers"
-        />
+        {booking.enabled ? null : (
+          <Button
+            label="No riders yet"
+            variant="secondary"
+            onPress={() => dispatch({ type: 'noOffers' })}
+            testID="no-offers"
+          />
+        )}
+        {booking.error ? <Notice message={booking.error} /> : null}
         <Button
           label="Cancel"
           variant="danger"
-          onPress={() => dispatch({ type: 'cancel' })}
+          onPress={() => {
+            if (!booking.enabled) {
+              dispatch({ type: 'cancel' });
+              return;
+            }
+            void booking.cancel().then(() => dispatch({ type: 'cancel' }));
+          }}
           testID="cancel-search"
         />
       </View>
@@ -142,7 +236,19 @@ function OfferCard({ offer, index }: { offer: PrototypeOffer; index: number }) {
 
 function NoOffers() {
   const { state, dispatch } = usePassenger();
+  const booking = useBooking();
   const insets = useSafeAreaInsets();
+  function raise(naira: 100 | 200) {
+    if (!booking.enabled) {
+      dispatch({ type: 'raise', naira });
+      return;
+    }
+    void booking.raise(state.offerKobo + nairaToKobo(naira)).then((ok) => {
+      if (ok) {
+        dispatch({ type: 'raise', naira });
+      }
+    });
+  }
   return (
     <Screen testID="screen-no-offers">
       <View style={[layout.center, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -153,21 +259,27 @@ function NoOffers() {
           Your offer is still {formatNaira(state.offerKobo)}. A higher fare reaches Kekes further
           out. Or we can tell you when someone is free.
         </Text>
-        <Button
-          label="Raise by ₦100"
-          onPress={() => dispatch({ type: 'raise', naira: 100 })}
-          testID="raise-100"
-        />
+        <Button label="Raise by ₦100" onPress={() => raise(100)} testID="raise-100" />
         <Button
           label="Raise by ₦200"
           variant="secondary"
-          onPress={() => dispatch({ type: 'raise', naira: 200 })}
+          onPress={() => raise(200)}
           testID="raise-200"
         />
         <Button
           label="Keep waiting"
           variant="secondary"
-          onPress={() => dispatch({ type: 'keepWaiting' })}
+          onPress={() => {
+            if (!booking.enabled) {
+              dispatch({ type: 'keepWaiting' });
+              return;
+            }
+            void booking.keepWaiting().then((ok) => {
+              if (ok) {
+                dispatch({ type: 'keepWaiting' });
+              }
+            });
+          }}
           testID="keep-waiting"
         />
         <Button
@@ -176,7 +288,18 @@ function NoOffers() {
           onPress={() => dispatch({ type: 'setArea', area: 'satellite' })}
           testID="notify-from-search"
         />
-        <Button label="Cancel" variant="danger" onPress={() => dispatch({ type: 'cancel' })} />
+        {booking.error ? <Notice message={booking.error} /> : null}
+        <Button
+          label="Cancel"
+          variant="danger"
+          onPress={() => {
+            if (!booking.enabled) {
+              dispatch({ type: 'cancel' });
+              return;
+            }
+            void booking.cancel().then(() => dispatch({ type: 'cancel' }));
+          }}
+        />
       </View>
     </Screen>
   );
@@ -184,8 +307,24 @@ function NoOffers() {
 
 function OfferSelected() {
   const { state, dispatch } = usePassenger();
+  const booking = useBooking();
   const insets = useSafeAreaInsets();
-  const offer = selectedOffer(state);
+  const live = booking.offers.find((item) => item.id === state.offerId);
+  const offer = live
+    ? {
+        id: live.id,
+        name: live.name,
+        rating: live.rating,
+        rides: live.rides,
+        plate: live.plate,
+        colour: live.colour,
+        etaMin: etaMinutes(live.etaS),
+        dropoffMin: dropoffMinutes(live.seats),
+        seats: live.seats,
+        amountKobo: live.amountKobo,
+        kind: live.kind,
+      }
+    : selectedOffer(state);
   if (!offer) {
     return (
       <DemoBridge
@@ -228,7 +367,18 @@ function OfferSelected() {
       <View style={[layout.footer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <Button
           label="Confirm rider"
-          onPress={() => dispatch({ type: 'confirmOffer' })}
+          disabled={booking.busy}
+          onPress={() => {
+            if (!booking.enabled || !state.offerId) {
+              dispatch({ type: 'confirmOffer' });
+              return;
+            }
+            void booking.select(state.offerId).then((ok) => {
+              if (ok) {
+                dispatch({ type: 'confirmOffer' });
+              }
+            });
+          }}
           testID="confirm-rider"
         />
       </View>

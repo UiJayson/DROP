@@ -25,15 +25,53 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useRiderAccess } from '../access';
+import { useBoard } from '../board';
 import type { Seats } from '../flow';
 import { layout } from '../layout';
 import { useRider } from '../rider-context';
 
 const offerKobo = defaultQuote().midpointKobo;
 
+function IncomingWatch() {
+  const board = useBoard();
+  const { state, dispatch } = useRider();
+  useEffect(() => {
+    if (!board.enabled || !board.incoming || !state.online) {
+      return;
+    }
+    if (state.route === 'home') {
+      dispatch({ type: 'openRequest', offerKobo: board.incoming.offerKobo });
+    } else if (state.route === 'request' || state.route === 'counter') {
+      dispatch({ type: 'syncOffer', offerKobo: board.incoming.offerKobo });
+    }
+  }, [board.enabled, board.incoming, dispatch, state.online, state.route]);
+
+  useEffect(() => {
+    if (!board.enabled || state.route !== 'waiting') {
+      return;
+    }
+    if (board.outcome === 'selected') {
+      dispatch({ type: 'demoChosen' });
+    } else if (board.outcome === 'lost') {
+      dispatch({ type: 'notSelected' });
+    }
+  }, [board.enabled, board.outcome, dispatch, state.route]);
+
+  return null;
+}
+
 export function RiderSwitch() {
   const { state } = useRider();
-  switch (state.route) {
+  return (
+    <>
+      <IncomingWatch />
+      <RiderRoute route={state.route} />
+    </>
+  );
+}
+
+function RiderRoute({ route }: { route: ReturnType<typeof useRider>['state']['route'] }) {
+  switch (route) {
     case 'home':
     case 'offline':
       return <Home />;
@@ -63,6 +101,7 @@ export function RiderSwitch() {
 function Home() {
   const { state, dispatch } = useRider();
   const access = useRiderAccess();
+  const board = useBoard();
   const [gateError, setGateError] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
   const today = earlierTrips.reduce((sum, trip) => sum + trip.fareKobo, 0);
@@ -117,7 +156,7 @@ function Home() {
             void tapHaptic('medium');
             void (async () => {
               const next = !state.online;
-              const message = await access.changeOnline(next);
+              const message = await access.changeOnline(next, state.seats);
               if (message) {
                 setGateError(message);
                 return;
@@ -152,7 +191,15 @@ function Home() {
                     accessibilityState={{ selected: on }}
                     onPress={() => {
                       void tapHaptic('selection');
-                      dispatch({ type: 'setSeats', seats: count });
+                      void (async () => {
+                        const message = await access.changeSeats(state.online, count);
+                        if (message) {
+                          setGateError(message);
+                          return;
+                        }
+                        setGateError(null);
+                        dispatch({ type: 'setSeats', seats: count });
+                      })();
                     }}
                     style={[layout.seat, on && layout.seatOn]}
                     testID={`seats-${count}`}
@@ -164,12 +211,17 @@ function Home() {
             </View>
           </View>
         ) : (
-          <Text style={layout.secondary}>Go online to receive DROP requests near Festac.</Text>
+          <Text style={layout.secondary}>
+            {board.enabled
+              ? 'Go online to receive DROP requests near you.'
+              : 'Go online to receive DROP requests near Festac.'}
+          </Text>
         )}
         {access.banner ? <Notice message={access.banner} /> : null}
         {gateError ? <Notice message={gateError} /> : null}
         {state.notice ? <Notice message={state.notice} /> : null}
-        {state.online ? (
+        {board.error ? <Notice message={board.error} /> : null}
+        {state.online && !board.enabled ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="New DROP request"
@@ -204,10 +256,21 @@ function Home() {
 
 function Request() {
   const { state, dispatch } = useRider();
+  const board = useBoard();
   const insets = useSafeAreaInsets();
+  const card = board.enabled ? board.incoming : null;
+  const fare = card?.offerKobo ?? state.passengerOfferKobo;
   const [left, setLeft] = useState<number>(riderRequest.countdownSec);
 
   useEffect(() => {
+    if (card?.expiresAt) {
+      const tick = () => {
+        setLeft(Math.max(0, Math.ceil((Date.parse(card.expiresAt) - Date.now()) / 1000)));
+      };
+      tick();
+      const timer = setInterval(tick, 1000);
+      return () => clearInterval(timer);
+    }
     if (!state.live) {
       return undefined;
     }
@@ -216,7 +279,7 @@ function Request() {
       setLeft((value) => (value <= 1 ? 0 : value - 1));
     }, 1000);
     return () => clearInterval(timer);
-  }, [state.live]);
+  }, [card?.expiresAt, state.live]);
 
   useEffect(() => {
     if (state.live && left === 0) {
@@ -244,25 +307,50 @@ function Request() {
         <Text accessibilityRole="header" style={layout.title}>
           DROP request
         </Text>
-        <Text style={layout.fare}>{formatNaira(offerKobo)}</Text>
+        <Text style={layout.fare}>{formatNaira(fare)}</Text>
         <View style={layout.card}>
-          <Text style={layout.footnote}>Pickup · {riderRequest.pickupKm} km</Text>
-          <Text style={layout.headline}>{riderRequest.pickupTitle}</Text>
-          <Text style={layout.body}>{riderRequest.pickupNote}</Text>
+          <Text style={layout.footnote}>
+            Pickup ·{' '}
+            {card
+              ? `${(card.distanceToPickupM / 1000).toFixed(1)} km`
+              : `${riderRequest.pickupKm} km`}
+          </Text>
+          <Text style={layout.headline}>
+            {card ? card.pickupNote || 'Pickup pin' : riderRequest.pickupTitle}
+          </Text>
+          <Text style={layout.body}>{card?.pickupNote ?? riderRequest.pickupNote}</Text>
         </View>
         <View style={layout.card}>
-          <Text style={layout.footnote}>Drop-off · {riderRequest.tripKm} km trip</Text>
-          <Text style={layout.headline}>{riderRequest.destination}</Text>
-          <Text style={layout.secondary}>Passenger {riderRequest.passengerName} · Cash</Text>
+          <Text style={layout.footnote}>
+            Drop-off ·{' '}
+            {card
+              ? `${(card.tripDistanceM / 1000).toFixed(1)} km trip`
+              : `${riderRequest.tripKm} km trip`}
+          </Text>
+          <Text style={layout.headline}>{card?.dropoffLabel ?? riderRequest.destination}</Text>
+          <Text style={layout.secondary}>
+            Passenger {card?.passengerName ?? riderRequest.passengerName} · Cash
+          </Text>
         </View>
         {state.seats > 0 ? (
           <Notice
-            message={`You are carrying ${state.seats}. The ETA shown to ${riderRequest.passengerName} includes dropping them first.`}
+            message={`You are carrying ${state.seats}. The ETA shown to ${card?.passengerName ?? riderRequest.passengerName} includes dropping them first.`}
           />
         ) : null}
+        {board.error ? <Notice message={board.error} /> : null}
         <Button
-          label={`Accept ${formatNaira(offerKobo)}`}
-          onPress={() => dispatch({ type: 'accept' })}
+          label={`Accept ${formatNaira(fare)}`}
+          onPress={() => {
+            if (!board.enabled) {
+              dispatch({ type: 'accept' });
+              return;
+            }
+            void board.accept().then((message) => {
+              if (!message) {
+                dispatch({ type: 'accept' });
+              }
+            });
+          }}
           testID="accept"
         />
         <Button
@@ -274,7 +362,10 @@ function Request() {
         <Button
           label="Skip"
           variant="ghost"
-          onPress={() => dispatch({ type: 'skip' })}
+          onPress={() => {
+            board.skip();
+            dispatch({ type: 'skip' });
+          }}
           testID="skip"
         />
       </ScrollView>
@@ -284,7 +375,10 @@ function Request() {
 
 function Counter() {
   const { state, dispatch } = useRider();
+  const board = useBoard();
   const insets = useSafeAreaInsets();
+  const floor = state.passengerOfferKobo;
+  const who = board.incoming?.passengerName ?? 'Ada';
   const presets = [10_000, 20_000];
   return (
     <Screen testID="screen-counter">
@@ -293,16 +387,16 @@ function Counter() {
       </View>
       <ScrollView contentContainerStyle={[layout.pad, { paddingBottom: spacing.lg }]}>
         <Text style={layout.secondary}>
-          One counter on this request. Ada offered {formatNaira(offerKobo)}.
+          One counter on this request. {who} offered {formatNaira(floor)}.
         </Text>
         <FareStepper
           amountKobo={state.counterKobo}
-          minKobo={offerKobo + 5_000}
+          minKobo={floor + 5_000}
           onStep={(direction) => dispatch({ type: 'stepCounter', direction })}
         />
         <View style={layout.row}>
           {presets.map((extra) => {
-            const amount = offerKobo + extra;
+            const amount = floor + extra;
             const on = state.counterKobo === amount;
             return (
               <View key={extra} style={layout.grow}>
@@ -321,7 +415,17 @@ function Counter() {
       <View style={[layout.pad, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <Button
           label={`Send ${formatNaira(state.counterKobo)}`}
-          onPress={() => dispatch({ type: 'sendCounter' })}
+          onPress={() => {
+            if (!board.enabled) {
+              dispatch({ type: 'sendCounter' });
+              return;
+            }
+            void board.counter(state.counterKobo).then((message) => {
+              if (!message) {
+                dispatch({ type: 'sendCounter' });
+              }
+            });
+          }}
           testID="send-counter"
         />
       </View>
@@ -331,27 +435,37 @@ function Counter() {
 
 function Waiting() {
   const { state, dispatch } = useRider();
+  const board = useBoard();
   const insets = useSafeAreaInsets();
-  const amount = state.decision === 'counter' ? state.counterKobo : offerKobo;
+  const amount = state.decision === 'counter' ? state.counterKobo : state.passengerOfferKobo;
+  const who = board.incoming?.passengerName ?? 'Ada';
   return (
     <Screen testID="screen-waiting">
       <View style={[layout.center, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         <Text accessibilityRole="header" style={layout.title}>
-          Waiting for Ada
+          Waiting for {who}
         </Text>
         <Text style={layout.secondary}>
-          You {state.decision === 'counter' ? 'countered' : 'accepted'} {formatNaira(amount)}. She
+          You {state.decision === 'counter' ? 'countered' : 'accepted'} {formatNaira(amount)}. {who}{' '}
           is choosing a rider.
         </Text>
-        <DemoBridge
-          label="Prototype · Ada chose you"
-          onPress={() => dispatch({ type: 'demoChosen' })}
-          testID="demo-chosen"
-        />
+        {board.enabled ? null : (
+          <DemoBridge
+            label="Prototype · Ada chose you"
+            onPress={() => dispatch({ type: 'demoChosen' })}
+            testID="demo-chosen"
+          />
+        )}
         <Button
           label="Withdraw offer"
           variant="danger"
-          onPress={() => dispatch({ type: 'skip' })}
+          onPress={() => {
+            if (!board.enabled) {
+              dispatch({ type: 'skip' });
+              return;
+            }
+            void board.withdraw().then(() => dispatch({ type: 'skip' }));
+          }}
         />
       </View>
     </Screen>
