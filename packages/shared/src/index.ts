@@ -46,4 +46,26 @@ export {
 } from './money';
 export { product } from './product';
 export type { AppAudience } from './product';
+export {
+  BOARDING_PIN,
+  areas,
+  buildOffers,
+  defaultPlaceId,
+  defaultQuote,
+  earlierTrips,
+  festacFareRule,
+  filterPlaces,
+  passengerProfile,
+  pickup,
+  placeById,
+  places,
+  quoteForDistance,
+  quoteForPlace,
+  ratingTags,
+  rebookPlaceId,
+  riderProfile,
+  riderRequest,
+  weekExtraKobo,
+} from './prototype';
+export type { AreaId, EarningTrip, Place, PrototypeOffer } from './prototype';
 export { isSentryDsnConfigured } from './sentry';
