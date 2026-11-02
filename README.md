@@ -6,11 +6,11 @@ This folder is the starting point for the project. It has the passenger app, the
 
 ## The three apps
 
-| App       | Who it is for                | What you see today                     |
-| --------- | ---------------------------- | -------------------------------------- |
-| Passenger | Someone who wants a ride     | A black screen with **DROP** in yellow |
-| Rider     | A Keke rider                 | The same kind of welcome screen        |
-| Admin     | The DROP team, on a computer | A welcome page in the browser          |
+| App       | Who it is for                | What you see today                                  |
+| --------- | ---------------------------- | --------------------------------------------------- |
+| Passenger | Someone who wants a ride     | Phone sign-in, then the booking prototype           |
+| Rider     | A Keke rider                 | Phone sign-in, then licence and NIN signup          |
+| Admin     | The DROP team, on a computer | A list of riders waiting to be approved or rejected |
 
 ## What to install first
 
@@ -37,7 +37,7 @@ pnpm --filter @drop/admin dev
 
 `pnpm install` can take a few minutes the first time.
 
-Then open [http://localhost:3000](http://localhost:3000). You should see a black page, the word DROP in yellow, the word Admin, and a yellow label that says “Project setup”.
+Then open [http://localhost:3000](http://localhost:3000). You should see a black page and a sample rider waiting for review. The buttons on that sample do not save anything. A real list appears after the Supabase URL and anon key are filled in, and after an admin signs in with their phone.
 
 The phone apps:
 
@@ -64,7 +64,7 @@ pnpm dev
 
 Press Ctrl+C in the terminal to stop.
 
-You do not need to fill in any passwords to see these screens.
+You do not need to fill in any passwords to see these screens. Without a Supabase project, the phone apps explain that text messages are not connected yet, and they offer a preview of the screens.
 
 ## The database
 
@@ -79,6 +79,10 @@ pnpm db:apply
 
 `pnpm db:up` downloads Postgres (the same database Supabase uses) and starts it. The first download is large. `pnpm db:apply` creates the tables, loads the sample Lagos zone, and checks that a stranger cannot read private rows.
 
+Run those two commands only on the database on your computer, or on a Supabase project you created for practice. Do not point them at a live database that already has real people in it.
+
+Rider photos are stored in a private bucket named `rider-documents`. A rider can open only their own files. An admin opens a link that expires after one minute. The full NIN is not stored. See `docs/06-signup-and-nin.md` for the sign-in setup and the NIN companies still to choose from.
+
 The database on your computer uses the password `postgres`. That password is only for this local copy. Do not reuse it anywhere real.
 
 To stop it:
@@ -92,7 +96,7 @@ Sample data (not a real service area):
 - A rectangle around Ikeja called “Lagos — Ikeja test zone”.
 - A small “restricted” block inside it, so later tests can block trips there. It is not an official Lagos boundary.
 - A sample fare rule: ₦200 to start, ₦150 per kilometre, and a ₦300 minimum. These numbers are examples.
-- Three pretend people: Ada (passenger, +2348000000001), Chinedu (rider, yellow Keke plate `LAG-TEST-001`), and Funke (admin). Their local password is `drop-local-only`. The apps do not have a sign-in screen yet.
+- Four pretend people: Ada (passenger, +2348000000001), Chinedu (approved rider, yellow Keke plate `LAG-TEST-001`), Funke (admin), and Emeka (rider waiting for review, plate `KJA-204-AB`). Their local password is `drop-local-only`. On a local Supabase stack their text-message code is `123456`. That code is not sent to a real phone.
 
 `pnpm db:start` launches the full Supabase stack, including the Studio website at [http://127.0.0.1:54323](http://127.0.0.1:54323). You do not need that to load the tables.
 
@@ -127,4 +131,4 @@ pnpm test
 
 ## What is not built yet
 
-Sign-in, maps, asking for a ride, rider offers, the trip PIN, cash confirmation, and the real admin tools. Those are the next milestones. This setup only makes a safe base to build them on.
+Real map booking, rider offers, the trip PIN, and cash confirmation are still the prototype you can tap through after sign-in. A live NIN company and a live SMS provider are not connected yet. Those are the next choices. See `docs/06-signup-and-nin.md`.

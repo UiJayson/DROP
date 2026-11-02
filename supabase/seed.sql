@@ -249,6 +249,14 @@ select public._seed_local_auth_user(
   'Chinedu Adeyemi'
 );
 
+select public._seed_local_auth_user(
+  '66666666-6666-4666-8666-666666666666',
+  '+2348000000004',
+  'emeka.rider@drop.test',
+  'rider',
+  'Emeka Nwosu'
+);
+
 drop function public._seed_local_auth_user(uuid, text, text, text, text);
 
 -- Profile phone is set from auth.users when that column exists. Older database
@@ -256,6 +264,7 @@ drop function public._seed_local_auth_user(uuid, text, text, text, text);
 update public.profiles set phone = '+2348000000001' where id = '11111111-1111-4111-8111-111111111111';
 update public.profiles set phone = '+2348000000003' where id = '33333333-3333-4333-8333-333333333333';
 update public.profiles set phone = '+2348000000002' where id = '22222222-2222-4222-8222-222222222222';
+update public.profiles set phone = '+2348000000004' where id = '66666666-6666-4666-8666-666666666666';
 
 insert into public.service_zones (id, name, area, type, active)
 values
@@ -302,7 +311,9 @@ values (
 insert into public.riders (
   profile_id,
   verification_status,
+  licence_number,
   nin_last4,
+  nin_reference,
   is_online,
   seats_occupied,
   approved_by,
@@ -311,18 +322,54 @@ insert into public.riders (
 values (
   '22222222-2222-4222-8222-222222222222',
   'approved',
+  'LSD1029384',
   '1234',
+  'mock_1234',
   false,
   0,
   '33333333-3333-4333-8333-333333333333',
   now()
 );
 
-insert into public.kekes (id, rider_id, plate_number, colour, active)
+-- Waiting for a person on the admin page. Not approved, so this rider cannot go online.
+insert into public.riders (
+  profile_id,
+  verification_status,
+  licence_number,
+  licence_photo_path,
+  selfie_path,
+  nin_last4,
+  nin_reference,
+  is_online,
+  rejection_reason
+)
 values (
-  'cccccccc-cccc-4ccc-8ccc-ccccccccccc1',
-  '22222222-2222-4222-8222-222222222222',
-  'LAG-TEST-001',
-  'Yellow',
-  true
+  '66666666-6666-4666-8666-666666666666',
+  'pending',
+  'LSD556677',
+  '66666666-6666-4666-8666-666666666666/licence.jpg',
+  '66666666-6666-4666-8666-666666666666/selfie.jpg',
+  '6789',
+  'mock_6789',
+  false,
+  null
 );
+
+insert into public.kekes (id, rider_id, plate_number, colour, photo_path, active)
+values
+  (
+    'cccccccc-cccc-4ccc-8ccc-ccccccccccc1',
+    '22222222-2222-4222-8222-222222222222',
+    'LAG-TEST-001',
+    'Yellow',
+    null,
+    true
+  ),
+  (
+    'cccccccc-cccc-4ccc-8ccc-ccccccccccc2',
+    '66666666-6666-4666-8666-666666666666',
+    'KJA-204-AB',
+    'Yellow',
+    '66666666-6666-4666-8666-666666666666/keke.jpg',
+    true
+  );

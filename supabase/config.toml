@@ -199,7 +199,7 @@ password_requirements = ""
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
 email_sent = 2
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
-sms_sent = 30
+sms_sent = 8
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
 anonymous_users = 30
 # Number of sessions that can be refreshed in a 5 minute interval per IP address.
@@ -257,20 +257,24 @@ otp_expiry = 3600
 # content_path = "./supabase/templates/password_changed_notification.html"
 
 [auth.sms]
-# Allow/disallow the phone provider. When false, users can't sign up or sign in with SMS.
-# To block new signups only, set enable_signup = false under [auth] instead.
-enabled = false
+# Phone sign-in for Nigerian numbers. Local test codes are below.
+# Production needs a real SMS provider (Twilio, MessageBird, Vonage, or Textlocal).
+# Do not put provider secrets in this file. Use env() as the Twilio block does.
+enabled = true
 # If enabled, users need to confirm their phone number before signing in.
 enable_confirmations = false
 # Template for sending OTP to users
-template = "Your code is {{ .Code }}"
-# Controls the minimum amount of time that must pass before sending another sms otp.
-max_frequency = "5s"
+template = "Your DROP code is {{ .Code }}"
+# At most one text message per minute to the same number.
+max_frequency = "60s"
 
-# Use pre-defined map of phone number to OTP for testing.
-# Keys are the phone number with country code and without the + prefix.
-# [auth.sms.test_otp]
-# 14152127777 = "123456"
+# Local numbers only. Keys have no + prefix. These are not live SMS messages.
+# 800 is a reserved range used by the sample people in supabase/seed.sql.
+[auth.sms.test_otp]
+2348000000001 = "123456"
+2348000000002 = "123456"
+2348000000003 = "123456"
+2348000000004 = "123456"
 
 # Configure logged in session timeouts.
 # [auth.sessions]

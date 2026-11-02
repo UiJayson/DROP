@@ -16,11 +16,24 @@ export function readInitialScreen<T extends string>(allowed: readonly T[], fallb
   return fallback;
 }
 
+export function readPreview<T extends string>(allowed: readonly T[]): T | null {
+  const search = locationSearch();
+  if (!search) {
+    return null;
+  }
+  const value = new URLSearchParams(search).get('preview');
+  if (value && allowed.some((item) => item === value)) {
+    return value as T;
+  }
+  return null;
+}
+
 /** Deep-linked screenshots skip motion so captures are stable. */
 export function prefersStaticMotion(): boolean {
   const search = locationSearch();
   if (!search) {
     return false;
   }
-  return new URLSearchParams(search).has('screen');
+  const params = new URLSearchParams(search);
+  return params.has('screen') || params.has('preview');
 }

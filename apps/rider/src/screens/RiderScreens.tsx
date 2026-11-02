@@ -24,6 +24,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useRiderAccess } from '../access';
 import type { Seats } from '../flow';
 import { layout } from '../layout';
 import { useRider } from '../rider-context';
@@ -61,6 +62,8 @@ export function RiderSwitch() {
 
 function Home() {
   const { state, dispatch } = useRider();
+  const access = useRiderAccess();
+  const [gateError, setGateError] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
   const today = earlierTrips.reduce((sum, trip) => sum + trip.fareKobo, 0);
   const shown = state.completed ? today + offerKobo : today;
@@ -112,7 +115,16 @@ function Home() {
           accessibilityState={{ checked: state.online }}
           onPress={() => {
             void tapHaptic('medium');
-            dispatch({ type: 'toggleOnline' });
+            void (async () => {
+              const next = !state.online;
+              const message = await access.changeOnline(next);
+              if (message) {
+                setGateError(message);
+                return;
+              }
+              setGateError(null);
+              dispatch({ type: 'toggleOnline' });
+            })();
           }}
           style={[layout.online, state.online ? layout.onlineOn : layout.onlineOff]}
           testID="online-toggle"
@@ -154,6 +166,8 @@ function Home() {
         ) : (
           <Text style={layout.secondary}>Go online to receive DROP requests near Festac.</Text>
         )}
+        {access.banner ? <Notice message={access.banner} /> : null}
+        {gateError ? <Notice message={gateError} /> : null}
         {state.notice ? <Notice message={state.notice} /> : null}
         {state.online ? (
           <Pressable
@@ -182,6 +196,7 @@ function Home() {
           <Text style={layout.footnote}>Today</Text>
           <Text style={layout.headline}>{formatNaira(shown)}</Text>
         </Pressable>
+        <Button label="Sign out" variant="ghost" onPress={access.signOut} testID="sign-out" />
       </ScrollView>
     </Screen>
   );

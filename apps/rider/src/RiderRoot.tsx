@@ -1,14 +1,11 @@
 import { AppShell } from '@drop/ui';
 
-import { RiderProvider } from './rider-context';
-import { RiderSwitch } from './screens/RiderScreens';
+import { RiderSession } from './session';
 
 export function RiderRoot() {
   return (
     <AppShell>
-      <RiderProvider>
-        <RiderSwitch />
-      </RiderProvider>
+      <RiderSession />
     </AppShell>
   );
 }
