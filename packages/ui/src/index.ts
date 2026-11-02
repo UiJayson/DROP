@@ -13,6 +13,7 @@ export {
 } from './inputs';
 export { MapCanvas } from './map';
 export { enterSpring, pressInSpring, pressOutSpring } from './motion';
-export { prefersStaticMotion, readInitialScreen } from './routing';
+export { prefersStaticMotion, readInitialScreen, readPreview } from './routing';
 export { AppShell, Screen, useReduceMotion } from './shell';
+export { CodeSignIn, NameSignIn, PhoneSignIn, StatusMessage, useNow } from './sign-in';
 export { typeStyle } from './theme';

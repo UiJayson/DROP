@@ -12,7 +12,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@drop/shared": "workspace:*"
+    "@drop/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.118.0"
   },
   "devDependencies": {
     "typescript": "~6.0.3",

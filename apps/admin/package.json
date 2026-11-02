@@ -10,6 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@drop/api-client": "workspace:*",
     "@drop/shared": "workspace:*",
     "@drop/ui-tokens": "workspace:*",
     "@sentry/nextjs": "^11.10.0",

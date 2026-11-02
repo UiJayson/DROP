@@ -23,6 +23,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "DROP uses photos of you, your licence, and your Keke so passengers can confirm the ride.",
+          "cameraPermission": "DROP uses the camera for your rider photo, your licence, and your Keke."
+        }
+      ]
+    ]
   }
 }

@@ -70,25 +70,42 @@ export function Field({
   onChangeText,
   placeholder,
   testID,
+  hint,
+  keyboardType = 'default',
+  autoCapitalize = 'sentences',
+  secureTextEntry = false,
+  maxLength,
 }: {
   label: string;
   value: string;
   onChangeText: (value: string) => void;
   placeholder?: string;
   testID?: string;
+  hint?: string;
+  keyboardType?: 'default' | 'number-pad' | 'phone-pad';
+  autoCapitalize?: 'none' | 'words' | 'sentences' | 'characters';
+  secureTextEntry?: boolean;
+  maxLength?: number;
 }) {
   return (
     <View style={styles.field}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <TextInput
         accessibilityLabel={label}
+        accessibilityHint={hint}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={colors.textTertiary}
         testID={testID}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        autoCorrect={false}
+        secureTextEntry={secureTextEntry}
+        maxLength={maxLength}
         style={styles.input}
       />
+      {hint ? <Text style={styles.fieldHint}>{hint}</Text> : null}
     </View>
   );
 }
@@ -336,6 +353,10 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   fieldLabel: {
+    color: colors.textSecondary,
+    ...typeStyle('footnote'),
+  },
+  fieldHint: {
     color: colors.textSecondary,
     ...typeStyle('footnote'),
   },

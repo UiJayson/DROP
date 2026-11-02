@@ -22,6 +22,9 @@ echo "Applying seed.sql"
 psql -v ON_ERROR_STOP=1 -f "$root/supabase/seed.sql"
 
 echo "Running database tests"
-psql -v ON_ERROR_STOP=1 -f "$root/supabase/tests/01_foundation.sql"
+for test in "$root"/supabase/tests/*.sql; do
+  echo "Running $(basename "$test")"
+  psql -v ON_ERROR_STOP=1 -f "$test"
+done
 
 echo "Database checks passed."

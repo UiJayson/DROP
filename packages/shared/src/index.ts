@@ -44,6 +44,45 @@ export {
   nairaToKobo,
   roundToStep,
 } from './money';
+export {
+  mockNinProvider,
+  needsProfileName,
+  ninLast4,
+  normalizeLicenceNumber,
+  normalizePersonName,
+  normalizePlate,
+  reviewReasonError,
+  verifyWithMockRules,
+} from './nin';
+export type { NinVerification, NinVerificationInput, NinVerificationProvider } from './nin';
+export {
+  KYC_SIGNED_URL_SECONDS,
+  RIDER_DOCUMENTS_BUCKET,
+  documentPath,
+  initialOnboarding,
+  onboardingBlocker,
+  onboardingReducer,
+  onboardingStepIndex,
+  onboardingSteps,
+  riderEntry,
+  riderMayGoOnline,
+} from './onboarding';
+export type { OnboardingAction, OnboardingDraft, OnboardingStep, RiderEntry } from './onboarding';
+export {
+  OTP_LENGTH,
+  OTP_RESEND_SECONDS,
+  digitsOnly,
+  initialSignInState,
+  isCompleteOtp,
+  mapAuthError,
+  maskNigerianPhone,
+  nigerianPhoneSchema,
+  normalizeNigerianPhone,
+  phoneFromNational,
+  resendWaitSeconds,
+  signInReducer,
+} from './phone';
+export type { SignInAction, SignInState, SignInStep } from './phone';
 export { product } from './product';
 export type { AppAudience } from './product';
 export {

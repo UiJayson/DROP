@@ -10,8 +10,14 @@ type RiderApi = {
 
 const RiderContext = createContext<RiderApi | null>(null);
 
-export function RiderProvider({ children }: { children: ReactNode }) {
-  const initial = readInitialScreen(riderRoutes, 'home');
+export function RiderProvider({
+  startOffline = false,
+  children,
+}: {
+  startOffline?: boolean;
+  children: ReactNode;
+}) {
+  const initial = startOffline ? 'offline' : readInitialScreen(riderRoutes, 'home');
   const [state, dispatch] = useReducer(riderReducer, initial, seedRider);
   return <RiderContext.Provider value={{ state, dispatch }}>{children}</RiderContext.Provider>;
 }

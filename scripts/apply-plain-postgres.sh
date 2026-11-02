@@ -19,10 +19,12 @@ echo "Applying seed.sql"
 sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$db_name" -f "$root/supabase/seed.sql"
 
 if sudo -u postgres psql -d "$db_name" -tAc "select 1 from pg_available_extensions where name = 'pgtap'" | grep -q 1; then
-  echo "Running pgTAP foundation tests"
-  sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$db_name" -f "$root/supabase/tests/01_foundation.sql"
+  for test in "$root"/supabase/tests/*.sql; do
+    echo "Running $(basename "$test")"
+    sudo -u postgres psql -v ON_ERROR_STOP=1 -d "$db_name" -f "$test"
+  done
 else
-  echo "pgTAP is not installed; skipped supabase/tests/01_foundation.sql"
+  echo "pgTAP is not installed; skipped supabase/tests"
 fi
 
 echo "Database ${db_name} is ready."

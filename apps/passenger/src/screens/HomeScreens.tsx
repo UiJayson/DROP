@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useAccount } from '../account';
 import { layout } from '../layout';
 import { usePassenger } from '../passenger-context';
 
@@ -28,6 +29,7 @@ export function HomeScreen() {
             Share trip, call, and report sit on the trip itself. Nothing here interrupts booking.
           </Text>
           <Text style={layout.secondary}>A trusted contact can be added after the prototype.</Text>
+          <SignedInLine />
           <Button label="Back to booking" onPress={() => setSafety(false)} testID="close-safety" />
         </View>
       </Screen>
@@ -135,6 +137,19 @@ export function HomeScreen() {
         )}
       </View>
     </Screen>
+  );
+}
+
+function SignedInLine() {
+  const account = useAccount();
+  if (!account) {
+    return null;
+  }
+  return (
+    <>
+      <Text style={layout.secondary}>Signed in as {account.phoneMask}</Text>
+      <Button label="Sign out" variant="secondary" onPress={account.signOut} testID="sign-out" />
+    </>
   );
 }
 

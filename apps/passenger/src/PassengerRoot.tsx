@@ -1,6 +1,7 @@
 import { AppShell } from '@drop/ui';
 
 import { PassengerProvider, usePassenger } from './passenger-context';
+import { PassengerSession } from './session';
 import { HomeScreen } from './screens/HomeScreens';
 import { MatchScreen } from './screens/MatchScreens';
 import { FareScreen, SearchScreen } from './screens/PlanScreens';
@@ -34,9 +35,11 @@ function PassengerSwitch() {
 export function PassengerRoot() {
   return (
     <AppShell>
-      <PassengerProvider>
-        <PassengerSwitch />
-      </PassengerProvider>
+      <PassengerSession>
+        <PassengerProvider>
+          <PassengerSwitch />
+        </PassengerProvider>
+      </PassengerSession>
     </AppShell>
   );
 }
