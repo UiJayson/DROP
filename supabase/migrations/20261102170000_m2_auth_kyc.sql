@@ -434,31 +434,51 @@ revoke select (
 ) on public.riders from anon;
 
 -- Private bucket for face, licence, and Keke photos.
--- A bare Postgres image has no storage schema; create the minimum so policies can be tested.
--- Hosted Supabase already has these tables, and create-if-not-exists leaves them alone.
-create schema if not exists storage;
+-- Bare Postgres has no storage schema. Create a stand-in only when storage.objects
+-- is absent, so policies can be tested. Hosted Supabase already owns that schema;
+-- creating or granting there raises 42501.
+do $storage$
+begin
+  if exists (
+    select 1
+    from pg_namespace
+    where nspname = 'storage'
+  ) and exists (
+    select 1
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'storage'
+      and c.relname = 'objects'
+      and c.relkind in ('r', 'p')
+  ) then
+    return;
+  end if;
 
-create table if not exists storage.buckets (
-  id text primary key,
-  name text not null,
-  public boolean not null default false
-);
+  create schema if not exists storage;
 
-create table if not exists storage.objects (
-  id uuid primary key default gen_random_uuid(),
-  bucket_id text references storage.buckets (id),
-  name text,
-  owner uuid,
-  created_at timestamptz not null default now(),
-  unique (bucket_id, name)
-);
+  create table if not exists storage.buckets (
+    id text primary key,
+    name text not null,
+    public boolean not null default false
+  );
 
-alter table storage.objects enable row level security;
+  create table if not exists storage.objects (
+    id uuid primary key default gen_random_uuid(),
+    bucket_id text references storage.buckets (id),
+    name text,
+    owner uuid,
+    created_at timestamptz not null default now(),
+    unique (bucket_id, name)
+  );
 
-grant usage on schema storage to anon, authenticated, service_role;
-grant select on storage.buckets to anon, authenticated, service_role;
-grant select on storage.objects to anon, authenticated, service_role;
-grant insert, update on storage.objects to authenticated, service_role;
+  alter table storage.objects enable row level security;
+
+  grant usage on schema storage to anon, authenticated, service_role;
+  grant select on storage.buckets to anon, authenticated, service_role;
+  grant select on storage.objects to anon, authenticated, service_role;
+  grant insert, update on storage.objects to authenticated, service_role;
+end
+$storage$;
 
 insert into storage.buckets (id, name, public)
 values ('rider-documents', 'rider-documents', false)
