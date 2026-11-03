@@ -4,7 +4,7 @@ import {
   loadRiderAccount,
   readPublicSupabase,
   sendPhoneCode,
-  setRiderOnline,
+  setRiderStatus,
   signOutDrop,
   submitRiderApplication,
   uploadRiderPhoto,
@@ -30,6 +30,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useMemo, useReducer, useState } from 'react';
 
 import { RiderAccessProvider } from './access';
+import { BoardProvider } from './board';
 import { RiderProvider } from './rider-context';
 import { OnboardingFlow } from './screens/OnboardingScreens';
 import { RiderSwitch } from './screens/RiderScreens';
@@ -264,18 +265,33 @@ export function RiderSession() {
       value={{
         banner: null,
         signOut: () => void signOut(),
-        changeOnline: async (online) => {
+        changeOnline: async (online, seats = 0) => {
           try {
-            await setRiderOnline(supabase, online);
+            await setRiderStatus(supabase, online, seats);
             return null;
           } catch (error) {
             return error instanceof Error ? error.message : 'Could not update your status.';
           }
         },
+        changeSeats: async (online, seats) => {
+          if (!online) {
+            return null;
+          }
+          try {
+            await setRiderStatus(supabase, true, seats);
+            return null;
+          } catch (error) {
+            return error instanceof Error
+              ? error.message
+              : 'Could not update the passengers on board.';
+          }
+        },
       }}
     >
-      <RiderProvider startOffline>
-        <RiderSwitch />
+      <RiderProvider startOffline initialSeats={0}>
+        <BoardProvider client={supabase} riderId={user.id}>
+          <RiderSwitch />
+        </BoardProvider>
       </RiderProvider>
     </RiderAccessProvider>
   );
@@ -302,6 +318,7 @@ function PreviewRider({
         value={{
           banner: 'Preview of an approved rider. This does not go online for real.',
           changeOnline: async () => null,
+          changeSeats: async () => null,
           signOut: onSignOut,
         }}
       >

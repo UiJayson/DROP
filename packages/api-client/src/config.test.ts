@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { readPublicSupabase } from './config';
+import { readGoogleMapsKey, readPublicSupabase } from './config';
 
 describe('public Supabase config', () => {
   it('treats blank keys as not connected', () => {
@@ -17,5 +17,13 @@ describe('public Supabase config', () => {
         NEXT_PUBLIC_SUPABASE_ANON_KEY: 'anon',
       }),
     ).toEqual({ url: 'https://example.supabase.co', anonKey: 'anon' });
+  });
+});
+
+describe('Google Maps key', () => {
+  it('treats a blank key as not connected', () => {
+    expect(readGoogleMapsKey({})).toBeNull();
+    expect(readGoogleMapsKey({ EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: '  ' })).toBeNull();
+    expect(readGoogleMapsKey({ EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: 'maps-key' })).toBe('maps-key');
   });
 });

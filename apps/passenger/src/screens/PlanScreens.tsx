@@ -14,13 +14,23 @@ import { colors, spacing } from '@drop/ui-tokens';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useBooking } from '../booking';
 import { layout } from '../layout';
 import { usePassenger } from '../passenger-context';
 
 export function SearchScreen() {
   const { state, dispatch } = usePassenger();
+  const booking = useBooking();
   const insets = useSafeAreaInsets();
-  const results = filterPlaces(state.query);
+  const results = booking.enabled
+    ? booking.results.map((place) => ({
+        id: place.id,
+        name: place.name,
+        detail: place.detail,
+        distanceM: 0,
+        restricted: false,
+      }))
+    : filterPlaces(state.query);
 
   return (
     <Screen testID="screen-search">
@@ -30,20 +40,32 @@ export function SearchScreen() {
       <View style={layout.bodyPad}>
         <SearchField
           value={state.query}
-          onChangeText={(query) => dispatch({ type: 'search', query })}
+          onChangeText={(query) => {
+            dispatch({ type: 'search', query });
+            booking.setQuery(query);
+          }}
           placeholder="Landmark, junction, or estate"
           autoFocus={false}
           testID="destination-search"
         />
         {state.notice ? <Notice message={state.notice} /> : null}
-        <Text style={layout.footnote}>{state.query.trim() ? 'Matches' : 'Recent places'}</Text>
+        {booking.error ? <Notice message={booking.error} /> : null}
+        <Text style={layout.footnote}>
+          {booking.enabled
+            ? `Pickup: ${booking.pickupLabel}. Type 3 letters to search Google Maps.`
+            : state.query.trim()
+              ? 'Matches'
+              : 'Recent places'}
+        </Text>
       </View>
       <ScrollView
         contentContainerStyle={[layout.bodyPad, { paddingBottom: insets.bottom + spacing.lg }]}
       >
         {results.length === 0 ? (
           <Text style={layout.secondary}>
-            No matches. Try a landmark such as Shoprite gate or Mile 2.
+            {booking.enabled
+              ? 'No matches yet. Try Ikeja City Mall, or a landmark nearby.'
+              : 'No matches. Try a landmark such as Shoprite gate or Mile 2.'}
           </Text>
         ) : (
           results.map((place) => (
@@ -53,7 +75,21 @@ export function SearchScreen() {
               accessibilityLabel={
                 place.restricted ? `${place.name}, restricted` : `${place.name}, ${place.detail}`
               }
-              onPress={() => dispatch({ type: 'pickPlace', id: place.id })}
+              onPress={() => {
+                if (!booking.enabled) {
+                  dispatch({ type: 'pickPlace', id: place.id });
+                  return;
+                }
+                void booking.pick(place.id).then((priced) => {
+                  if (priced) {
+                    dispatch({
+                      type: 'armLiveFare',
+                      offerKobo: priced.midpointKobo,
+                      minKobo: priced.minKobo,
+                    });
+                  }
+                });
+              }}
               style={layout.place}
               testID={`place-${place.id}`}
             >
@@ -62,7 +98,11 @@ export function SearchScreen() {
                 <Text style={layout.secondary}>{place.detail}</Text>
               </View>
               <Text style={place.restricted ? layout.warning : layout.footnote}>
-                {place.restricted ? 'Restricted' : `${(place.distanceM / 1000).toFixed(1)} km`}
+                {place.restricted
+                  ? 'Restricted'
+                  : booking.enabled
+                    ? 'Map'
+                    : `${(place.distanceM / 1000).toFixed(1)} km`}
               </Text>
             </Pressable>
           ))
@@ -74,9 +114,20 @@ export function SearchScreen() {
 
 export function FareScreen() {
   const { state, dispatch } = usePassenger();
+  const booking = useBooking();
   const insets = useSafeAreaInsets();
-  const place = state.placeId ? placeById(state.placeId) : undefined;
-  const quote = state.placeId ? quoteForPlace(state.placeId) : undefined;
+  const live = booking.enabled && state.placeId === 'live';
+  const place = live
+    ? booking.destination
+      ? {
+          name: booking.destination.name,
+          detail: booking.destination.detail,
+        }
+      : undefined
+    : state.placeId
+      ? placeById(state.placeId)
+      : undefined;
+  const quote = live ? booking.quote : state.placeId ? quoteForPlace(state.placeId) : undefined;
   if (!place || !quote) {
     return null;
   }
@@ -87,7 +138,7 @@ export function FareScreen() {
     <Screen testID="screen-fare">
       <View style={layout.mapShort}>
         <MapCanvas
-          title={pickup.area}
+          title={live ? booking.pickupLabel : pickup.area}
           destination={place.name}
           kekes={state.area === 'festac' ? 12 : 0}
         />
@@ -101,7 +152,7 @@ export function FareScreen() {
           Your fare
         </Text>
         <Text style={layout.secondary}>
-          {pickup.title} → {place.name}
+          {live ? booking.pickupLabel : pickup.title} → {place.name}
         </Text>
         <View style={layout.split}>
           <View style={layout.grow}>
@@ -188,12 +239,28 @@ export function FareScreen() {
           </View>
         </Pressable>
         {state.notice ? <Notice message={state.notice} /> : null}
+        {booking.error ? <Notice message={booking.error} /> : null}
       </ScrollView>
       <View style={[layout.footer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <Text style={layout.footnote}>Cash · pay the rider at the end</Text>
         <Button
           label="Request DROP"
-          onPress={() => dispatch({ type: 'request' })}
+          disabled={booking.busy}
+          onPress={() => {
+            if (!booking.enabled) {
+              dispatch({ type: 'request' });
+              return;
+            }
+            const note =
+              state.forOther && state.riderFor.trim()
+                ? `For ${state.riderFor.trim()}. ${state.landmark}`
+                : state.landmark;
+            void booking.requestDrop(state.offerKobo, note).then((ok) => {
+              if (ok) {
+                dispatch({ type: 'request' });
+              }
+            });
+          }}
           testID="request-drop"
         />
         <Button label="Back" variant="ghost" onPress={() => dispatch({ type: 'back' })} />

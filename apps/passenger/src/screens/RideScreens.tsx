@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useBooking } from '../booking';
 import { selectedOffer } from '../flow';
 import { layout } from '../layout';
 import { usePassenger } from '../passenger-context';
@@ -25,8 +26,23 @@ export function RideScreen() {
 
 function Arriving() {
   const { state, dispatch } = usePassenger();
+  const booking = useBooking();
   const insets = useSafeAreaInsets();
-  const offer = selectedOffer(state);
+  const prototype = selectedOffer(state);
+  const chosen = booking.chosen?.offer;
+  const offer = chosen
+    ? {
+        name: chosen.name,
+        rating: chosen.rating,
+        rides: chosen.rides,
+        plate: chosen.plate,
+        colour: chosen.colour,
+        etaMin: Math.max(1, Math.round(chosen.etaS / 60)),
+        seats: chosen.seats,
+        amountKobo: booking.chosen?.agreedFareKobo ?? chosen.amountKobo,
+      }
+    : prototype;
+  const pin = booking.enabled ? (booking.chosen?.pin ?? null) : BOARDING_PIN;
   const [tool, setTool] = useState<'call' | 'share' | 'report' | null>(null);
 
   return (
@@ -59,8 +75,11 @@ function Arriving() {
         ) : null}
         <View style={layout.pinHero}>
           <Text style={layout.footnote}>Boarding PIN · tell {offer?.name ?? 'the rider'}</Text>
-          <Text style={layout.bigPin} accessibilityLabel={`Boarding PIN ${BOARDING_PIN}`}>
-            {BOARDING_PIN}
+          <Text
+            style={layout.bigPin}
+            accessibilityLabel={pin ? `Boarding PIN ${pin}` : 'Boarding PIN is on its way'}
+          >
+            {pin ?? '····'}
           </Text>
           <Text style={layout.footnote}>
             The trip starts when they enter it. Fare {offer ? formatNaira(offer.amountKobo) : ''}
