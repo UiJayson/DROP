@@ -45,6 +45,22 @@ export function PassengerProvider({ children }: { children: ReactNode }) {
   }, [booking.enabled, state.live, state.route]);
 
   useEffect(() => {
+    if (!booking.enabled || !booking.chosen) {
+      return undefined;
+    }
+    if (
+      state.route === 'arriving' ||
+      state.route === 'trip' ||
+      state.route === 'cash' ||
+      state.route === 'rate'
+    ) {
+      return undefined;
+    }
+    dispatch({ type: 'lockLiveOffer', id: booking.chosen.offerId });
+    return undefined;
+  }, [booking.chosen, booking.enabled, dispatch, state.route]);
+
+  useEffect(() => {
     if (!booking.enabled || state.route !== 'searching') {
       return undefined;
     }

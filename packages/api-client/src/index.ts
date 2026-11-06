@@ -17,6 +17,15 @@ export {
   withdrawRideOffer,
 } from './booking';
 export type { RaisedRequest, SubmittedOffer } from './booking';
+export {
+  cancelTrip,
+  completeTrip,
+  loadTrip,
+  markArrived,
+  startTrip,
+  updateTripLocation,
+  watchTrip,
+} from './trip';
 export { createDropClient } from './client';
 export type { DropClientConfig, FareQuoteResult } from './client';
 export { readGoogleMapsKey, readPublicSupabase } from './config';
