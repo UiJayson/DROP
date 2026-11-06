@@ -9,9 +9,14 @@ import { useBooking } from '../booking';
 import { selectedOffer } from '../flow';
 import { layout } from '../layout';
 import { usePassenger } from '../passenger-context';
+import { LivePassengerTrip } from './LiveTripScreen';
 
 export function RideScreen() {
   const { state } = usePassenger();
+  const booking = useBooking();
+  if (booking.enabled && booking.chosen) {
+    return <LivePassengerTrip />;
+  }
   if (state.route === 'trip') {
     return <Trip />;
   }

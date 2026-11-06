@@ -1,9 +1,23 @@
+import {
+  googleEmbedUrl,
+  mapCaption,
+  projectPins,
+  type LatLng,
+  type TripLocationSource,
+} from '@drop/shared';
 import { colors, radii, spacing } from '@drop/ui-tokens';
-import { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { createElement, useEffect, useRef } from 'react';
+import { Animated, Platform, StyleSheet, Text, View } from 'react-native';
 
 import { useReduceMotion } from './shell';
 import { typeStyle } from './theme';
+
+type MapMarker = {
+  id: string;
+  top: number;
+  left: number;
+  kind: 'pickup' | 'dropoff' | 'rider';
+};
 
 export function MapCanvas({
   title,
@@ -11,12 +25,14 @@ export function MapCanvas({
   kekes,
   radar = false,
   destination,
+  markers,
 }: {
   title?: string;
   subtitle?: string;
   kekes?: number;
   radar?: boolean;
   destination?: string;
+  markers?: MapMarker[];
 }) {
   return (
     <View
@@ -35,7 +51,7 @@ export function MapCanvas({
       <View style={styles.blockA} />
       <View style={styles.blockB} />
       <View style={styles.creek} />
-      {kekes !== undefined && kekes > 0 ? (
+      {markers === undefined && kekes !== undefined && kekes > 0 ? (
         <>
           <View style={[styles.keke, { top: '28%', left: '22%' }]} />
           <View style={[styles.keke, { top: '58%', left: '62%' }]} />
@@ -43,14 +59,37 @@ export function MapCanvas({
         </>
       ) : null}
       {radar ? <Radar /> : null}
-      <View
-        style={styles.pinWrap}
-        accessibilityLabel={destination ? `Pickup, going to ${destination}` : 'Your pickup'}
-      >
-        <View style={styles.pinHead} />
-        <View style={styles.pinStem} />
-      </View>
-      {destination ? (
+      {markers === undefined ? (
+        <View
+          style={styles.pinWrap}
+          accessibilityLabel={destination ? `Pickup, going to ${destination}` : 'Your pickup'}
+        >
+          <View style={styles.pinHead} />
+          <View style={styles.pinStem} />
+        </View>
+      ) : (
+        markers.map((marker) => (
+          <View
+            key={marker.id}
+            accessibilityLabel={
+              marker.kind === 'rider'
+                ? 'Rider location'
+                : marker.kind === 'dropoff'
+                  ? 'Drop-off'
+                  : 'Pickup'
+            }
+            style={[
+              marker.kind === 'rider'
+                ? styles.riderMark
+                : marker.kind === 'dropoff'
+                  ? styles.dropMark
+                  : styles.pickupMark,
+              { top: `${marker.top}%`, left: `${marker.left}%` },
+            ]}
+          />
+        ))
+      )}
+      {markers === undefined && destination ? (
         <View style={[styles.destWrap, { top: '30%', left: '58%' }]}>
           <View style={styles.destHead} />
           <Text style={styles.destText} numberOfLines={1}>
@@ -66,6 +105,59 @@ export function MapCanvas({
       ) : null}
     </View>
   );
+}
+
+export function TripMap({
+  mapsKey,
+  title,
+  pickup,
+  dropoff,
+  rider,
+  locationSource,
+}: {
+  mapsKey: string | null;
+  title: string;
+  pickup: LatLng;
+  dropoff: LatLng;
+  rider: LatLng | null;
+  locationSource: TripLocationSource | null;
+}) {
+  const configured = Boolean(mapsKey && mapsKey.trim());
+  const focus = rider ?? pickup;
+  const embed = mapsKey ? googleEmbedUrl(mapsKey, focus) : null;
+  const showGoogle = Platform.OS === 'web' && embed != null;
+  const caption = mapCaption({
+    mapsConfigured: configured,
+    streetMapVisible: showGoogle,
+    locationSource,
+  });
+  const points = [
+    { id: 'pickup', ...pickup },
+    { id: 'dropoff', ...dropoff },
+    ...(rider ? [{ id: 'rider', ...rider }] : []),
+  ];
+  const placed = projectPins(points);
+  const markers: MapMarker[] = points.map((point) => ({
+    id: point.id,
+    top: placed[point.id]?.top ?? 50,
+    left: placed[point.id]?.left ?? 50,
+    kind: point.id === 'rider' ? 'rider' : point.id === 'dropoff' ? 'dropoff' : 'pickup',
+  }));
+
+  if (showGoogle && embed) {
+    return (
+      <View style={styles.map} accessibilityLabel={caption}>
+        <Text style={styles.liveCaption}>{caption}</Text>
+        {createElement('iframe', {
+          title: 'Google Map',
+          src: embed,
+          style: { border: '0', width: '100%', height: '100%', minHeight: 220 },
+        } as never)}
+      </View>
+    );
+  }
+
+  return <MapCanvas title={title} subtitle={caption} markers={markers} />;
 }
 
 function Radar() {
@@ -177,6 +269,44 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderWidth: 2,
     borderColor: colors.onPrimary,
+  },
+  pickupMark: {
+    position: 'absolute',
+    width: 16,
+    height: 16,
+    marginTop: -8,
+    marginLeft: -8,
+    borderRadius: 8,
+    backgroundColor: colors.primary,
+    borderWidth: 3,
+    borderColor: colors.onPrimary,
+  },
+  riderMark: {
+    position: 'absolute',
+    width: 18,
+    height: 18,
+    marginTop: -9,
+    marginLeft: -9,
+    borderRadius: 9,
+    backgroundColor: colors.primary,
+    borderWidth: 3,
+    borderColor: colors.textPrimary,
+  },
+  dropMark: {
+    position: 'absolute',
+    width: 14,
+    height: 14,
+    marginTop: -7,
+    marginLeft: -7,
+    borderRadius: 7,
+    backgroundColor: colors.textPrimary,
+  },
+  liveCaption: {
+    color: colors.textPrimary,
+    backgroundColor: colors.surface1,
+    ...typeStyle('footnote'),
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   pinWrap: {
     position: 'absolute',

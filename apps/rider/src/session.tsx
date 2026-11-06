@@ -34,6 +34,7 @@ import { BoardProvider } from './board';
 import { RiderProvider } from './rider-context';
 import { OnboardingFlow } from './screens/OnboardingScreens';
 import { RiderSwitch } from './screens/RiderScreens';
+import { TripProvider } from './trip';
 
 const previewScreens = [
   'phone',
@@ -288,11 +289,13 @@ export function RiderSession() {
         },
       }}
     >
-      <RiderProvider startOffline initialSeats={0}>
-        <BoardProvider client={supabase} riderId={user.id}>
-          <RiderSwitch />
-        </BoardProvider>
-      </RiderProvider>
+      <TripProvider client={supabase}>
+        <RiderProvider startOffline initialSeats={0}>
+          <BoardProvider client={supabase} riderId={user.id}>
+            <RiderSwitch />
+          </BoardProvider>
+        </RiderProvider>
+      </TripProvider>
     </RiderAccessProvider>
   );
 }

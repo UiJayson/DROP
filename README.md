@@ -2,7 +2,7 @@
 
 DROP is an app for booking a Keke (a tricycle) in Lagos. When someone says “Drop”, they want that Keke to themselves, not a shared route along a fixed line.
 
-This folder is the starting point for the project. It has the passenger app, the rider app, the admin website, and the database tables. After phone sign-in, a passenger can request a Drop and a rider can accept or counter. The trip itself (PIN, cash, rating) is still the tappable prototype.
+This folder is the starting point for the project. It has the passenger app, the rider app, the admin website, and the database tables. After phone sign-in, a passenger can request a Drop and a rider can accept or counter. Once an offer is accepted, the trip has a boarding PIN, a live status, and a cash record.
 
 ## The three apps
 
@@ -133,6 +133,10 @@ pnpm test
 
 ## What is not built yet
 
-The trip after a rider is chosen — the boarding PIN check, live tracking, and cash confirmation — is still the prototype. A live NIN company, a live SMS provider, and a Google Maps key are not connected until you add them. See `docs/06-signup-and-nin.md`.
+After a passenger accepts an offer, both apps follow the live trip: the passenger sees a 4-digit boarding PIN, the rider enters it before the trip can start, and the locked cash fare is recorded when the rider finishes. The map uses Google Maps when `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` is set. With no key, the apps show a drawn preview and say it is not a live street map. If the rider’s phone has no GPS, they can send an explicit test location. That test pin is labelled as a test and is not treated as a real GPS fix.
+
+The live trip migration is `supabase/migrations/20261106120000_m4_live_trip.sql`. Apply it after the earlier migrations, on the database on your computer or on a Supabase project you created for practice. Do not apply it to a database that already has real riders or passengers, and do not re-apply the older files if they are already there. Text-message sign-in is unchanged.
+
+Ratings, a share link, trip history, and a live NIN company are not in this slice. A live SMS provider and a Google Maps key are still optional. See `docs/06-signup-and-nin.md`.
 
 Do not apply the database files to a Supabase project that already has real riders or passengers. Use the database on your computer, or a Supabase project you created for practice.

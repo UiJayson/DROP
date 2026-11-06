@@ -29,6 +29,8 @@ import { useBoard } from '../board';
 import type { Seats } from '../flow';
 import { layout } from '../layout';
 import { useRider } from '../rider-context';
+import { useTrip } from '../trip';
+import { LiveRiderTrip } from './LiveTripScreen';
 
 const offerKobo = defaultQuote().midpointKobo;
 
@@ -62,10 +64,11 @@ function IncomingWatch() {
 
 export function RiderSwitch() {
   const { state } = useRider();
+  const trip = useTrip();
   return (
     <>
       <IncomingWatch />
-      <RiderRoute route={state.route} />
+      {trip.enabled && trip.trip ? <LiveRiderTrip /> : <RiderRoute route={state.route} />}
     </>
   );
 }

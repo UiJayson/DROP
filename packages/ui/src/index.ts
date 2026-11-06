@@ -11,7 +11,7 @@ export {
   SearchField,
   Stars,
 } from './inputs';
-export { MapCanvas } from './map';
+export { MapCanvas, TripMap } from './map';
 export { enterSpring, pressInSpring, pressOutSpring } from './motion';
 export { prefersStaticMotion, readInitialScreen, readPreview } from './routing';
 export { AppShell, Screen, useReduceMotion } from './shell';

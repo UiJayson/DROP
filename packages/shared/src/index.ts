@@ -159,3 +159,35 @@ export type {
   ServerFareQuote,
 } from './matching';
 export { isSentryDsnConfigured } from './sentry';
+export {
+  PIN_LENGTH,
+  PIN_MAX_ATTEMPTS,
+  TRIP_LOCATION_SOURCES,
+  arriveTransition,
+  canReadBoardingPin,
+  canReadTripData,
+  cancelTransition,
+  cashCompletion,
+  checkBoardingPin,
+  completeTransition,
+  googleDirectionsUrl,
+  googleEmbedUrl,
+  liveTripSchema,
+  locationAgeLabel,
+  locationUpdateSchema,
+  locationWriteAllowed,
+  mapCaption,
+  pinAttemptSchema,
+  pinFailureMessage,
+  projectPins,
+  stepToward,
+  tripStatusLabel,
+} from './trip';
+export type {
+  LiveTrip,
+  LocationUpdate,
+  PinAttempt,
+  PinCheck,
+  TripLocationSource,
+  TripMove,
+} from './trip';

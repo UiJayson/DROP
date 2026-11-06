@@ -1,6 +1,7 @@
 import {
   cacheRoadDistance,
   cancelRideRequest,
+  cancelTrip,
   createRideRequest,
   expireMatching,
   extendRideSearch,
@@ -9,10 +10,12 @@ import {
   googlePlaceSuggestions,
   googleRoadDistanceM,
   listRideOffers,
+  loadTrip,
   raiseRideOffer,
   readGoogleMapsKey,
   selectRideOffer,
   watchRequest,
+  watchTrip,
   type DropSupabase,
 } from '@drop/api-client';
 import {
@@ -22,6 +25,7 @@ import {
   placesQueryReady,
   sampleDestinationById,
   type LiveOffer,
+  type LiveTrip,
   type ServerFareQuote,
 } from '@drop/shared';
 import {
@@ -41,11 +45,36 @@ export type BookingPlace = {
 };
 
 export type ChosenRider = {
+  tripId: string;
   offerId: string;
   pin: string;
   agreedFareKobo: number;
   offer: LiveOffer;
 };
+
+function chosenFromTrip(trip: LiveTrip): ChosenRider {
+  return {
+    tripId: trip.tripId,
+    offerId: trip.tripId,
+    pin: trip.pin ?? '',
+    agreedFareKobo: trip.agreedFareKobo,
+    offer: {
+      id: trip.tripId,
+      riderId: trip.tripId,
+      name: trip.riderName,
+      rating: 0,
+      rides: 0,
+      plate: trip.plate,
+      colour: trip.colour,
+      etaS: 0,
+      seats: 0,
+      amountKobo: trip.agreedFareKobo,
+      kind: 'accept',
+      status: 'selected',
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+    },
+  };
+}
 
 type Pickup = {
   lat: number;
@@ -67,6 +96,7 @@ type BookingApi = {
   recipientCount: number;
   offers: LiveOffer[];
   chosen: ChosenRider | null;
+  trip: LiveTrip | null;
   setQuery: (query: string) => void;
   pick: (id: string) => Promise<ServerFareQuote | null>;
   requestDrop: (offerKobo: number, note: string) => Promise<boolean>;
@@ -74,6 +104,8 @@ type BookingApi = {
   keepWaiting: () => Promise<boolean>;
   cancel: () => Promise<void>;
   select: (offerId: string) => Promise<boolean>;
+  cancelLive: (reason: string, confirmStarted: boolean) => Promise<string | null>;
+  clearTrip: () => void;
 };
 
 const disabledBooking: BookingApi = {
@@ -90,6 +122,7 @@ const disabledBooking: BookingApi = {
   recipientCount: 0,
   offers: [],
   chosen: null,
+  trip: null,
   setQuery: () => undefined,
   pick: async () => null,
   requestDrop: async () => false,
@@ -97,6 +130,8 @@ const disabledBooking: BookingApi = {
   keepWaiting: async () => false,
   cancel: async () => undefined,
   select: async () => false,
+  cancelLive: async () => null,
+  clearTrip: () => undefined,
 };
 
 const BookingContext = createContext<BookingApi>(disabledBooking);
@@ -158,6 +193,7 @@ export function BookingProvider({
   const [recipientCount, setRecipientCount] = useState(0);
   const [offers, setOffers] = useState<LiveOffer[]>([]);
   const [chosen, setChosen] = useState<ChosenRider | null>(null);
+  const [trip, setTrip] = useState<LiveTrip | null>(null);
   const sessionToken = useRef(crypto.randomUUID());
   const choosing = useRef(false);
 
@@ -189,6 +225,53 @@ export function BookingProvider({
     }, PLACES_DEBOUNCE_MS);
     return () => clearTimeout(handle);
   }, [client, mapsKey, pickup, query]);
+
+  useEffect(() => {
+    if (!client) {
+      return undefined;
+    }
+    let active = true;
+    void loadTrip(client)
+      .then((open) => {
+        if (active && open) {
+          setChosen((current) => current ?? chosenFromTrip(open));
+          setTrip((current) => current ?? open);
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [client]);
+
+  useEffect(() => {
+    if (!client || !chosen?.tripId) {
+      return undefined;
+    }
+    const tripId = chosen.tripId;
+    let active = true;
+    const load = () => {
+      void loadTrip(client, tripId)
+        .then((next) => {
+          if (active && next) {
+            setTrip(next);
+          }
+        })
+        .catch((loadError) => {
+          if (active) {
+            setError(problem(loadError));
+          }
+        });
+    };
+    load();
+    const stop = watchTrip(client, tripId, load);
+    const poll = setInterval(load, 4_000);
+    return () => {
+      active = false;
+      stop();
+      clearInterval(poll);
+    };
+  }, [chosen?.tripId, client]);
 
   useEffect(() => {
     if (!client || !requestId) {
@@ -267,6 +350,7 @@ export function BookingProvider({
       recipientCount,
       offers,
       chosen,
+      trip,
       setQuery: (value) => {
         setQuery(value);
         setError(null);
@@ -354,6 +438,7 @@ export function BookingProvider({
           setRecipientCount(created.recipientCount);
           setOffers([]);
           setChosen(null);
+          setTrip(null);
           return true;
         } catch (requestError) {
           setError(problem(requestError));
@@ -422,12 +507,12 @@ export function BookingProvider({
         setBusy(true);
         setError(null);
         try {
-          const trip = await selectRideOffer(client, offerId);
+          const selected = await selectRideOffer(client, offerId);
           const offer =
             offers.find((item) => item.id === offerId) ??
             ({
               id: offerId,
-              riderId: trip.riderId,
+              riderId: selected.riderId,
               name: 'Your rider',
               rating: 0,
               rides: 0,
@@ -435,16 +520,17 @@ export function BookingProvider({
               colour: 'Yellow',
               etaS: 0,
               seats: 0,
-              amountKobo: trip.agreedFareKobo,
+              amountKobo: selected.agreedFareKobo,
               kind: 'accept',
               status: 'selected',
               expiresAt: new Date().toISOString(),
             } satisfies LiveOffer);
           setChosen({
+            tripId: selected.tripId,
             offerId,
-            pin: trip.pin,
-            agreedFareKobo: trip.agreedFareKobo,
-            offer: { ...offer, amountKobo: trip.agreedFareKobo, status: 'selected' },
+            pin: selected.pin,
+            agreedFareKobo: selected.agreedFareKobo,
+            offer: { ...offer, amountKobo: selected.agreedFareKobo, status: 'selected' },
           });
           setRequestId(null);
           return true;
@@ -455,6 +541,29 @@ export function BookingProvider({
           choosing.current = false;
           setBusy(false);
         }
+      },
+      cancelLive: async (reason, confirmStarted) => {
+        if (!chosen?.tripId) {
+          return 'There is no trip to cancel.';
+        }
+        setBusy(true);
+        setError(null);
+        try {
+          const next = await cancelTrip(client, chosen.tripId, reason, confirmStarted);
+          setTrip(next);
+          return null;
+        } catch (cancelError) {
+          const message = problem(cancelError);
+          setError(message);
+          return message;
+        } finally {
+          setBusy(false);
+        }
+      },
+      clearTrip: () => {
+        setChosen(null);
+        setTrip(null);
+        setError(null);
       },
     };
   }, [
@@ -473,6 +582,7 @@ export function BookingProvider({
     recipientCount,
     requestId,
     results,
+    trip,
   ]);
 
   return <BookingContext.Provider value={api}>{children}</BookingContext.Provider>;

@@ -1,4 +1,5 @@
 -- M3: minimum fare, one counter, expiry, one trip per rider, carrying passengers, restricted zones.
+-- auth.uid() on the Supabase database reads request.jwt.claim.sub, so each user switch sets that too.
 
 begin;
 
@@ -263,6 +264,8 @@ select set_config(
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 insert into m3_state (k, v)
@@ -314,6 +317,8 @@ select set_config(
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 insert into m3_state (k, v)
@@ -380,6 +385,8 @@ select set_config(
   '{"sub":"66666666-6666-4666-8666-666666666666","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '66666666-6666-4666-8666-666666666666', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 select throws_ok(
@@ -403,6 +410,8 @@ select set_config(
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 insert into m3_state (k, v)
@@ -427,6 +436,8 @@ select set_config(
   '{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '22222222-2222-4222-8222-222222222222', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 insert into m3_state (k, v)
@@ -461,6 +472,8 @@ select set_config(
   '{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '22222222-2222-4222-8222-222222222222', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 select throws_ok(
@@ -480,6 +493,8 @@ select set_config(
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 select public.cancel_request((select (v ->> 'requestId')::uuid from m3_state where k = 'ladder'));
 
@@ -509,6 +524,8 @@ select set_config(
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 insert into m3_state (k, v)
@@ -528,6 +545,8 @@ select set_config(
   '{"sub":"66666666-6666-4666-8666-666666666666","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '66666666-6666-4666-8666-666666666666', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 insert into m3_state (k, v)
@@ -548,6 +567,8 @@ select set_config(
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 select throws_ok(
@@ -563,6 +584,8 @@ select set_config(
   '{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '22222222-2222-4222-8222-222222222222', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 select throws_ok(
@@ -593,6 +616,8 @@ select set_config(
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 select throws_ok(
@@ -621,6 +646,8 @@ select set_config(
   '{"sub":"44444444-4444-4444-8444-444444444444","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '44444444-4444-4444-8444-444444444444', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 insert into m3_state (k, v)
@@ -640,6 +667,8 @@ select set_config(
   '{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '22222222-2222-4222-8222-222222222222', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 insert into m3_state (k, v)
@@ -655,6 +684,8 @@ select set_config(
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '11111111-1111-4111-8111-111111111111', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 insert into m3_state (k, v)
@@ -673,6 +704,8 @@ select set_config(
   '{"sub":"44444444-4444-4444-8444-444444444444","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '44444444-4444-4444-8444-444444444444', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 
 select throws_ok(
@@ -717,6 +750,8 @@ select set_config(
   '{"sub":"44444444-4444-4444-8444-444444444444","role":"authenticated"}',
   true
 );
+select set_config('request.jwt.claim.sub', '44444444-4444-4444-8444-444444444444', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 set local role authenticated;
 select public.cancel_request((select (v ->> 'requestId')::uuid from m3_state where k = 'bola'));
 
