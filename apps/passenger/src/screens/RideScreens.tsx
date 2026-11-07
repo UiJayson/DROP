@@ -1,5 +1,15 @@
 import { BOARDING_PIN, formatNaira, ratingTags } from '@drop/shared';
-import { Button, DemoBridge, MapCanvas, Notice, Screen, Stars, StatusPill } from '@drop/ui';
+import {
+  Button,
+  DemoBridge,
+  MapCanvas,
+  Notice,
+  PinDigits,
+  Screen,
+  Sheet,
+  Stars,
+  StatusPill,
+} from '@drop/ui';
 import { colors, spacing } from '@drop/ui-tokens';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
@@ -59,82 +69,79 @@ function Arriving() {
           kekes={1}
         />
       </View>
-      <ScrollView
-        style={{ maxHeight: '68%' }}
-        contentContainerStyle={[
-          layout.sheet,
-          { paddingBottom: Math.max(insets.bottom, spacing.md) },
-        ]}
-      >
-        <View style={layout.grabber} />
-        <StatusPill tone="yellow" label={offer ? `Arriving · ${offer.etaMin} min` : 'Arriving'} />
-        <Text style={layout.headline}>{offer?.name ?? 'Your rider'}</Text>
-        <Text style={layout.plate}>
-          {offer ? `${offer.colour} Keke · ${offer.plate}` : 'Check the plate'}
-        </Text>
-        <Text style={layout.secondary}>
-          {offer ? `${offer.rating.toFixed(2)} · ${offer.rides.toLocaleString('en-NG')} rides` : ''}
-        </Text>
-        {offer && offer.seats > 0 ? (
-          <StatusPill tone="orange" label={`Carrying ${offer.seats} passengers`} />
-        ) : null}
-        <View style={layout.pinHero}>
-          <Text style={layout.footnote}>Boarding PIN · tell {offer?.name ?? 'the rider'}</Text>
-          <Text
-            style={layout.bigPin}
-            accessibilityLabel={pin ? `Boarding PIN ${pin}` : 'Boarding PIN is on its way'}
-          >
-            {pin ?? '····'}
+      <Sheet style={{ maxHeight: '62%', paddingBottom: Math.max(insets.bottom, spacing.md) }}>
+        <ScrollView contentContainerStyle={{ gap: spacing.sm, paddingBottom: spacing.sm }}>
+          <View style={layout.grabber} />
+          <StatusPill tone="yellow" label={offer ? `Arriving · ${offer.etaMin} min` : 'Arriving'} />
+          <Text style={layout.headline}>{offer?.name ?? 'Your rider'}</Text>
+          <Text style={layout.plate}>
+            {offer ? `${offer.colour} Keke · ${offer.plate}` : 'Check the plate'}
           </Text>
-          <Text style={layout.footnote}>
-            The trip starts when they enter it. Fare {offer ? formatNaira(offer.amountKobo) : ''}
+          <Text style={layout.secondary}>
+            {offer
+              ? `${offer.rating.toFixed(2)} · ${offer.rides.toLocaleString('en-NG')} rides`
+              : ''}
           </Text>
-        </View>
-        <View style={layout.actions}>
-          <View style={layout.grow}>
-            <Button
-              size="compact"
-              label="Call"
-              variant="secondary"
-              onPress={() => setTool('call')}
-              testID="call-rider"
-            />
+          {offer && offer.seats > 0 ? (
+            <StatusPill tone="orange" label={`Carrying ${offer.seats} passengers`} />
+          ) : null}
+          <Text style={layout.footnote}>Agreed fare · cash</Text>
+          <Text style={layout.fare}>{offer ? formatNaira(offer.amountKobo) : ''}</Text>
+          <View style={layout.pinHero}>
+            <Text style={layout.footnote}>Boarding PIN · tell {offer?.name ?? 'the rider'}</Text>
+            <PinDigits value={pin ?? ''} />
+            <Text style={layout.footnote}>Check the plate, then tell them this PIN.</Text>
           </View>
-          <View style={layout.grow}>
-            <Button
-              size="compact"
-              label="Share"
-              variant="secondary"
-              onPress={() => setTool('share')}
-              testID="share-trip"
-            />
+          <View style={layout.actions}>
+            <View style={layout.grow}>
+              <Button
+                size="compact"
+                label="Call"
+                variant="secondary"
+                onPress={() => setTool('call')}
+                testID="call-rider"
+              />
+            </View>
+            <View style={layout.grow}>
+              <Button
+                size="compact"
+                label="Share"
+                variant="secondary"
+                onPress={() => setTool('share')}
+                testID="share-trip"
+              />
+            </View>
+            <View style={layout.grow}>
+              <Button
+                size="compact"
+                label="Report"
+                variant="secondary"
+                onPress={() => setTool('report')}
+                testID="report"
+              />
+            </View>
           </View>
-          <View style={layout.grow}>
-            <Button
-              size="compact"
-              label="Report"
-              variant="secondary"
-              onPress={() => setTool('report')}
-              testID="report"
-            />
-          </View>
-        </View>
-        {tool === 'call' ? (
-          <Notice message="Calling Adaeze on 0803 ••• 2194. The number stays masked." />
-        ) : null}
-        {tool === 'share' ? (
-          <Notice message="Share link ready: drop.ng/t/festac-alaba · name, plate, and ETA." />
-        ) : null}
-        {tool === 'report' ? (
-          <Notice message="Report sent to DROP support. Your trip stays open." />
-        ) : null}
-        <DemoBridge
-          label="Prototype · rider entered the PIN"
-          onPress={() => dispatch({ type: 'demoBoarded' })}
-          testID="demo-boarded"
-        />
-        <Button label="Cancel trip" variant="danger" onPress={() => dispatch({ type: 'cancel' })} />
-      </ScrollView>
+          {tool === 'call' ? (
+            <Notice message="Calling Adaeze on 0803 ••• 2194. The number stays masked." />
+          ) : null}
+          {tool === 'share' ? (
+            <Notice message="Share link ready: drop.ng/t/festac-alaba · name, plate, and ETA." />
+          ) : null}
+          {tool === 'report' ? (
+            <Notice message="Report sent to DROP support. Your trip stays open." />
+          ) : null}
+          <DemoBridge
+            label="Prototype · rider entered the PIN"
+            onPress={() => dispatch({ type: 'demoBoarded' })}
+            testID="demo-boarded"
+          />
+          <Button
+            label="Cancel trip"
+            variant="danger"
+            onPress={() => dispatch({ type: 'cancel' })}
+          />
+        </ScrollView>
+      </Sheet>
     </Screen>
   );
 }
@@ -146,7 +153,12 @@ function Trip() {
   return (
     <Screen testID="screen-trip">
       <View style={layout.mapSlot}>
-        <MapCanvas title="On trip" subtitle="Updated 5s ago" destination="Alaba" kekes={0} />
+        <MapCanvas
+          title="On trip"
+          subtitle="Map preview. Google Maps is not configured, so this is not a live street map."
+          destination="Alaba"
+          kekes={0}
+        />
       </View>
       <View
         style={[
@@ -160,9 +172,8 @@ function Trip() {
           Heading to {offer ? 'the drop-off' : 'Alaba'}
         </Text>
         <Text style={layout.secondary}>Location updated 5 seconds ago.</Text>
-        <Text style={layout.headline}>
-          Agreed fare {offer ? formatNaira(offer.amountKobo) : ''} · Cash
-        </Text>
+        <Text style={layout.footnote}>Agreed fare · cash</Text>
+        <Text style={layout.fare}>{offer ? formatNaira(offer.amountKobo) : ''}</Text>
         <Text style={layout.footnote}>
           {offer?.name} · {offer?.plate}. The fare is locked.
         </Text>

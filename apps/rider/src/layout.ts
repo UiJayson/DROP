@@ -21,7 +21,7 @@ export const layout = StyleSheet.create({
   secondary: { color: colors.textSecondary, ...typeStyle('callout') },
   footnote: { color: colors.textSecondary, ...typeStyle('footnote') },
   fare: {
-    color: colors.primary,
+    color: colors.textPrimary,
     ...typeStyle('fare'),
     fontVariant: ['tabular-nums'],
   },

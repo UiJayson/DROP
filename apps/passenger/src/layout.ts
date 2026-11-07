@@ -5,7 +5,8 @@ import { StyleSheet } from 'react-native';
 export const layout = StyleSheet.create({
   fill: { flex: 1 },
   mapSlot: { flex: 1, minHeight: 180 },
-  mapShort: { height: 168 },
+  mapHome: { height: 240 },
+  mapShort: { height: 188 },
   overlayTop: {
     position: 'absolute',
     top: 0,
@@ -121,7 +122,7 @@ export const layout = StyleSheet.create({
     fontWeight: '600',
   },
   fare: {
-    color: colors.primary,
+    color: colors.textPrimary,
     ...typeStyle('fare'),
     fontVariant: ['tabular-nums'],
   },
@@ -178,11 +179,11 @@ export const layout = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarText: {
-    color: colors.primary,
+    color: colors.textPrimary,
     ...typeStyle('headline'),
   },
   plate: {
-    color: colors.primary,
+    color: colors.textPrimary,
     ...typeStyle('headline'),
     letterSpacing: 0.6,
   },
@@ -191,7 +192,7 @@ export const layout = StyleSheet.create({
     gap: spacing.xs,
   },
   bigPin: {
-    color: colors.primary,
+    color: colors.textPrimary,
     fontSize: 48,
     lineHeight: 56,
     fontWeight: '700',
