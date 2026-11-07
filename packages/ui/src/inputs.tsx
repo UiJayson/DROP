@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   fare: {
-    color: colors.primary,
+    color: colors.textPrimary,
     fontSize: typeScale.fare.fontSize,
     lineHeight: typeScale.fare.lineHeight,
     fontWeight: '700',
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pinDigit: {
-    color: colors.primary,
+    color: colors.textPrimary,
     fontSize: typeScale.fare.fontSize,
     lineHeight: typeScale.fare.lineHeight,
     fontWeight: '700',

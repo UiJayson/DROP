@@ -6,7 +6,17 @@ import {
   radiusSearchLabel,
   type PrototypeOffer,
 } from '@drop/shared';
-import { Button, DemoBridge, Enter, Header, MapCanvas, Notice, Screen, StatusPill } from '@drop/ui';
+import {
+  Button,
+  DemoBridge,
+  Enter,
+  Header,
+  MapCanvas,
+  Notice,
+  Screen,
+  Sheet,
+  StatusPill,
+} from '@drop/ui';
 import { spacing } from '@drop/ui-tokens';
 import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -114,9 +124,8 @@ function Searching() {
       <View style={layout.mapShort}>
         <MapCanvas title="Festac Town" radar kekes={12} />
       </View>
-      <View
+      <Sheet
         style={[
-          layout.sheet,
           layout.fill,
           { overflow: 'hidden', paddingBottom: Math.max(insets.bottom, spacing.md) },
         ]}
@@ -129,8 +138,10 @@ function Searching() {
         >
           {state.route === 'searching' ? (
             <>
-              <Text style={layout.footnote}>Time left</Text>
-              <Text style={layout.fare} accessibilityLiveRegion="polite">
+              <Text accessibilityRole="header" style={layout.headline}>
+                Finding riders
+              </Text>
+              <Text style={layout.title} accessibilityLiveRegion="polite">
                 {left == null ? '1:00' : clock(left)}
               </Text>
               <Text style={layout.footnote}>
@@ -149,29 +160,29 @@ function Searching() {
               ))}
             </>
           )}
-        </ScrollView>
-        {booking.enabled ? null : (
+          {booking.enabled ? null : (
+            <Button
+              label="No riders yet"
+              variant="secondary"
+              onPress={() => dispatch({ type: 'noOffers' })}
+              testID="no-offers"
+            />
+          )}
+          {booking.error ? <Notice message={booking.error} /> : null}
           <Button
-            label="No riders yet"
-            variant="secondary"
-            onPress={() => dispatch({ type: 'noOffers' })}
-            testID="no-offers"
+            label="Cancel"
+            variant="danger"
+            onPress={() => {
+              if (!booking.enabled) {
+                dispatch({ type: 'cancel' });
+                return;
+              }
+              void booking.cancel().then(() => dispatch({ type: 'cancel' }));
+            }}
+            testID="cancel-search"
           />
-        )}
-        {booking.error ? <Notice message={booking.error} /> : null}
-        <Button
-          label="Cancel"
-          variant="danger"
-          onPress={() => {
-            if (!booking.enabled) {
-              dispatch({ type: 'cancel' });
-              return;
-            }
-            void booking.cancel().then(() => dispatch({ type: 'cancel' }));
-          }}
-          testID="cancel-search"
-        />
-      </View>
+        </ScrollView>
+      </Sheet>
     </Screen>
   );
 }

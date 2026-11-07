@@ -16,7 +16,8 @@ export const screenMargin = {
 
 export const radii = {
   card: 12,
-  sheet: 16,
+  control: 14,
+  sheet: 24,
   pill: 999,
 } as const;
 

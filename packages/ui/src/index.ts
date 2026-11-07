@@ -14,6 +14,6 @@ export {
 export { MapCanvas, TripMap } from './map';
 export { enterSpring, pressInSpring, pressOutSpring } from './motion';
 export { prefersStaticMotion, readInitialScreen, readPreview } from './routing';
-export { AppShell, Screen, useReduceMotion } from './shell';
+export { AppShell, Screen, Sheet, useReduceMotion } from './shell';
 export { CodeSignIn, NameSignIn, PhoneSignIn, StatusMessage, useNow } from './sign-in';
 export { typeStyle } from './theme';

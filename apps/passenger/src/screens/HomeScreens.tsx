@@ -1,5 +1,5 @@
 import { areas, formatNaira, placeById, quoteForPlace, rebookPlaceId } from '@drop/shared';
-import { Button, MapCanvas, Screen, StatusPill } from '@drop/ui';
+import { Button, MapCanvas, Screen, Sheet, StatusPill } from '@drop/ui';
 import { colors, spacing } from '@drop/ui-tokens';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -38,7 +38,7 @@ export function HomeScreen() {
 
   return (
     <Screen testID={state.route === 'quiet' ? 'screen-quiet' : 'screen-home'}>
-      <View style={layout.mapSlot}>
+      <View style={layout.mapHome}>
         <MapCanvas kekes={area.nearby} />
         <View style={[layout.overlayTop, { paddingTop: Math.max(insets.top, spacing.sm) }]}>
           <Text style={layout.wordmark}>DROP</Text>
@@ -66,7 +66,9 @@ export function HomeScreen() {
           </Pressable>
         </View>
       </View>
-      <View style={[layout.sheet, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
+      <Sheet
+        style={{ flex: 1, paddingBottom: Math.max(insets.bottom, spacing.md), gap: spacing.sm }}
+      >
         <View style={layout.grabber} accessibilityLabel="Trip sheet" />
         {pickingArea ? (
           <View style={{ gap: spacing.xs }}>
@@ -135,7 +137,7 @@ export function HomeScreen() {
             ) : null}
           </>
         )}
-      </View>
+      </Sheet>
     </Screen>
   );
 }

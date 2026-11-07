@@ -13,11 +13,12 @@ import {
   PinDigits,
   PinPad,
   Screen,
+  Sheet,
   StatusPill,
   TripMap,
   useNow,
 } from '@drop/ui';
-import { colors, spacing } from '@drop/ui-tokens';
+import { spacing } from '@drop/ui-tokens';
 import { useEffect, useRef, useState } from 'react';
 import { Linking, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -121,166 +122,172 @@ export function LiveRiderTrip() {
           locationSource={trip.location?.source ?? null}
         />
       </View>
-      <ScrollView
-        contentContainerStyle={[
-          layout.pad,
-          {
-            paddingBottom: Math.max(insets.bottom, spacing.md),
-            backgroundColor: colors.surface2,
-          },
-        ]}
-      >
-        <StatusPill
-          tone={
-            trip.status === 'cancelled'
-              ? 'orange'
-              : trip.status === 'assigned' || trip.status === 'arrived'
-                ? 'yellow'
-                : 'green'
-          }
-          label={tripStatusLabel(trip.status)}
-        />
-        <Text style={layout.footnote}>Passenger</Text>
-        <Text style={layout.title}>{trip.passengerName}</Text>
-        <Text style={layout.body}>{trip.pickupNote || trip.dropoffLabel}</Text>
-        <Text style={layout.secondary}>
-          {locationAgeLabel(trip.location?.recordedAt ?? null, now, trip.location?.source ?? null)}
-        </Text>
-        <Text style={layout.footnote}>Agreed fare · locked · cash</Text>
-        <Text style={layout.fare}>{formatNaira(trip.agreedFareKobo)}</Text>
-        {cashMatches ? null : <Notice message="The cash record does not match the locked fare." />}
-        {tripApi.error ? <Notice message={tripApi.error} /> : null}
-        {trip.status === 'assigned' || trip.status === 'arrived' || started ? (
-          <Button
-            label="Navigate"
-            variant="secondary"
-            onPress={() => {
-              void Linking.openURL(googleDirectionsUrl(target));
-            }}
-            testID="navigate"
+      <Sheet style={{ maxHeight: '68%', paddingBottom: Math.max(insets.bottom, spacing.md) }}>
+        <ScrollView contentContainerStyle={{ gap: spacing.md, paddingBottom: spacing.sm }}>
+          <StatusPill
+            tone={
+              trip.status === 'cancelled'
+                ? 'orange'
+                : trip.status === 'assigned' || trip.status === 'arrived'
+                  ? 'yellow'
+                  : 'green'
+            }
+            label={tripStatusLabel(trip.status)}
           />
-        ) : null}
-        {gps === false && trip.status !== 'completed' && trip.status !== 'cancelled' ? (
-          <>
-            <Notice message="Phone location is off. A test pin is not your GPS and is not used to find new passengers." />
+          <Text style={layout.footnote}>Passenger</Text>
+          <Text style={layout.title}>{trip.passengerName}</Text>
+          <Text style={layout.body}>{trip.pickupNote || trip.dropoffLabel}</Text>
+          <Text style={layout.secondary}>
+            {locationAgeLabel(
+              trip.location?.recordedAt ?? null,
+              now,
+              trip.location?.source ?? null,
+            )}
+          </Text>
+          <Text style={layout.footnote}>Agreed fare · locked · cash</Text>
+          <Text style={layout.fare}>{formatNaira(trip.agreedFareKobo)}</Text>
+          {cashMatches ? null : (
+            <Notice message="The cash record does not match the locked fare." />
+          )}
+          {tripApi.error ? <Notice message={tripApi.error} /> : null}
+          {trip.status === 'assigned' || trip.status === 'arrived' || started ? (
             <Button
-              label="Send test location"
+              label="Navigate"
               variant="secondary"
               onPress={() => {
-                const next = Math.min(1, testStep + 0.25);
-                setTestStep(next);
-                void tripApi.sendLocation(stepToward(trip.pickup, trip.dropoff, next), 'simulated');
+                void Linking.openURL(googleDirectionsUrl(target));
               }}
-              testID="test-location"
+              testID="navigate"
             />
-          </>
-        ) : null}
-        {trip.status === 'assigned' ? (
-          <Button
-            label="Arrived"
-            disabled={tripApi.busy}
-            onPress={() => void tripApi.arrive()}
-            testID="arrived"
-          />
-        ) : null}
-        {trip.status === 'arrived' ? (
-          <>
-            <Text accessibilityRole="header" style={layout.title}>
-              Boarding PIN
-            </Text>
-            <Text style={layout.secondary}>
-              Ask {trip.passengerName} for the 4-digit PIN on their phone.
-            </Text>
-            <PinDigits value={pin} />
-            {trip.pinLocked ? null : (
-              <PinPad
-                onDigit={addDigit}
-                onBackspace={() => setPin((value) => value.slice(0, -1))}
-              />
-            )}
-          </>
-        ) : null}
-        {started && !confirmCash ? (
-          <Button
-            label="End trip"
-            disabled={!cashMatches || tripApi.busy}
-            onPress={() => setConfirmCash(true)}
-            testID="end-trip"
-          />
-        ) : null}
-        {started && confirmCash ? (
-          <>
-            <Text style={layout.body}>
-              Did you receive {formatNaira(trip.agreedFareKobo)} in cash from {trip.passengerName}?
-            </Text>
-            <Button
-              label="Received cash"
-              disabled={tripApi.busy}
-              onPress={() => void tripApi.complete()}
-              testID="cash-yes"
-            />
-            <Button label="Not yet" variant="ghost" onPress={() => setConfirmCash(false)} />
-          </>
-        ) : null}
-        {trip.status === 'completed' ? (
-          <>
-            <Text style={layout.headline}>Cash received · {formatNaira(trip.agreedFareKobo)}</Text>
-            <Button label="Done" onPress={tripApi.dismiss} testID="live-done" />
-          </>
-        ) : null}
-        {trip.status === 'cancelled' ? (
-          <>
-            <Notice message={trip.cancelReason ?? 'This trip was cancelled.'} />
-            <Button label="Done" onPress={tripApi.dismiss} testID="live-done" />
-          </>
-        ) : null}
-        {trip.status === 'completed' || trip.status === 'cancelled' ? null : cancelling ? (
-          <>
-            <Text style={layout.secondary}>
-              {started
-                ? 'This trip has started. Stopping it keeps the fare on record and does not mark the cash paid.'
-                : 'Cancelling keeps the agreed fare on record.'}
-            </Text>
-            {reasons.map((item) => (
+          ) : null}
+          {gps === false && trip.status !== 'completed' && trip.status !== 'cancelled' ? (
+            <>
+              <Notice message="Phone location is off. A test pin is not your GPS and is not used to find new passengers." />
               <Button
-                key={item}
-                size="compact"
-                label={item}
-                variant={reason === item ? 'primary' : 'secondary'}
-                onPress={() => setReason(item)}
+                label="Send test location"
+                variant="secondary"
+                onPress={() => {
+                  const next = Math.min(1, testStep + 0.25);
+                  setTestStep(next);
+                  void tripApi.sendLocation(
+                    stepToward(trip.pickup, trip.dropoff, next),
+                    'simulated',
+                  );
+                }}
+                testID="test-location"
               />
-            ))}
-            <Field
-              label="Reason"
-              value={reason}
-              onChangeText={setReason}
-              maxLength={280}
-              testID="cancel-reason"
-            />
+            </>
+          ) : null}
+          {trip.status === 'assigned' ? (
             <Button
-              label={started ? 'Stop this started trip' : 'Cancel trip'}
-              variant="danger"
-              disabled={reason.trim().length === 0 || tripApi.busy}
-              onPress={() => {
-                void tripApi.cancel(reason.trim(), started).then((message) => {
-                  if (!message) {
-                    setCancelling(false);
-                  }
-                });
-              }}
-              testID="confirm-cancel"
+              label="Arrived"
+              disabled={tripApi.busy}
+              onPress={() => void tripApi.arrive()}
+              testID="arrived"
             />
-            <Button label="Keep the trip" variant="ghost" onPress={() => setCancelling(false)} />
-          </>
-        ) : (
-          <Button
-            label="Cancel trip"
-            variant="danger"
-            onPress={() => setCancelling(true)}
-            testID="cancel-trip"
-          />
-        )}
-      </ScrollView>
+          ) : null}
+          {trip.status === 'arrived' ? (
+            <>
+              <Text accessibilityRole="header" style={layout.title}>
+                Boarding PIN
+              </Text>
+              <Text style={layout.secondary}>
+                Ask {trip.passengerName} for the 4-digit PIN on their phone.
+              </Text>
+              <PinDigits value={pin} />
+              {trip.pinLocked ? null : (
+                <PinPad
+                  onDigit={addDigit}
+                  onBackspace={() => setPin((value) => value.slice(0, -1))}
+                />
+              )}
+            </>
+          ) : null}
+          {started && !confirmCash ? (
+            <Button
+              label="End trip"
+              disabled={!cashMatches || tripApi.busy}
+              onPress={() => setConfirmCash(true)}
+              testID="end-trip"
+            />
+          ) : null}
+          {started && confirmCash ? (
+            <>
+              <Text style={layout.body}>
+                Did you receive {formatNaira(trip.agreedFareKobo)} in cash from {trip.passengerName}
+                ?
+              </Text>
+              <Button
+                label="Received cash"
+                disabled={tripApi.busy}
+                onPress={() => void tripApi.complete()}
+                testID="cash-yes"
+              />
+              <Button label="Not yet" variant="ghost" onPress={() => setConfirmCash(false)} />
+            </>
+          ) : null}
+          {trip.status === 'completed' ? (
+            <>
+              <Text style={layout.headline}>
+                Cash received · {formatNaira(trip.agreedFareKobo)}
+              </Text>
+              <Button label="Done" onPress={tripApi.dismiss} testID="live-done" />
+            </>
+          ) : null}
+          {trip.status === 'cancelled' ? (
+            <>
+              <Notice message={trip.cancelReason ?? 'This trip was cancelled.'} />
+              <Button label="Done" onPress={tripApi.dismiss} testID="live-done" />
+            </>
+          ) : null}
+          {trip.status === 'completed' || trip.status === 'cancelled' ? null : cancelling ? (
+            <>
+              <Text style={layout.secondary}>
+                {started
+                  ? 'This trip has started. Stopping it keeps the fare on record and does not mark the cash paid.'
+                  : 'Cancelling keeps the agreed fare on record.'}
+              </Text>
+              {reasons.map((item) => (
+                <Button
+                  key={item}
+                  size="compact"
+                  label={item}
+                  variant={reason === item ? 'primary' : 'secondary'}
+                  onPress={() => setReason(item)}
+                />
+              ))}
+              <Field
+                label="Reason"
+                value={reason}
+                onChangeText={setReason}
+                maxLength={280}
+                testID="cancel-reason"
+              />
+              <Button
+                label={started ? 'Stop this started trip' : 'Cancel trip'}
+                variant="danger"
+                disabled={reason.trim().length === 0 || tripApi.busy}
+                onPress={() => {
+                  void tripApi.cancel(reason.trim(), started).then((message) => {
+                    if (!message) {
+                      setCancelling(false);
+                    }
+                  });
+                }}
+                testID="confirm-cancel"
+              />
+              <Button label="Keep the trip" variant="ghost" onPress={() => setCancelling(false)} />
+            </>
+          ) : (
+            <Button
+              label="Cancel trip"
+              variant="danger"
+              onPress={() => setCancelling(true)}
+              testID="cancel-trip"
+            />
+          )}
+        </ScrollView>
+      </Sheet>
     </Screen>
   );
 }

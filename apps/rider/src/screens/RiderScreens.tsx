@@ -549,7 +549,7 @@ function OnTrip() {
       <View style={{ flex: 1 }}>
         <MapCanvas
           title="On trip"
-          subtitle="Updated 5s ago"
+          subtitle="Map preview. Google Maps is not configured, so this is not a live street map."
           destination={riderRequest.destination}
         />
       </View>
