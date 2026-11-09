@@ -240,6 +240,17 @@ export function FareScreen() {
         </Pressable>
         {state.notice ? <Notice message={state.notice} /> : null}
         {booking.error ? <Notice message={booking.error} /> : null}
+        {booking.enabled && !booking.pickupReady ? (
+          <>
+            <Notice message="Pickup is the sample point at Allen Avenue, Ikeja, not your phone." />
+            <Button
+              label="Use Allen Avenue as pickup"
+              variant="secondary"
+              onPress={booking.confirmSamplePickup}
+              testID="confirm-sample-pickup"
+            />
+          </>
+        ) : null}
       </ScrollView>
       <View style={[layout.footer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <Text style={layout.footnote}>Cash · pay the rider at the end</Text>

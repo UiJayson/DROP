@@ -28,6 +28,8 @@ import {
   type LiveTrip,
   type ServerFareQuote,
 } from '@drop/shared';
+
+import { SAMPLE_PICKUP_MESSAGE, canRequestPickup, type PickupSource } from './pickup';
 import {
   createContext,
   useContext,
@@ -85,6 +87,7 @@ type Pickup = {
 type BookingApi = {
   enabled: boolean;
   pickupLabel: string;
+  pickupReady: boolean;
   destination: BookingPlace | null;
   quote: ServerFareQuote | null;
   results: BookingPlace[];
@@ -100,6 +103,7 @@ type BookingApi = {
   setQuery: (query: string) => void;
   pick: (id: string) => Promise<ServerFareQuote | null>;
   requestDrop: (offerKobo: number, note: string) => Promise<boolean>;
+  confirmSamplePickup: () => void;
   raise: (offerKobo: number) => Promise<boolean>;
   keepWaiting: () => Promise<boolean>;
   cancel: () => Promise<void>;
@@ -111,6 +115,7 @@ type BookingApi = {
 const disabledBooking: BookingApi = {
   enabled: false,
   pickupLabel: '',
+  pickupReady: false,
   destination: null,
   quote: null,
   results: [],
@@ -126,6 +131,7 @@ const disabledBooking: BookingApi = {
   setQuery: () => undefined,
   pick: async () => null,
   requestDrop: async () => false,
+  confirmSamplePickup: () => undefined,
   raise: async () => false,
   keepWaiting: async () => false,
   cancel: async () => undefined,
@@ -180,6 +186,7 @@ export function BookingProvider({
     lng: ikejaTestPickup.lng,
     label: ikejaTestPickup.label,
   });
+  const [pickupSource, setPickupSource] = useState<PickupSource>('sample');
   const [query, setQuery] = useState('');
   const [remote, setRemote] = useState<BookingPlace[]>([]);
   const [destination, setDestination] = useState<BookingPlace | null>(null);
@@ -205,6 +212,7 @@ export function BookingProvider({
     void readCoords().then((next) => {
       if (active && next) {
         setPickup(next);
+        setPickupSource('device');
       }
     });
     return () => {
@@ -339,6 +347,7 @@ export function BookingProvider({
     return {
       enabled: true,
       pickupLabel: pickup.label,
+      pickupReady: canRequestPickup(pickupSource),
       destination,
       quote,
       results,
@@ -394,6 +403,7 @@ export function BookingProvider({
                 label: ikejaTestPickup.label,
               };
               setPickup(fallback);
+              setPickupSource('sample');
               nextQuote = await quoteFor(dropoff, fallback);
               setError(
                 'Your location is outside the service area, so pickup is Allen Avenue for now.',
@@ -422,6 +432,10 @@ export function BookingProvider({
           setError('Choose a destination first.');
           return false;
         }
+        if (!canRequestPickup(pickupSource)) {
+          setError(SAMPLE_PICKUP_MESSAGE);
+          return false;
+        }
         setBusy(true);
         setError(null);
         try {
@@ -446,6 +460,10 @@ export function BookingProvider({
         } finally {
           setBusy(false);
         }
+      },
+      confirmSamplePickup: () => {
+        setPickupSource('confirmed-sample');
+        setError(null);
       },
       raise: async (offerKobo) => {
         if (!requestId) {
@@ -576,6 +594,7 @@ export function BookingProvider({
     mapsKey,
     offers,
     pickup,
+    pickupSource,
     point,
     quote,
     radiusM,
