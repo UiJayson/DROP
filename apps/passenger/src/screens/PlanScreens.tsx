@@ -38,6 +38,7 @@ export function SearchScreen() {
         <Header title="Where to?" onBack={() => dispatch({ type: 'back' })} />
       </View>
       <View style={layout.bodyPad}>
+        <Text style={layout.footnote}>Destination</Text>
         <SearchField
           value={state.query}
           onChangeText={(query) => {

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 describe('passenger placeholder', () => {
   it('uses the DROP name on the dark yellow theme', () => {
     expect(product.name).toBe('DROP');
-    expect(colors.bg).toBe('#0A0A0B');
+    expect(colors.bg).toBe('#09090B');
     expect(colors.primary).toBe('#FFC629');
   });
 });

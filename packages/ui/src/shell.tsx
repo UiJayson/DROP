@@ -2,7 +2,7 @@ import { colors, radii, spacing } from '@drop/ui-tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { AccessibilityInfo, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { prefersStaticMotion } from './routing';
@@ -60,7 +60,8 @@ export function Screen({
 }) {
   return (
     <LinearGradient
-      colors={[colors.gradTop, colors.gradBottom]}
+      colors={[colors.gradTop, colors.gradMid, colors.gradBottom]}
+      locations={[0, 0.42, 1]}
       style={[styles.screen, padded && styles.padded]}
       testID={testID}
     >
@@ -87,6 +88,24 @@ const styles = StyleSheet.create({
   padded: {
     padding: spacing.md,
   },
+  sheet: {
+    borderTopLeftRadius: radii.sheet,
+    borderTopRightRadius: radii.sheet,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    gap: spacing.sm,
+  },
 });
+
+export function Sheet({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
+  return (
+    <LinearGradient
+      colors={[colors.gradSheetTop, colors.gradSheetBottom]}
+      style={[styles.sheet, style]}
+    >
+      {children}
+    </LinearGradient>
+  );
+}
 
 export const sheetRadius = radii.sheet;

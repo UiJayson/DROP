@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   },
   button: {
     minHeight: tapTarget.riderPrimaryHeightDp,
-    borderRadius: radii.pill,
+    borderRadius: radii.control,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
