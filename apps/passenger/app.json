@@ -22,7 +22,14 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "name": "DROP",
+      "shortName": "DROP",
+      "description": "Preview a DROP Keke ride.",
+      "lang": "en",
+      "themeColor": "#FFC629",
+      "backgroundColor": "#000000",
+      "display": "standalone",
+      "favicon": "./public/icons/icon-192.png"
     }
   }
 }

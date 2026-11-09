@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "expo start --port 8081",
+    "export:web": "expo export --platform web",
     "android": "expo start --android --port 8081",
     "ios": "expo start --ios --port 8081",
     "lint": "expo lint",
