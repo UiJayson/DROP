@@ -4,12 +4,12 @@
 
 ## Stage
 
-| | |
-| --- | --- |
-| Product | Lagos Keke MVP. Negotiated fare, riders already carrying passengers may accept, cash only. |
-| Merged on `main` | `7a1a281` — M0–M4 (auth, matching, PIN, live trip, cash, cancel). |
+|                  |                                                                                                                                                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Product          | Lagos Keke MVP. Negotiated fare, riders already carrying passengers may accept, cash only.                                                                                                                                                                   |
+| Merged on `main` | `7a1a281` — M0–M4 (auth, matching, PIN, live trip, cash, cancel).                                                                                                                                                                                            |
 | Open, not merged | [PR 7](https://github.com/UiJayson/DROP/pull/7) `cursor/drop-dark-ui-7759` @ `5d0f0b0`. Visual only: charcoal gradient, white fares/plates/PIN, yellow actions. CI on that commit: lint/typecheck/test **success**, migrations/RLS **success** (7 Nov 2026). |
-| This file | Docs only, added on the PR 7 branch after `5d0f0b0`. |
+| This file        | Docs only, added on the PR 7 branch after `5d0f0b0`.                                                                                                                                                                                                         |
 
 **Works in code (merged, and still true on the UI branch):** phone sign-in client, rider KYC upload, admin approve/reject, fare quote with zone checks, request/offer/select, hashed PIN with 3 attempts and a 1-minute cap, trip statuses, cash completion for the locked fare, cancel that does not mark cash paid, passenger-only PIN row.
 
@@ -75,8 +75,8 @@
 
 ## Who does what
 
-| Cursor can code | Jeremiah must do |
-| --- | --- |
+| Cursor can code                                                                                               | Jeremiah must do                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Ikeja ping stop, pickup confirm, Realtime PIN check, `expo-location` foreground, route-cache trust, RPC retry | Practice phone-auth provider, admin user, confirm the live zone in Studio, install a device build, pick a NIN provider later, merge/deploy approval |
 
 ## Cursor kickoff
