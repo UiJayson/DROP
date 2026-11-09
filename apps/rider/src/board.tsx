@@ -6,9 +6,10 @@ import {
   withdrawRideOffer,
   type DropSupabase,
 } from '@drop/api-client';
-import { ikejaTestPickup, type RiderInboxItem } from '@drop/shared';
+import { type RiderInboxItem } from '@drop/shared';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { matchingPing } from './matching-fix';
 import { useRider } from './rider-context';
 
 type BoardApi = {
@@ -118,16 +119,16 @@ export function BoardProvider({
     }
     let active = true;
     const send = async () => {
-      const located = await readCoords();
-      const point = located ?? { lat: ikejaTestPickup.lat, lng: ikejaTestPickup.lng };
+      const decision = matchingPing(await readCoords());
       if (!active) {
         return;
       }
-      if (!located) {
-        setError('Location is off, so you are shown at Allen Avenue, Ikeja.');
+      if (!decision.send) {
+        setError(decision.message);
+        return;
       }
       try {
-        await pingRiderLocation(client, point);
+        await pingRiderLocation(client, decision.point);
       } catch (pingError) {
         if (active) {
           setError(problem(pingError));
