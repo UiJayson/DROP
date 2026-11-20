@@ -30,6 +30,7 @@
       "backgroundColor": "#000000",
       "display": "standalone",
       "favicon": "./public/icons/icon-192.png"
-    }
+    },
+    "plugins": ["expo-font"]
   }
 }
