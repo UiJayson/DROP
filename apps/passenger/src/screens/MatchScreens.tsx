@@ -383,10 +383,7 @@ function OfferSelected() {
 
   return (
     <Screen testID="screen-offer" tone="vanta">
-      <HeaderSheet
-        clip={false}
-        style={{ paddingTop: Math.max(insets.top, 8), minHeight: 268, paddingBottom: 20 }}
-      >
+      <HeaderSheet clip={false} style={{ paddingTop: Math.max(insets.top, 8) }}>
         <View style={styles.headerRow}>
           <IconCircleButton
             label="Back"
@@ -402,25 +399,27 @@ function OfferSelected() {
             onPress={() => dispatch({ type: 'back' })}
           />
         </View>
-        <View style={styles.riderRow}>
-          <InitialAvatar letter={offer.name.slice(0, 1)} fontFamily={font.bold} size={52} />
-          <View style={styles.riderCopy}>
-            <Text style={[styles.riderName, { fontFamily: font.bold }]}>{offer.name}</Text>
-            <View style={styles.riderMeta}>
-              <YellowStar />
-              <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
-                {offer.rating.toFixed(1)}
-              </Text>
-              <KekeGlyph size={13} color={vanta.muted} />
-              <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
-                {offer.rides.toLocaleString('en-NG')} trips
-              </Text>
+        <View style={styles.riderBlock}>
+          <View style={styles.riderRow}>
+            <InitialAvatar letter={offer.name.slice(0, 1)} fontFamily={font.bold} size={52} />
+            <View style={styles.riderCopy}>
+              <Text style={[styles.riderName, { fontFamily: font.bold }]}>{offer.name}</Text>
+              <View style={styles.riderMeta}>
+                <YellowStar />
+                <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
+                  {offer.rating.toFixed(1)}
+                </Text>
+                <KekeGlyph size={13} color={vanta.muted} />
+                <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
+                  {offer.rides.toLocaleString('en-NG')} trips
+                </Text>
+              </View>
+              <Pill label={offer.seats > 0 ? `Carrying ${offer.seats}` : 'Verified'} tone="solid" />
             </View>
-            <Pill label={offer.seats > 0 ? `Carrying ${offer.seats}` : 'Verified'} tone="solid" />
           </View>
-        </View>
-        <View style={styles.kekeBleed} pointerEvents="none">
-          <KekeArt width={176} />
+          <View style={styles.kekeBleed} pointerEvents="none">
+            <KekeArt width={168} />
+          </View>
         </View>
       </HeaderSheet>
       <ScrollView contentContainerStyle={{ paddingBottom: 150, gap: 14 }}>
@@ -508,19 +507,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 12,
   },
+  riderBlock: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginTop: 10,
+  },
   riderRow: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginTop: 18,
   },
-  riderCopy: { flex: 1, gap: 4, paddingRight: 88 },
+  riderCopy: { flex: 1, gap: 4 },
   riderMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   kekeBleed: {
-    position: 'absolute',
-    right: -28,
-    bottom: 14,
-    zIndex: 3,
+    marginRight: -40,
+    marginBottom: -8,
   },
   grow: { flex: 1, gap: 4 },
   riderName: {
