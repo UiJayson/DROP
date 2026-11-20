@@ -17,3 +17,17 @@ export { prefersStaticMotion, readInitialScreen, readPreview } from './routing';
 export { AppShell, Screen, Sheet, useReduceMotion } from './shell';
 export { CodeSignIn, NameSignIn, PhoneSignIn, StatusMessage, useNow } from './sign-in';
 export { typeStyle } from './theme';
+export { GlowCard, GlowSurface, HeaderSheet } from './glow';
+export { KekeArt, KekeGlyph } from './keke';
+export {
+  DatePillStrip,
+  FloatingTabBar,
+  IconCircleButton,
+  MetalButton,
+  Pill,
+  VantaText,
+} from './vanta-controls';
+export type { VantaTab } from './vanta-controls';
+export { VantaFontProvider, useVantaFont } from './vanta-font';
+export type { VantaFaces } from './vanta-font';
+export { FeatureChip, RideOfferCard, RouteTimeline } from './vanta-ride';

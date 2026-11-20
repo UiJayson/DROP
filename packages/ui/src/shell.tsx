@@ -1,4 +1,4 @@
-import { colors, radii, spacing } from '@drop/ui-tokens';
+import { colors, radii, spacing, vanta } from '@drop/ui-tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
@@ -53,11 +53,20 @@ export function Screen({
   children,
   testID,
   padded = false,
+  tone = 'app',
 }: {
   children: ReactNode;
   testID: string;
   padded?: boolean;
+  tone?: 'app' | 'vanta';
 }) {
+  if (tone === 'vanta') {
+    return (
+      <View style={[styles.screen, styles.vanta, padded && styles.padded]} testID={testID}>
+        {children}
+      </View>
+    );
+  }
   return (
     <LinearGradient
       colors={[colors.gradTop, colors.gradMid, colors.gradBottom]}
@@ -84,6 +93,9 @@ const styles = StyleSheet.create({
   },
   screen: {
     flex: 1,
+  },
+  vanta: {
+    backgroundColor: vanta.page,
   },
   padded: {
     padding: spacing.md,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { colors, lightColors } from './colors';
+import { metalCta, surfaceGlow, vanta } from './vanta';
 import { darkCssVariables } from './css';
 import { radii, spacing, tapTarget } from './spacing';
 import { typeScale } from './typography';
@@ -40,6 +41,17 @@ describe('design tokens', () => {
     expect(tapTarget.minDp).toBe(48);
     expect(tapTarget.minPt).toBe(44);
     expect(tapTarget.riderPrimaryHeightDp).toBe(56);
+  });
+
+  it('keeps the Vanta metallic surfaces separate from the app tokens', () => {
+    expect(vanta.page).toBe('#040405');
+    expect(vanta.surface).toBe('#1D1C21');
+    expect(vanta.yellow).toBe('#FFC629');
+    expect(surfaceGlow.card.cy).toBe('100%');
+    expect(surfaceGlow.header.cy).toBe('0%');
+    expect(metalCta[0]).toBe('#FFFFFF');
+    expect(metalCta[2]).toBe('#9B9B9B');
+    expect(colors.bg).not.toBe(vanta.page);
   });
 
   it('exposes the dark colours as CSS variables', () => {
