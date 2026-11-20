@@ -383,7 +383,10 @@ function OfferSelected() {
 
   return (
     <Screen testID="screen-offer" tone="vanta">
-      <HeaderSheet clip={false} style={{ paddingTop: Math.max(insets.top, 8) }}>
+      <HeaderSheet
+        clip={false}
+        style={{ paddingTop: Math.max(insets.top, 8), minHeight: 268, paddingBottom: 20 }}
+      >
         <View style={styles.headerRow}>
           <IconCircleButton
             label="Back"
@@ -417,7 +420,7 @@ function OfferSelected() {
           </View>
         </View>
         <View style={styles.kekeBleed} pointerEvents="none">
-          <KekeArt width={200} />
+          <KekeArt width={176} />
         </View>
       </HeaderSheet>
       <ScrollView contentContainerStyle={{ paddingBottom: 150, gap: 14 }}>
@@ -515,8 +518,8 @@ const styles = StyleSheet.create({
   riderMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   kekeBleed: {
     position: 'absolute',
-    right: -52,
-    top: 56,
+    right: -28,
+    bottom: 14,
     zIndex: 3,
   },
   grow: { flex: 1, gap: 4 },

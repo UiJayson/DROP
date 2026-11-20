@@ -81,7 +81,7 @@ export function HomeScreen() {
         <View style={styles.hero}>
           <StreetMap />
           <View style={styles.koke} pointerEvents="none">
-            <KekeArt width={168} glow />
+            <KekeArt width={104} glow />
           </View>
           <View style={[styles.heroCopy, { paddingTop: Math.max(insets.top, 12) }]}>
             <View style={styles.topRow}>
@@ -310,8 +310,8 @@ const styles = StyleSheet.create({
   },
   koke: {
     position: 'absolute',
-    right: -18,
-    top: 4,
+    right: 28,
+    top: 78,
   },
   heroCopy: {
     ...StyleSheet.absoluteFill,

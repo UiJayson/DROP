@@ -1,4 +1,6 @@
-import './images';
+// Type-only. Metro cannot load a .d.ts, and a normal import turns the wildcard into an invalid augmentation.
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="./images.d.ts" />
 import { vanta } from '@drop/ui-tokens';
 import { Image, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
