@@ -17,7 +17,10 @@ import {
   GlowCard,
   HeaderSheet,
   IconCircleButton,
+  InitialAvatar,
   KekeArt,
+  KekeGlyph,
+  YellowStar,
   MetalButton,
   Notice,
   Pill,
@@ -243,6 +246,7 @@ function OfferCard({ offer, offers }: { offer: PrototypeOffer; offers: Prototype
       rides={offer.rides}
       tag={offerTag(offer, offers)}
       etaLabel={`${offer.etaMin} min`}
+      spanLabel={offer.seats > 0 ? `${offer.dropoffMin} min` : 'Direct'}
       price={formatNaira(offer.amountKobo)}
       acceptLabel="Accept"
       onAccept={() => dispatch({ type: 'chooseOffer', id: offer.id })}
@@ -380,56 +384,67 @@ function OfferSelected() {
   return (
     <Screen testID="screen-offer" tone="vanta">
       <ScrollView contentContainerStyle={{ paddingBottom: 150, gap: 14 }}>
-        <HeaderSheet style={{ paddingTop: Math.max(insets.top, 8) }}>
-          <View style={styles.headerRow}>
-            <IconCircleButton
-              label="Back"
-              icon="arrow-left"
-              onPress={() => dispatch({ type: 'back' })}
-            />
-            <Text
-              accessibilityRole="header"
-              style={[styles.headerTitle, { fontFamily: font.bold }]}
-            >
-              Rider details
-            </Text>
-            <IconCircleButton
-              label="Back to offers"
-              icon="sliders"
-              onPress={() => dispatch({ type: 'back' })}
-            />
-          </View>
-          <View style={styles.riderRow}>
-            <View style={styles.avatar}>
-              <Text style={[styles.initial, { fontFamily: font.bold }]}>
-                {offer.name.slice(0, 1)}
+        <View>
+          <HeaderSheet style={{ paddingTop: Math.max(insets.top, 8) }}>
+            <View style={styles.headerRow}>
+              <IconCircleButton
+                label="Back"
+                icon="arrow-left"
+                onPress={() => dispatch({ type: 'back' })}
+              />
+              <Text
+                accessibilityRole="header"
+                style={[styles.headerTitle, { fontFamily: font.bold }]}
+              >
+                Rider details
               </Text>
+              <IconCircleButton
+                label="Back to offers"
+                icon="sliders"
+                onPress={() => dispatch({ type: 'back' })}
+              />
             </View>
-            <View style={styles.grow}>
-              <Text style={[styles.riderName, { fontFamily: font.bold }]}>{offer.name}</Text>
-              <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
-                {offer.rating.toFixed(1)} · {offer.rides.toLocaleString('en-NG')} trips
-              </Text>
-              <Pill label={offer.seats > 0 ? `Carrying ${offer.seats}` : 'Verified'} tone="solid" />
+            <View style={styles.riderRow}>
+              <InitialAvatar letter={offer.name.slice(0, 1)} fontFamily={font.bold} size={52} />
+              <View style={styles.riderCopy}>
+                <Text style={[styles.riderName, { fontFamily: font.bold }]}>{offer.name}</Text>
+                <View style={styles.riderMeta}>
+                  <YellowStar />
+                  <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
+                    {offer.rating.toFixed(1)}
+                  </Text>
+                  <KekeGlyph size={13} color={vanta.muted} />
+                  <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
+                    {offer.rides.toLocaleString('en-NG')} trips
+                  </Text>
+                </View>
+                <Pill
+                  label={offer.seats > 0 ? `Carrying ${offer.seats}` : 'Verified'}
+                  tone="solid"
+                />
+              </View>
             </View>
-            <KekeArt width={120} />
+          </HeaderSheet>
+          <View style={styles.kekeBleed} pointerEvents="none">
+            <KekeArt width={230} />
           </View>
-        </HeaderSheet>
+        </View>
         <View style={styles.list}>
           <RouteTimeline
             pickupTime={`${offer.etaMin} min`}
-            pickupTitle={pickup.title}
-            pickupDetail={state.landmark || pickup.note}
-            dropoffTime="Drop-off"
-            dropoffTitle={place?.name ?? 'Destination'}
-            dropoffDetail={place?.detail ?? 'Chosen on the previous step'}
-          />
-          <View style={styles.chips}>
+            pickupName="23rd Road"
+            pickupStation="Festac Town"
+            pickupAddress={state.landmark || pickup.note}
+            dropoffTime="End"
+            dropoffName={place?.name ?? 'Destination'}
+            dropoffStation="Drop-off"
+            dropoffAddress={place?.detail ?? 'Chosen on the previous step'}
+          >
             <FeatureChip icon="clock" label={`${offer.etaMin} min`} />
             <FeatureChip icon="user" label={offer.seats > 0 ? 'Shared' : 'Solo Drop'} />
             <FeatureChip icon="tag" label={offer.plate} />
             <FeatureChip icon="credit-card" label="Cash" />
-          </View>
+          </RouteTimeline>
           <GlowCard>
             <View style={styles.fareRow}>
               <View style={styles.grow}>
@@ -504,19 +519,12 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 18,
   },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: '#2A292F',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: vanta.rim,
-  },
-  initial: {
-    color: vanta.text,
-    fontSize: 18,
+  riderCopy: { flex: 1, gap: 4, paddingRight: 88 },
+  riderMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  kekeBleed: {
+    position: 'absolute',
+    right: -28,
+    top: 64,
   },
   grow: { flex: 1, gap: 4 },
   riderName: {

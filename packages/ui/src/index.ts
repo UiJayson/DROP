@@ -18,7 +18,8 @@ export { AppShell, Screen, Sheet, useReduceMotion } from './shell';
 export { CodeSignIn, NameSignIn, PhoneSignIn, StatusMessage, useNow } from './sign-in';
 export { typeStyle } from './theme';
 export { GlowCard, GlowSurface, HeaderSheet } from './glow';
-export { KekeArt, KekeGlyph } from './keke';
+export { KekeArt, KekeGlyph, YellowStar } from './keke';
+export { StreetMap } from './street';
 export {
   DatePillStrip,
   FloatingTabBar,
@@ -30,4 +31,4 @@ export {
 export type { VantaTab } from './vanta-controls';
 export { VantaFontProvider, useVantaFont } from './vanta-font';
 export type { VantaFaces } from './vanta-font';
-export { FeatureChip, RideOfferCard, RouteTimeline } from './vanta-ride';
+export { FeatureChip, InitialAvatar, RideOfferCard, RouteTimeline } from './vanta-ride';

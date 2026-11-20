@@ -13,7 +13,6 @@ import {
   type TextStyle,
 } from 'react-native';
 
-import { GlowSurface } from './glow';
 import { tapHaptic } from './haptics';
 import { useReduceMotion } from './shell';
 import { useVantaFont } from './vanta-font';
@@ -158,7 +157,12 @@ export function FloatingTabBar({
   const activeFill = accent === 'yellow' ? vanta.yellow : vanta.white;
   return (
     <View style={styles.tabWrap} pointerEvents="box-none">
-      <GlowSurface kind="card" radius={32} style={styles.tabBar}>
+      <LinearGradient
+        pointerEvents="none"
+        colors={['rgba(4,4,5,0)', 'rgba(4,4,5,0.94)']}
+        style={styles.tabFade}
+      />
+      <View style={styles.tabPill}>
         <View style={styles.tabRow}>
           {tabs.map((tab) => {
             const selected = tab.id === active;
@@ -183,7 +187,7 @@ export function FloatingTabBar({
             );
           })}
         </View>
-      </GlowSurface>
+      </View>
     </View>
   );
 }
@@ -309,12 +313,24 @@ const styles = StyleSheet.create({
   },
   tabWrap: {
     position: 'absolute',
-    left: 20,
-    right: 20,
-    bottom: 18,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    paddingBottom: 18,
   },
-  tabBar: {
-    alignSelf: 'center',
+  tabFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 108,
+  },
+  tabPill: {
+    borderRadius: 999,
+    backgroundColor: vanta.surface,
+    borderWidth: 1,
+    borderColor: vanta.rim,
   },
   tabRow: {
     flexDirection: 'row',

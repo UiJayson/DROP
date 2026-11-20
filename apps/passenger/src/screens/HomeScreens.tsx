@@ -13,8 +13,8 @@ import {
   GlowCard,
   IconCircleButton,
   KekeArt,
-  MapCanvas,
   Screen,
+  StreetMap,
   useVantaFont,
   type VantaTab,
 } from '@drop/ui';
@@ -79,10 +79,9 @@ export function HomeScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.hero}>
-          <MapCanvas kekes={area.nearby} />
-          <View style={styles.heroShade} pointerEvents="none" />
-          <View style={[styles.koke, { top: Math.max(insets.top, 12) + 36 }]} pointerEvents="none">
-            <KekeArt width={150} />
+          <StreetMap />
+          <View style={styles.koke} pointerEvents="none">
+            <KekeArt width={210} glow />
           </View>
           <View style={[styles.heroCopy, { paddingTop: Math.max(insets.top, 12) }]}>
             <View style={styles.topRow}>
@@ -307,15 +306,13 @@ function QuietCopy() {
 const styles = StyleSheet.create({
   hero: {
     height: 280,
-    backgroundColor: vanta.pageDeep,
-  },
-  heroShade: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(4,4,5,0.35)',
+    backgroundColor: vanta.page,
+    overflow: 'hidden',
   },
   koke: {
     position: 'absolute',
-    right: 8,
+    right: -36,
+    top: 18,
   },
   heroCopy: {
     ...StyleSheet.absoluteFill,
