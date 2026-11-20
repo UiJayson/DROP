@@ -1,0 +1,54 @@
+name: Passenger preview
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: passenger-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Export passenger web
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Export without secret keys
+        env:
+          DROP_WEB_BASE: /DROP
+          EXPO_PUBLIC_SUPABASE_URL: ''
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ''
+          EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: ''
+          EXPO_PUBLIC_SENTRY_DSN: ''
+        run: pnpm --filter @drop/passenger export:web
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/passenger/dist
+
+  deploy:
+    name: Deploy GitHub Pages
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
