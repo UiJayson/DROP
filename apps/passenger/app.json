@@ -31,6 +31,6 @@
       "display": "standalone",
       "favicon": "./public/icons/icon-192.png"
     },
-    "plugins": ["expo-font"]
+    "plugins": ["expo-font", "@maplibre/maplibre-react-native"]
   }
 }

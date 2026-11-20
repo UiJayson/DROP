@@ -14,7 +14,6 @@ import {
   IconCircleButton,
   KekeArt,
   Screen,
-  StreetMap,
   useVantaFont,
   type VantaTab,
 } from '@drop/ui';
@@ -25,7 +24,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAccount } from '../account';
 import { layout } from '../layout';
+import { RideMap } from '../map/RideMap';
 import { usePassenger } from '../passenger-context';
+
+const homeCameraPadding = { top: 168, right: 24, bottom: 72, left: 24 };
 
 export function HomeScreen() {
   const { state, dispatch } = usePassenger();
@@ -34,6 +36,9 @@ export function HomeScreen() {
   const account = useAccount();
   const [safety, setSafety] = useState(false);
   const [pickingArea, setPickingArea] = useState(false);
+  const [mapTone, setMapTone] = useState<'light' | 'dark'>('light');
+  const ink = mapTone === 'light' ? '#1F1F1F' : vanta.text;
+  const mute = mapTone === 'light' ? '#616262' : vanta.muted;
   const area = areas[state.area];
   const rebookPlace = placeById(rebookPlaceId);
   const rebookQuote = quoteForPlace(rebookPlaceId);
@@ -74,41 +79,56 @@ export function HomeScreen() {
 
   return (
     <Screen testID={state.route === 'quiet' ? 'screen-quiet' : 'screen-home'} tone="vanta">
+      <View style={styles.hero}>
+        <RideMap
+          pickup={{ lat: pickup.lat, lng: pickup.lng, label: pickup.title }}
+          dropoff={null}
+          fallbackTitle={pickup.area}
+          controlsInset={{ bottom: 44, right: 12 }}
+          cameraPadding={homeCameraPadding}
+          onTone={setMapTone}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.koke} pointerEvents="none">
+          <KekeArt width={104} glow />
+        </View>
+        <View
+          pointerEvents="box-none"
+          style={[styles.heroCopy, { paddingTop: Math.max(insets.top, 12) }]}
+        >
+          <View style={styles.topRow}>
+            <Text style={[styles.word, { fontFamily: font.bold, color: vanta.yellow }]}>DROP</Text>
+            <View style={styles.topActions}>
+              <IconCircleButton
+                label="Search"
+                icon="search"
+                onPress={() => dispatch({ type: 'openSearch' })}
+              />
+              <IconCircleButton
+                label="Safety"
+                icon="bell"
+                onPress={() => setSafety(true)}
+                testID="safety"
+              />
+            </View>
+          </View>
+          <Text
+            accessibilityRole="header"
+            style={[styles.hello, { fontFamily: font.bold, color: ink }]}
+          >
+            {hello}
+          </Text>
+          <Text style={[styles.tag, { fontFamily: font.regular, color: mute }]}>
+            Travel where you want. Agree the fare, then pay the rider in cash.
+          </Text>
+        </View>
+      </View>
+
       <ScrollView
+        style={styles.scroll}
         contentContainerStyle={{ paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.hero}>
-          <StreetMap />
-          <View style={styles.koke} pointerEvents="none">
-            <KekeArt width={104} glow />
-          </View>
-          <View style={[styles.heroCopy, { paddingTop: Math.max(insets.top, 12) }]}>
-            <View style={styles.topRow}>
-              <Text style={[styles.word, { fontFamily: font.bold }]}>DROP</Text>
-              <View style={styles.topActions}>
-                <IconCircleButton
-                  label="Search"
-                  icon="search"
-                  onPress={() => dispatch({ type: 'openSearch' })}
-                />
-                <IconCircleButton
-                  label="Safety"
-                  icon="bell"
-                  onPress={() => setSafety(true)}
-                  testID="safety"
-                />
-              </View>
-            </View>
-            <Text accessibilityRole="header" style={[styles.hello, { fontFamily: font.bold }]}>
-              {hello}
-            </Text>
-            <Text style={[styles.tag, { fontFamily: font.regular }]}>
-              Travel where you want. Agree the fare, then pay the rider in cash.
-            </Text>
-          </View>
-        </View>
-
         <View style={styles.sheet}>
           <View style={styles.searchCard}>
             <View style={styles.fromTo}>
@@ -305,8 +325,12 @@ function QuietCopy() {
 
 const styles = StyleSheet.create({
   hero: {
-    height: 280,
-    backgroundColor: vanta.page,
+    height: 400,
+    backgroundColor: '#FAFAFA',
+  },
+  scroll: {
+    flex: 1,
+    marginTop: -28,
   },
   koke: {
     position: 'absolute',

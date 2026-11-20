@@ -6,7 +6,7 @@ export const layout = StyleSheet.create({
   fill: { flex: 1 },
   mapSlot: { flex: 1, minHeight: 180 },
   mapHome: { height: 240 },
-  mapShort: { height: 188 },
+  mapShort: { height: 320 },
   overlayTop: {
     position: 'absolute',
     top: 0,

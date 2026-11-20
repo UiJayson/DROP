@@ -87,6 +87,8 @@ type Pickup = {
 type BookingApi = {
   enabled: boolean;
   pickupLabel: string;
+  pickupPoint: { lat: number; lng: number } | null;
+  dropoffPoint: { lat: number; lng: number } | null;
   pickupReady: boolean;
   destination: BookingPlace | null;
   quote: ServerFareQuote | null;
@@ -115,6 +117,8 @@ type BookingApi = {
 const disabledBooking: BookingApi = {
   enabled: false,
   pickupLabel: '',
+  pickupPoint: null,
+  dropoffPoint: null,
   pickupReady: false,
   destination: null,
   quote: null,
@@ -347,6 +351,8 @@ export function BookingProvider({
     return {
       enabled: true,
       pickupLabel: pickup.label,
+      pickupPoint: { lat: pickup.lat, lng: pickup.lng },
+      dropoffPoint: point,
       pickupReady: canRequestPickup(pickupSource),
       destination,
       quote,

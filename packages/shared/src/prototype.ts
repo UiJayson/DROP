@@ -11,10 +11,16 @@ export const festacFareRule = {
 
 export const BOARDING_PIN = '4821';
 
+/**
+ * 23rd Road has no OpenStreetMap node. This point sits halfway between the
+ * mapped 22 Road and 24 Road in Festac Town.
+ */
 export const pickup = {
   title: '23rd Road, Festac Town',
   note: 'Near Shoprite gate, blue kiosk',
   area: 'Festac Town',
+  lat: 6.465153,
+  lng: 3.279827,
 } as const;
 
 export const areas = {
@@ -42,6 +48,8 @@ export type Place = {
   name: string;
   detail: string;
   distanceM: number;
+  lat: number;
+  lng: number;
   recent: boolean;
   restricted: boolean;
 };
@@ -52,6 +60,9 @@ export const places: readonly Place[] = [
     name: 'Shoprite Festac',
     detail: '23rd Avenue gate',
     distanceM: 1_800,
+    // OSM has no Shoprite node. This is the Festac Town place point.
+    lat: 6.468273,
+    lng: 3.283937,
     recent: true,
     restricted: false,
   },
@@ -60,6 +71,8 @@ export const places: readonly Place[] = [
     name: 'Mile 2 Bus Stop',
     detail: 'Under the bridge',
     distanceM: 3_200,
+    lat: 6.458794,
+    lng: 3.313405,
     recent: true,
     restricted: false,
   },
@@ -68,6 +81,8 @@ export const places: readonly Place[] = [
     name: 'Alaba International',
     detail: 'Main gate, electronics line',
     distanceM: 8_400,
+    lat: 6.460523,
+    lng: 3.1906,
     recent: false,
     restricted: false,
   },
@@ -76,6 +91,8 @@ export const places: readonly Place[] = [
     name: 'Trade Fair Complex',
     detail: 'Gate 2',
     distanceM: 6_100,
+    lat: 6.469265,
+    lng: 3.253575,
     recent: true,
     restricted: false,
   },
@@ -84,6 +101,8 @@ export const places: readonly Place[] = [
     name: 'Amuwo Odofin',
     detail: 'Council junction',
     distanceM: 4_500,
+    lat: 6.447057,
+    lng: 3.266316,
     recent: false,
     restricted: false,
   },
@@ -92,6 +111,8 @@ export const places: readonly Place[] = [
     name: 'Third Mainland Bridge',
     detail: 'Outside the Keke service area',
     distanceM: 12_000,
+    lat: 6.502441,
+    lng: 3.40233,
     recent: false,
     restricted: true,
   },

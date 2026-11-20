@@ -12,6 +12,8 @@ export {
   Stars,
 } from './inputs';
 export { MapCanvas, TripMap } from './map';
+export { framePoints, rideFrame, rideMapColors, rideMapStyle } from './ride-map-style';
+export type { RideFrame, RideMapStyle, RidePin, RidePinKind } from './ride-map-style';
 export { enterSpring, pressInSpring, pressOutSpring } from './motion';
 export { prefersStaticMotion, readInitialScreen, readPreview } from './routing';
 export { AppShell, Screen, Sheet, useReduceMotion } from './shell';

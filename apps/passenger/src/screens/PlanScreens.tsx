@@ -5,7 +5,6 @@ import {
   FareStepper,
   Field,
   Header,
-  MapCanvas,
   Notice,
   Screen,
   SearchField,
@@ -16,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useBooking } from '../booking';
 import { layout } from '../layout';
+import { RideMap } from '../map/RideMap';
 import { usePassenger } from '../passenger-context';
 
 export function SearchScreen() {
@@ -134,13 +134,30 @@ export function FareScreen() {
   }
   const lowball = state.offerKobo < quote.suggestedLowKobo;
   const who = state.forOther ? state.riderFor.trim() || 'Someone else' : 'For me';
+  const pickupPoint =
+    booking.enabled && booking.pickupPoint
+      ? {
+          lat: booking.pickupPoint.lat,
+          lng: booking.pickupPoint.lng,
+          label: booking.pickupLabel,
+        }
+      : { lat: pickup.lat, lng: pickup.lng, label: pickup.title };
+  const bookedPlace = !live && state.placeId ? placeById(state.placeId) : undefined;
+  const dropoffPoint =
+    booking.enabled && booking.dropoffPoint
+      ? { ...booking.dropoffPoint, label: place.name }
+      : bookedPlace
+        ? { lat: bookedPlace.lat, lng: bookedPlace.lng, label: bookedPlace.name }
+        : null;
 
   return (
     <Screen testID="screen-fare">
       <View style={layout.mapShort}>
-        <MapCanvas
-          title={live ? booking.pickupLabel : pickup.area}
-          destination={place.name}
+        <RideMap
+          pickup={pickupPoint}
+          dropoff={dropoffPoint}
+          fallbackTitle={live ? booking.pickupLabel : pickup.area}
+          fallbackDetail={place.name}
           kekes={state.area === 'festac' ? 12 : 0}
         />
       </View>
