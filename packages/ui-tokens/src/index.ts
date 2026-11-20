@@ -1,4 +1,5 @@
 export { colors, gradients, lightColors } from './colors';
+export { metalCta, pillFill, surfaceGlow, vanta } from './vanta';
 export type { ColorToken } from './colors';
 export { darkCssVariables } from './css';
 export { radii, screenMargin, spacing, tapTarget } from './spacing';

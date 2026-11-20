@@ -3,6 +3,8 @@ import {
   etaMinutes,
   formatNaira,
   nairaToKobo,
+  pickup,
+  placeById,
   radiusSearchLabel,
   type PrototypeOffer,
 } from '@drop/shared';
@@ -10,16 +12,27 @@ import {
   Button,
   DemoBridge,
   Enter,
-  Header,
-  MapCanvas,
+  FeatureChip,
+  FloatingTabBar,
+  GlowCard,
+  HeaderSheet,
+  IconCircleButton,
+  InitialAvatar,
+  KekeArt,
+  KekeGlyph,
+  YellowStar,
+  MetalButton,
   Notice,
+  Pill,
+  RideOfferCard,
+  RouteTimeline,
   Screen,
-  Sheet,
-  StatusPill,
+  useVantaFont,
+  type VantaTab,
 } from '@drop/ui';
-import { spacing } from '@drop/ui-tokens';
+import { vanta } from '@drop/ui-tokens';
 import { useEffect, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useBooking } from '../booking';
@@ -119,55 +132,76 @@ function Searching() {
       ? `Looking for the first rider at ${formatNaira(state.offerKobo)}`
       : '5 riders are viewing your request';
 
+  const font = useVantaFont();
+  const place = state.placeId ? placeById(state.placeId) : undefined;
+
+  function onTab(tab: VantaTab) {
+    if (tab === 'home') {
+      if (!booking.enabled) {
+        dispatch({ type: 'cancel' });
+      }
+      return;
+    }
+    if (tab === 'safety' || tab === 'account') {
+      dispatch({ type: 'back' });
+    }
+  }
+
   return (
-    <Screen testID={state.route === 'offers' ? 'screen-offers' : 'screen-searching'}>
-      <View style={layout.mapShort}>
-        <MapCanvas title="Festac Town" radar kekes={12} />
-      </View>
-      <Sheet
-        style={[
-          layout.fill,
-          { overflow: 'hidden', paddingBottom: Math.max(insets.bottom, spacing.md) },
-        ]}
+    <Screen testID={state.route === 'offers' ? 'screen-offers' : 'screen-searching'} tone="vanta">
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 120, gap: 12 }}
+        keyboardShouldPersistTaps="handled"
       >
-        <View style={layout.grabber} />
-        <ScrollView
-          style={{ flex: 1, minHeight: 0 }}
-          contentContainerStyle={{ gap: spacing.sm, paddingBottom: spacing.sm }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {state.route === 'searching' ? (
-            <>
-              <Text accessibilityRole="header" style={layout.headline}>
-                Finding riders
-              </Text>
-              <Text style={layout.title} accessibilityLiveRegion="polite">
-                {left == null ? '1:00' : clock(left)}
-              </Text>
-              <Text style={layout.footnote}>
-                {radiusSearchLabel(booking.enabled ? booking.radiusM : null)}
-              </Text>
-              <Text style={layout.body}>{viewing}</Text>
-              <Text style={layout.headline}>{formatNaira(state.offerKobo)} · Cash</Text>
-            </>
-          ) : (
-            <>
-              <Text accessibilityRole="header" style={layout.headline}>
-                {offers.length} {offers.length === 1 ? 'offer' : 'offers'} · sorted by arrival
-              </Text>
-              {offers.map((offer, index) => (
-                <OfferCard key={offer.id} offer={offer} index={index} />
-              ))}
-            </>
-          )}
-          {booking.enabled ? null : (
+        <HeaderSheet style={{ paddingTop: Math.max(insets.top, 8) }}>
+          <View style={styles.headerRow}>
+            <IconCircleButton
+              label="Back"
+              icon="arrow-left"
+              onPress={() => dispatch({ type: 'back' })}
+            />
+            <Text
+              accessibilityRole="header"
+              style={[styles.headerTitle, { fontFamily: font.bold }]}
+            >
+              {state.route === 'searching' ? 'Finding riders' : 'Rider offers'}
+            </Text>
+            <IconCircleButton
+              label="Offers stay sorted by arrival"
+              icon="sliders"
+              onPress={() => undefined}
+            />
+          </View>
+          <Text
+            style={[styles.headerMeta, { fontFamily: font.medium }]}
+            accessibilityLiveRegion="polite"
+          >
+            {state.route === 'searching'
+              ? `${left == null ? '1:00' : clock(left)} · ${formatNaira(state.offerKobo)} cash`
+              : `${offers.length} ${offers.length === 1 ? 'offer' : 'offers'}${left == null ? '' : ` · ${clock(left)}`}`}
+          </Text>
+          <Text style={[styles.headerSub, { fontFamily: font.regular }]}>
+            {state.route === 'searching'
+              ? `${viewing} ${radiusSearchLabel(booking.enabled ? booking.radiusM : null)}`
+              : `To ${place?.name ?? 'your drop-off'} · cash, fare locked when you accept`}
+          </Text>
+        </HeaderSheet>
+        <View style={styles.list}>
+          {state.route === 'offers'
+            ? offers.map((offer, index) => (
+                <Enter key={offer.id} delay={index * 40}>
+                  <OfferCard offer={offer} offers={offers} />
+                </Enter>
+              ))
+            : null}
+          {!booking.enabled && offers.length === 0 ? (
             <Button
               label="No riders yet"
               variant="secondary"
               onPress={() => dispatch({ type: 'noOffers' })}
               testID="no-offers"
             />
-          )}
+          ) : null}
           {booking.error ? <Notice message={booking.error} /> : null}
           <Button
             label="Cancel"
@@ -181,67 +215,45 @@ function Searching() {
             }}
             testID="cancel-search"
           />
-        </ScrollView>
-      </Sheet>
+        </View>
+      </ScrollView>
+      <FloatingTabBar active="ride" accent="white" onChange={onTab} />
     </Screen>
   );
 }
 
-function OfferCard({ offer, index }: { offer: PrototypeOffer; index: number }) {
+function offerTag(offer: PrototypeOffer, offers: PrototypeOffer[]): string {
+  const cheapest = Math.min(...offers.map((item) => item.amountKobo));
+  const closest = Math.min(...offers.map((item) => item.etaMin));
+  if (offer.amountKobo === cheapest) {
+    return 'Cheapest';
+  }
+  if (offer.etaMin === closest) {
+    return 'Closest';
+  }
+  if (offer.seats > 0) {
+    return 'Shared';
+  }
+  return offer.kind === 'counter' ? 'Counter' : 'Your price';
+}
+
+function OfferCard({ offer, offers }: { offer: PrototypeOffer; offers: PrototypeOffer[] }) {
   const { dispatch } = usePassenger();
   return (
-    <Enter delay={index * 40}>
-      <View style={layout.offerCard}>
-        <View style={layout.row}>
-          <Text style={layout.fare}>{formatNaira(offer.amountKobo)}</Text>
-          <Text style={layout.headline}>{offer.etaMin} min</Text>
-        </View>
-        <Text style={layout.footnote}>
-          {offer.kind === 'counter' ? 'Counter offer' : 'Your price'}
-        </Text>
-        {offer.seats > 0 ? (
-          <StatusPill tone="orange" label={`Carrying ${offer.seats} passengers`} />
-        ) : null}
-        <View style={[layout.row, { justifyContent: 'flex-start' }]}>
-          <View style={layout.avatar}>
-            <Text style={layout.avatarText}>{offer.name.slice(0, 1)}</Text>
-          </View>
-          <View style={layout.grow}>
-            <Text style={layout.headline}>{offer.name}</Text>
-            <Text style={layout.secondary}>
-              {offer.rating.toFixed(2)} · {offer.rides.toLocaleString('en-NG')} rides
-            </Text>
-          </View>
-        </View>
-        <Text style={layout.plate}>
-          {offer.colour} Keke · {offer.plate}
-        </Text>
-        {offer.seats > 0 ? (
-          <Text style={layout.footnote}>
-            Drops them in about {offer.dropoffMin} min, then comes to you.
-          </Text>
-        ) : null}
-        <View style={layout.actions}>
-          <View style={layout.grow}>
-            <Button
-              size="compact"
-              label="Decline"
-              variant="secondary"
-              onPress={() => dispatch({ type: 'declineOffer', id: offer.id })}
-              testID={`decline-${offer.id}`}
-            />
-          </View>
-          <View style={layout.grow}>
-            <Button
-              size="compact"
-              label="Choose"
-              onPress={() => dispatch({ type: 'chooseOffer', id: offer.id })}
-              testID={`choose-${offer.id}`}
-            />
-          </View>
-        </View>
-      </View>
-    </Enter>
+    <RideOfferCard
+      name={offer.name}
+      rating={offer.rating}
+      rides={offer.rides}
+      tag={offerTag(offer, offers)}
+      etaLabel={`${offer.etaMin} min`}
+      spanLabel={offer.seats > 0 ? `${offer.dropoffMin} min` : 'Direct'}
+      price={formatNaira(offer.amountKobo)}
+      acceptLabel="Accept"
+      onAccept={() => dispatch({ type: 'chooseOffer', id: offer.id })}
+      onDecline={() => dispatch({ type: 'declineOffer', id: offer.id })}
+      acceptTestID={`choose-${offer.id}`}
+      declineTestID={`decline-${offer.id}`}
+    />
   );
 }
 
@@ -320,6 +332,7 @@ function OfferSelected() {
   const { state, dispatch } = usePassenger();
   const booking = useBooking();
   const insets = useSafeAreaInsets();
+  const font = useVantaFont();
   const live = booking.offers.find((item) => item.id === state.offerId);
   const offer = live
     ? {
@@ -345,54 +358,200 @@ function OfferSelected() {
       />
     );
   }
+  const place = state.placeId ? placeById(state.placeId) : undefined;
+
+  function confirm() {
+    if (!booking.enabled || !state.offerId) {
+      dispatch({ type: 'confirmOffer' });
+      return;
+    }
+    void booking.select(state.offerId).then((ok) => {
+      if (ok) {
+        dispatch({ type: 'confirmOffer' });
+      }
+    });
+  }
+
+  function onTab(tab: VantaTab) {
+    if (tab === 'home' && !booking.enabled) {
+      dispatch({ type: 'cancel' });
+    }
+    if (tab === 'ride') {
+      dispatch({ type: 'back' });
+    }
+  }
+
   return (
-    <Screen testID="screen-offer">
-      <View style={{ paddingTop: Math.max(insets.top, spacing.xs) }}>
-        <Header title="Confirm rider" onBack={() => dispatch({ type: 'back' })} />
-      </View>
-      <ScrollView contentContainerStyle={[layout.bodyPad, { paddingBottom: spacing.lg }]}>
-        <Text style={layout.footnote}>Agreed fare, locked if you confirm</Text>
-        <Text style={layout.fare}>{formatNaira(offer.amountKobo)}</Text>
-        <View style={layout.card}>
-          <Text style={layout.title}>{offer.name}</Text>
-          <Text style={layout.secondary}>
-            {offer.rating.toFixed(2)} · {offer.rides.toLocaleString('en-NG')} rides · {offer.etaMin}{' '}
-            min
+    <Screen testID="screen-offer" tone="vanta">
+      <HeaderSheet
+        clip={false}
+        style={{ paddingTop: Math.max(insets.top, 8), minHeight: 268, paddingBottom: 20 }}
+      >
+        <View style={styles.headerRow}>
+          <IconCircleButton
+            label="Back"
+            icon="arrow-left"
+            onPress={() => dispatch({ type: 'back' })}
+          />
+          <Text accessibilityRole="header" style={[styles.headerTitle, { fontFamily: font.bold }]}>
+            Rider details
           </Text>
-          <Text style={layout.plate}>
-            {offer.colour} Keke · {offer.plate}
-          </Text>
-          {offer.seats > 0 ? (
-            <StatusPill tone="orange" label={`Carrying ${offer.seats} passengers`} />
-          ) : (
-            <StatusPill tone="green" label="Empty Keke" />
-          )}
+          <IconCircleButton
+            label="Back to offers"
+            icon="sliders"
+            onPress={() => dispatch({ type: 'back' })}
+          />
         </View>
-        <Text style={layout.secondary}>
-          {state.forOther && state.riderFor.trim()
-            ? `This Drop is for ${state.riderFor.trim()}. `
-            : ''}
-          Pickup note: {state.landmark}
-        </Text>
+        <View style={styles.riderRow}>
+          <InitialAvatar letter={offer.name.slice(0, 1)} fontFamily={font.bold} size={52} />
+          <View style={styles.riderCopy}>
+            <Text style={[styles.riderName, { fontFamily: font.bold }]}>{offer.name}</Text>
+            <View style={styles.riderMeta}>
+              <YellowStar />
+              <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
+                {offer.rating.toFixed(1)}
+              </Text>
+              <KekeGlyph size={13} color={vanta.muted} />
+              <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
+                {offer.rides.toLocaleString('en-NG')} trips
+              </Text>
+            </View>
+            <Pill label={offer.seats > 0 ? `Carrying ${offer.seats}` : 'Verified'} tone="solid" />
+          </View>
+        </View>
+        <View style={styles.kekeBleed} pointerEvents="none">
+          <KekeArt width={176} />
+        </View>
+      </HeaderSheet>
+      <ScrollView contentContainerStyle={{ paddingBottom: 150, gap: 14 }}>
+        <View style={styles.list}>
+          <RouteTimeline
+            pickupTime={`${offer.etaMin} min`}
+            pickupName="23rd Road"
+            pickupStation="Festac Town"
+            pickupAddress={state.landmark || pickup.note}
+            dropoffTime="End"
+            dropoffName={place?.name ?? 'Destination'}
+            dropoffStation="Drop-off"
+            dropoffAddress={place?.detail ?? 'Chosen on the previous step'}
+          >
+            <FeatureChip icon="clock" label={`${offer.etaMin} min`} />
+            <FeatureChip icon="user" label={offer.seats > 0 ? 'Shared' : 'Solo Drop'} />
+            <FeatureChip icon="tag" label={offer.plate} />
+            <FeatureChip icon="credit-card" label="Cash" />
+          </RouteTimeline>
+          <GlowCard>
+            <View style={styles.fareRow}>
+              <View style={styles.grow}>
+                <Text style={[styles.fareLabel, { fontFamily: font.medium }]}>Agreed fare</Text>
+                <Text style={[styles.fareHint, { fontFamily: font.regular }]}>
+                  {state.forOther && state.riderFor.trim()
+                    ? `For ${state.riderFor.trim()}`
+                    : 'Locked if you confirm'}
+                </Text>
+              </View>
+              <Text style={[styles.fareValue, { fontFamily: font.bold }]}>
+                {formatNaira(offer.amountKobo)}
+              </Text>
+            </View>
+          </GlowCard>
+          <GlowCard>
+            <View style={styles.fareRow}>
+              <View style={styles.grow}>
+                <Text style={[styles.fareLabel, { fontFamily: font.medium }]}>Payment</Text>
+                <Text style={[styles.fareHint, { fontFamily: font.regular }]}>
+                  {offer.colour} Keke · pay the rider
+                </Text>
+              </View>
+              <Text style={[styles.cash, { fontFamily: font.bold }]}>Cash</Text>
+            </View>
+          </GlowCard>
+          {booking.error ? <Notice message={booking.error} /> : null}
+          <MetalButton
+            label="Confirm rider"
+            disabled={booking.busy}
+            onPress={confirm}
+            testID="confirm-rider"
+          />
+        </View>
       </ScrollView>
-      <View style={[layout.footer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
-        <Button
-          label="Confirm rider"
-          disabled={booking.busy}
-          onPress={() => {
-            if (!booking.enabled || !state.offerId) {
-              dispatch({ type: 'confirmOffer' });
-              return;
-            }
-            void booking.select(state.offerId).then((ok) => {
-              if (ok) {
-                dispatch({ type: 'confirmOffer' });
-              }
-            });
-          }}
-          testID="confirm-rider"
-        />
-      </View>
+      <FloatingTabBar active="ride" accent="white" onChange={onTab} />
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  headerTitle: {
+    color: vanta.text,
+    fontSize: 18,
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerMeta: {
+    color: vanta.text,
+    fontSize: 16,
+    marginTop: 16,
+  },
+  headerSub: {
+    color: vanta.muted,
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 4,
+  },
+  list: {
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  riderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 18,
+  },
+  riderCopy: { flex: 1, gap: 4, paddingRight: 88 },
+  riderMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  kekeBleed: {
+    position: 'absolute',
+    right: -28,
+    bottom: 14,
+    zIndex: 3,
+  },
+  grow: { flex: 1, gap: 4 },
+  riderName: {
+    color: vanta.text,
+    fontSize: 18,
+  },
+  chips: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  fareRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  fareLabel: {
+    color: vanta.text,
+    fontSize: 15,
+  },
+  fareHint: {
+    color: vanta.muted,
+    fontSize: 13,
+    marginTop: 2,
+  },
+  fareValue: {
+    color: vanta.text,
+    fontSize: 20,
+  },
+  cash: {
+    color: vanta.yellow,
+    fontSize: 16,
+  },
+});

@@ -30,6 +30,8 @@
   },
   "dependencies": {
     "@drop/shared": "workspace:*",
-    "@drop/ui-tokens": "workspace:*"
+    "@drop/ui-tokens": "workspace:*",
+    "@expo/vector-icons": "^15.1.1",
+    "react-native-svg": "15.16.0"
   }
 }
