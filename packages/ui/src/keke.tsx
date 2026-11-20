@@ -1,3 +1,4 @@
+import './images';
 import { vanta } from '@drop/ui-tokens';
 import { Image, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
