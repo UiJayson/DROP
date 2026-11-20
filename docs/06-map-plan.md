@@ -2,7 +2,17 @@
 
 A plan for a real map under the passenger booking screen, with a sheet of rider choices. Sign-in, onboarding, and the way a ride is requested stay as they are. No fares are invented: the number on screen still comes from the fare suggestion we already calculate.
 
-The look we are aiming at is the soft city in the “Anywhere Ride” Dribbble shot: pale map, simple roads, a clear route, floating buttons, and a bottom sheet with Recommended, Faster, and Cheaper. That shot is a drawing. A live map of Lagos cannot be that drawing. The plan below says how close we can get.
+The look we are aiming at is Mohammad Ali’s “Anywhere Ride” shot on Dribbble. The files are in `docs/reference/anywhere/` (three screens, the hero phone, and the type and colour board), with the credit beside them. They are reference only. We do not ship those pictures.
+
+**The map in the shot is an illustration.** On the booking screen the top half is an isometric model: white and grey blocky buildings, pale grey roads with white lane lines, small round pastel-green trees, and a few small yellow and red cars. On the home screen the street is a near-white 3D render (a highway, white cars, a pale path). Neither image is a map of a real city. Our job is to get as close as a real map of Lagos can, then stop.
+
+The rest of the shot is ordinary UI, and we can match that more closely when we build:
+
+- A floating round back button, the title `Home → Work`, and a round `+` button over the city. The `+` is an extra stop. We do not have extra stops, so the first map keeps back and the route title only.
+- A white sheet with a top corner radius of about 28.
+- Pill tabs. Recommended is a filled black pill. Faster and Cheaper are outlined pills with a small icon.
+- A “Popular” heading, then white cards with a thin border. Each card has a side-view vehicle, a name, an ETA, a seat count, the price on the right, and one short line.
+- Type on the board is Lufga (Regular, Medium, Semibold). The board’s large swatches are `#1F1F1F`, `#FAFAFA`, and `#FFFFFF`. The screens also use `#EBEBEB`, `#BDBFC1`, and `#616262`, plus a small lavender accent. Keke Yellow stays our own accent for the keke. We check Lufga’s licence before embedding it. Until then the app keeps the face it already uses.
 
 ## What we have today
 
@@ -19,15 +29,19 @@ The passenger app does **not** use a map library. There is no Mapbox, MapLibre, 
 
 We need one map that works on Android first, on iPhone, and on the website we publish at `github.io/DROP`.
 
-| | Soft pastel 3D city | Lagos | Cost to start | Phone app | Website |
+| | How close to the illustration | Lagos | Cost to start | Phone app | Website |
 | --- | --- | --- | --- | --- | --- |
-| **MapLibre + OpenFreeMap** | A light style and a tilt. Buildings pop up only where OpenStreetMap has them. | Roads are usable. 3D buildings are patchy: some in Ikeja, Victoria Island, and Lagos Island; little or none on many streets, including much of Festac. | No account. Free, but nobody owes us uptime. | Needs a build we install (not the Expo Go app). | Yes. This is the one that fits GitHub Pages with no secret. |
-| **Mapbox Standard** | The closest: light colours, 3D boxes, some trees, a day/night light. Still a real map, not a toy city. | Same OpenStreetMap buildings. Lagos is not one of the cities Mapbox draws as famous landmarks, so do not expect detailed towers. | Free account, then a free monthly allowance. After that, Mapbox charges per map open. | Same: a custom install, not Expo Go. Their phone library does not run inside Expo Go. | Yes, with a public token. Restrict it to our site. |
-| **Google Maps** | A normal Google map, which we can make light grey. Their photo-real 3D city is not available for Lagos in any form we should plan on. | Best known place names and roads. | A billing account. Places and Routes are already the tools we call. The map itself is another bill, with a monthly credit that runs out. | A custom install. | Yes, but the key must not sit in the public Pages build. |
+| **Mapbox Standard, `light` or `dawn`, plus a monochrome theme** | The closest mood. Soft daylight, real 3D boxes, and a monochrome wash can sit near `#FAFAFA`, `#EBEBEB`, and `#BDBFC1`. It is still a perspective map of real streets, so the blocks will be irregular, not a neat isometric model. Trees show up in some cities as simple 3D trees, not the round pastel-green ones. It will not draw the little yellow and red cars. | Same OpenStreetMap buildings. Lagos is not one of the cities Mapbox draws as famous landmarks. Many streets will have roads and no blocks. | Free account, then a free monthly allowance. After that, Mapbox charges per map open. | A custom install, not Expo Go. | Yes, with a public token limited to our site. |
+| **MapLibre fill-extrusion, tinted to this palette** | The colour can match more tightly than Mapbox, because we paint every layer: land `#FAFAFA` or `#FFFFFF`, roads `#EBEBEB` with a white casing, buildings white to `#BDBFC1`, labels `#616262`. The boxes are blocky, which is the right kind of shape. The light is flat. There are no round trees and no toy cars. The camera is a tilt, not a true isometric. | Roads are usable. Buildings pop up only where OpenStreetMap has them: some in Ikeja, Victoria Island, and Lagos Island; little or none on many streets, including much of Festac. Inventing a height on every empty footprint would look fake, so we do not. | No account. Free, but nobody owes us uptime. | Needs a build we install (not Expo Go). | Yes. This is the one that fits GitHub Pages with no secret. |
+| **Google Maps** | A normal Google map, desaturated toward the same greys. Farther from the shot than either option above. Their photo-real 3D city is not something we should plan on for Lagos. | Best known place names and roads. | A billing account. Places and Routes are already the tools we call. The map itself is another bill. | A custom install. | Yes, but the key must not sit in the public Pages build. |
 
-**Recommendation.** Start with MapLibre and OpenFreeMap so the website and a phone build can show a real pale map with no new bill. Keep the drawn map as the fallback when the tiles fail. If the 3D view feels too plain after we have used it in Ikeja, move the same screen to Mapbox Standard. Do not start with Google’s 3D.
+**How close, in one line each.** Mapbox Standard gets the pale daylight and the soft 3D city, and misses the illustration’s toys. MapLibre gets the palette and the blocky buildings, and misses the soft light. Google gets a grey map and misses the model-city look. None of them can be the drawing.
 
-**What we cannot copy from the Dribbble shot.** Tiny illustrated cars, toy trees, and a perfect isometric model of every street. Mapbox can show simple 3D trees in some cities; Lagos will mostly not have them. We can add our own keke marker (the photo we already cut out) at the pickup and on the rider, and a coloured line for the route. That is the honest version of the shot.
+**The keke marker.** On top of either 3D map we place our own keke, not the shot’s cars. An SVG (or the cut-out photo we already have) is the reliable marker on the website and on the phone. A real 3D model is only worth trying later on Mapbox, and only for the one keke at the pickup. It does not fill the city with traffic.
+
+**Recommendation.** Start with MapLibre, tinted to this palette, so the website and a phone build can show a real pale map with no new bill. Keep the drawn map as the fallback when the tiles fail. If that view feels too flat after we have used it on a real Ikeja street, move the same screen to Mapbox Standard (`light` or `dawn`, monochrome) for the softer light. Do not start with Google’s 3D.
+
+**What we cannot copy.** The isometric camera, the perfect white block on every street, the round pastel trees, and the tiny yellow and red cars. A coloured route line and one keke marker are the honest stand-in.
 
 ## Search, location, and the fare
 
@@ -36,6 +50,8 @@ Keep Google Places and the Routes call we already have. They run only when Jerem
 The fare on the sheet is the existing suggestion: road distance if Google answered, otherwise the straight line, then the zone rule (base, per kilometre, minimum, low and high). The passenger still types the offer. Recommended, Faster, and Cheaper do not invent a new price.
 
 ## The bottom sheet
+
+The sheet itself follows the shot: white, top radius about 28, black filled Recommended pill, outlined Faster and Cheaper pills, then a heading and thin-bordered cards. On each card the side-view picture is our keke, the name is the rider, the ETA is the pickup time, the seat count is the people already in the keke, the price on the right is the naira offer, and the short line is the plate or “Solo Drop” / “Shared”. We do not draw Bolt, Comfort, or Taxi as products.
 
 The tabs sort the **same riders**, they do not sell three products.
 
@@ -71,10 +87,10 @@ Risks: Lagos 3D will look empty on many streets. Free tiles can be slow or stop.
 
 ## Steps we can ship one at a time
 
-1. **Real flat map.** Pale style, your dot, pickup and drop-off pins, on Android and on the Pages site. Drawn map if it fails.
+1. **Real flat map.** Land, roads, and labels tinted to `#FAFAFA`, `#EBEBEB`, `#BDBFC1`, and `#1F1F1F`. Your dot, pickup and drop-off pins, on Android and on the Pages site. Drawn map if it fails.
 2. **Route line.** Straight line first. Follow the road when we already have a Google key.
 3. **Sheet.** Recommended, Faster, Cheaper over the riders we already get. Solo Drop and Shared labels only.
 4. **Tilt.** A low 3D angle and buildings where the data exists. Judge it on a real Ikeja street before promising it.
-5. **Mapbox, only if step 4 is too plain.** Same screens, prettier light and trees where Mapbox has them.
+5. **Mapbox, only if step 4 is too flat.** Same screens, Standard style on `light` or `dawn`, monochrome, so the light gets closer to the illustration. Trees only where Mapbox already has them.
 
 Each step leaves sign-in, the fare rule, and the request flow working.
