@@ -10,11 +10,13 @@ export function GlowSurface({
   kind = 'card',
   radius = vanta.cardRadius,
   style,
+  clip = true,
 }: {
   children?: ReactNode;
   kind?: GlowKind;
   radius?: number;
   style?: StyleProp<ViewStyle>;
+  clip?: boolean;
 }) {
   const rawId = useId().replace(/:/g, '');
   const glowId = `glow-${rawId}`;
@@ -35,7 +37,8 @@ export function GlowSurface({
       style={[
         styles.surface,
         {
-          backgroundColor: vanta.surface,
+          backgroundColor: clip ? vanta.surface : 'transparent',
+          overflow: clip ? 'hidden' : 'visible',
           borderTopLeftRadius: topRadius,
           borderTopRightRadius: topRadius,
           borderBottomLeftRadius: bottomRadius,
@@ -99,12 +102,14 @@ export function GlowCard({
 export function HeaderSheet({
   children,
   style,
+  clip = true,
 }: {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
+  clip?: boolean;
 }) {
   return (
-    <GlowSurface kind="header" radius={vanta.sheetRadius} style={style}>
+    <GlowSurface kind="header" radius={vanta.sheetRadius} style={style} clip={clip}>
       <View style={styles.headerPad}>{children}</View>
     </GlowSurface>
   );
@@ -112,7 +117,7 @@ export function HeaderSheet({
 
 const styles = StyleSheet.create({
   surface: {
-    overflow: 'hidden',
+    position: 'relative',
   },
   content: {
     zIndex: 1,

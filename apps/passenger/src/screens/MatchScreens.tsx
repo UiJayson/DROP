@@ -194,14 +194,14 @@ function Searching() {
                 </Enter>
               ))
             : null}
-          {booking.enabled ? null : (
+          {!booking.enabled && offers.length === 0 ? (
             <Button
               label="No riders yet"
               variant="secondary"
               onPress={() => dispatch({ type: 'noOffers' })}
               testID="no-offers"
             />
-          )}
+          ) : null}
           {booking.error ? <Notice message={booking.error} /> : null}
           <Button
             label="Cancel"
@@ -383,52 +383,44 @@ function OfferSelected() {
 
   return (
     <Screen testID="screen-offer" tone="vanta">
-      <ScrollView contentContainerStyle={{ paddingBottom: 150, gap: 14 }}>
-        <View>
-          <HeaderSheet style={{ paddingTop: Math.max(insets.top, 8) }}>
-            <View style={styles.headerRow}>
-              <IconCircleButton
-                label="Back"
-                icon="arrow-left"
-                onPress={() => dispatch({ type: 'back' })}
-              />
-              <Text
-                accessibilityRole="header"
-                style={[styles.headerTitle, { fontFamily: font.bold }]}
-              >
-                Rider details
+      <HeaderSheet clip={false} style={{ paddingTop: Math.max(insets.top, 8) }}>
+        <View style={styles.headerRow}>
+          <IconCircleButton
+            label="Back"
+            icon="arrow-left"
+            onPress={() => dispatch({ type: 'back' })}
+          />
+          <Text accessibilityRole="header" style={[styles.headerTitle, { fontFamily: font.bold }]}>
+            Rider details
+          </Text>
+          <IconCircleButton
+            label="Back to offers"
+            icon="sliders"
+            onPress={() => dispatch({ type: 'back' })}
+          />
+        </View>
+        <View style={styles.riderRow}>
+          <InitialAvatar letter={offer.name.slice(0, 1)} fontFamily={font.bold} size={52} />
+          <View style={styles.riderCopy}>
+            <Text style={[styles.riderName, { fontFamily: font.bold }]}>{offer.name}</Text>
+            <View style={styles.riderMeta}>
+              <YellowStar />
+              <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
+                {offer.rating.toFixed(1)}
               </Text>
-              <IconCircleButton
-                label="Back to offers"
-                icon="sliders"
-                onPress={() => dispatch({ type: 'back' })}
-              />
+              <KekeGlyph size={13} color={vanta.muted} />
+              <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
+                {offer.rides.toLocaleString('en-NG')} trips
+              </Text>
             </View>
-            <View style={styles.riderRow}>
-              <InitialAvatar letter={offer.name.slice(0, 1)} fontFamily={font.bold} size={52} />
-              <View style={styles.riderCopy}>
-                <Text style={[styles.riderName, { fontFamily: font.bold }]}>{offer.name}</Text>
-                <View style={styles.riderMeta}>
-                  <YellowStar />
-                  <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
-                    {offer.rating.toFixed(1)}
-                  </Text>
-                  <KekeGlyph size={13} color={vanta.muted} />
-                  <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
-                    {offer.rides.toLocaleString('en-NG')} trips
-                  </Text>
-                </View>
-                <Pill
-                  label={offer.seats > 0 ? `Carrying ${offer.seats}` : 'Verified'}
-                  tone="solid"
-                />
-              </View>
-            </View>
-          </HeaderSheet>
-          <View style={styles.kekeBleed} pointerEvents="none">
-            <KekeArt width={230} />
+            <Pill label={offer.seats > 0 ? `Carrying ${offer.seats}` : 'Verified'} tone="solid" />
           </View>
         </View>
+        <View style={styles.kekeBleed} pointerEvents="none">
+          <KekeArt width={200} />
+        </View>
+      </HeaderSheet>
+      <ScrollView contentContainerStyle={{ paddingBottom: 150, gap: 14 }}>
         <View style={styles.list}>
           <RouteTimeline
             pickupTime={`${offer.etaMin} min`}
@@ -523,8 +515,9 @@ const styles = StyleSheet.create({
   riderMeta: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   kekeBleed: {
     position: 'absolute',
-    right: -28,
-    top: 64,
+    right: -52,
+    top: 56,
+    zIndex: 3,
   },
   grow: { flex: 1, gap: 4 },
   riderName: {

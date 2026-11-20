@@ -81,7 +81,7 @@ export function HomeScreen() {
         <View style={styles.hero}>
           <StreetMap />
           <View style={styles.koke} pointerEvents="none">
-            <KekeArt width={210} glow />
+            <KekeArt width={168} glow />
           </View>
           <View style={[styles.heroCopy, { paddingTop: Math.max(insets.top, 12) }]}>
             <View style={styles.topRow}>
@@ -307,12 +307,11 @@ const styles = StyleSheet.create({
   hero: {
     height: 280,
     backgroundColor: vanta.page,
-    overflow: 'hidden',
   },
   koke: {
     position: 'absolute',
-    right: -36,
-    top: 18,
+    right: -18,
+    top: 4,
   },
   heroCopy: {
     ...StyleSheet.absoluteFill,
