@@ -1,12 +1,4 @@
-import {
-  areas,
-  formatNaira,
-  passengerProfile,
-  pickup,
-  placeById,
-  quoteForPlace,
-  rebookPlaceId,
-} from '@drop/shared';
+import { areas, formatNaira, pickup, placeById, quoteForPlace, rebookPlaceId } from '@drop/shared';
 import {
   Button,
   FloatingTabBar,
@@ -14,8 +6,7 @@ import {
   IconCircleButton,
   KekeArt,
   Screen,
-  StreetMap,
-  useVantaFont,
+  typeStyle,
   type VantaTab,
 } from '@drop/ui';
 import { spacing, vanta } from '@drop/ui-tokens';
@@ -24,37 +15,34 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAccount } from '../account';
+import { useDemoPoint, useDemoShell } from '../demo/shell';
 import { layout } from '../layout';
+import { RideMap } from '../map/RideMap';
 import { usePassenger } from '../passenger-context';
+
+const homeCameraPadding = { top: 176, right: 96, bottom: 120, left: 32 };
 
 export function HomeScreen() {
   const { state, dispatch } = usePassenger();
   const insets = useSafeAreaInsets();
-  const font = useVantaFont();
-  const account = useAccount();
   const [safety, setSafety] = useState(false);
   const [pickingArea, setPickingArea] = useState(false);
   const area = areas[state.area];
   const rebookPlace = placeById(rebookPlaceId);
   const rebookQuote = quoteForPlace(rebookPlaceId);
-  const hello =
-    !account || account.phoneMask === '+234 80 ••• ••00'
-      ? `Hello, ${passengerProfile.name}`
-      : 'Hello';
-
+  const demo = useDemoShell();
+  const from = useDemoPoint();
   if (safety) {
     return (
       <Screen testID="screen-safety" padded tone="vanta">
         <View style={{ paddingTop: Math.max(insets.top, spacing.sm), gap: spacing.md, flex: 1 }}>
-          <Text accessibilityRole="header" style={[layout.title, { fontFamily: font.bold }]}>
+          <Text accessibilityRole="header" style={layout.title}>
             Safety
           </Text>
-          <Text style={[layout.body, { fontFamily: font.regular }]}>
+          <Text style={layout.body}>
             Share trip, call, and report sit on the trip itself. Nothing here interrupts booking.
           </Text>
-          <Text style={[layout.secondary, { fontFamily: font.regular }]}>
-            A trusted contact can be added after the prototype.
-          </Text>
+          <Text style={layout.secondary}>A trusted contact can be added after the prototype.</Text>
           <SignedInLine />
           <Button label="Back to booking" onPress={() => setSafety(false)} testID="close-safety" />
         </View>
@@ -64,7 +52,20 @@ export function HomeScreen() {
 
   function onTab(tab: VantaTab) {
     if (tab === 'ride') {
+      demo?.close();
       dispatch({ type: 'openSearch' });
+      return;
+    }
+    if (demo && tab === 'safety') {
+      demo.open('safety');
+      return;
+    }
+    if (demo && tab === 'account') {
+      demo.open('account');
+      return;
+    }
+    if (tab === 'home') {
+      demo?.close();
       return;
     }
     if (tab === 'safety' || tab === 'account') {
@@ -74,41 +75,47 @@ export function HomeScreen() {
 
   return (
     <Screen testID={state.route === 'quiet' ? 'screen-quiet' : 'screen-home'} tone="vanta">
+      <View style={styles.hero}>
+        <RideMap
+          pickup={{
+            lat: from?.lat ?? pickup.lat,
+            lng: from?.lng ?? pickup.lng,
+            label: from?.title ?? pickup.title,
+          }}
+          dropoff={null}
+          fallbackTitle={pickup.area}
+          controlsInset={{ bottom: 80, right: 16 }}
+          cameraPadding={homeCameraPadding}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.koke} pointerEvents="none">
+          <KekeArt width={48} glow />
+        </View>
+        <View
+          pointerEvents="box-none"
+          style={[styles.heroCopy, { paddingTop: Math.max(insets.top, 12) }]}
+        >
+          <View style={styles.topActions}>
+            <IconCircleButton
+              label="Search"
+              icon="search"
+              onPress={() => dispatch({ type: 'openSearch' })}
+            />
+            <IconCircleButton
+              label="Safety"
+              icon="bell"
+              onPress={() => (demo ? demo.open('safety') : setSafety(true))}
+              testID="safety"
+            />
+          </View>
+        </View>
+      </View>
+
       <ScrollView
+        style={styles.scroll}
         contentContainerStyle={{ paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.hero}>
-          <StreetMap />
-          <View style={styles.koke} pointerEvents="none">
-            <KekeArt width={104} glow />
-          </View>
-          <View style={[styles.heroCopy, { paddingTop: Math.max(insets.top, 12) }]}>
-            <View style={styles.topRow}>
-              <Text style={[styles.word, { fontFamily: font.bold }]}>DROP</Text>
-              <View style={styles.topActions}>
-                <IconCircleButton
-                  label="Search"
-                  icon="search"
-                  onPress={() => dispatch({ type: 'openSearch' })}
-                />
-                <IconCircleButton
-                  label="Safety"
-                  icon="bell"
-                  onPress={() => setSafety(true)}
-                  testID="safety"
-                />
-              </View>
-            </View>
-            <Text accessibilityRole="header" style={[styles.hello, { fontFamily: font.bold }]}>
-              {hello}
-            </Text>
-            <Text style={[styles.tag, { fontFamily: font.regular }]}>
-              Travel where you want. Agree the fare, then pay the rider in cash.
-            </Text>
-          </View>
-        </View>
-
         <View style={styles.sheet}>
           <View style={styles.searchCard}>
             <View style={styles.fromTo}>
@@ -116,10 +123,8 @@ export function HomeScreen() {
                 <View style={styles.stop}>
                   <View style={styles.dotYellow} />
                   <View>
-                    <Text style={[styles.fieldLabel, { fontFamily: font.medium }]}>From</Text>
-                    <Text style={[styles.fieldValue, { fontFamily: font.bold }]}>
-                      {pickup.title}
-                    </Text>
+                    <Text style={styles.fieldLabel}>From</Text>
+                    <Text style={styles.fieldValue}>{from?.title ?? pickup.title}</Text>
                   </View>
                 </View>
                 <View style={styles.rule} />
@@ -132,25 +137,27 @@ export function HomeScreen() {
                 >
                   <View style={styles.dotInk} />
                   <View>
-                    <Text style={[styles.fieldLabel, { fontFamily: font.medium }]}>To</Text>
-                    <Text style={[styles.fieldValue, { fontFamily: font.bold }]}>Where to?</Text>
+                    <Text style={styles.fieldLabel}>To</Text>
+                    <Text style={styles.fieldValue}>Where to?</Text>
                   </View>
                 </Pressable>
               </View>
               <IconCircleButton
                 label="Choose pickup and destination"
                 icon="repeat"
+                rotate={90}
+                tone="ink"
                 onPress={() => dispatch({ type: 'openSearch' })}
               />
             </View>
             <View style={styles.metaRow}>
               <View style={styles.metaCell}>
-                <Text style={[styles.fieldLabel, { fontFamily: font.medium }]}>Now</Text>
-                <Text style={[styles.fieldValue, { fontFamily: font.semibold }]}>Leave now</Text>
+                <Text style={styles.fieldLabel}>Now</Text>
+                <Text style={styles.fieldValue}>Leave now</Text>
               </View>
               <View style={styles.metaDivider} />
               <View style={styles.metaCell}>
-                <Text style={[styles.fieldLabel, { fontFamily: font.medium }]}>Your offer</Text>
+                <Text style={styles.fieldLabel}>Your offer</Text>
                 <View style={styles.offerRow}>
                   <Pressable
                     accessibilityRole="button"
@@ -158,18 +165,16 @@ export function HomeScreen() {
                     onPress={() => dispatch({ type: 'stepFare', direction: -1 })}
                     hitSlop={8}
                   >
-                    <Text style={[styles.step, { fontFamily: font.bold }]}>–</Text>
+                    <Text style={styles.step}>–</Text>
                   </Pressable>
-                  <Text style={[styles.fieldValue, { fontFamily: font.bold }]}>
-                    {formatNaira(state.offerKobo)}
-                  </Text>
+                  <Text style={styles.money}>{formatNaira(state.offerKobo)}</Text>
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Raise your offer"
                     onPress={() => dispatch({ type: 'stepFare', direction: 1 })}
                     hitSlop={8}
                   >
-                    <Text style={[styles.step, { fontFamily: font.bold }]}>+</Text>
+                    <Text style={styles.step}>+</Text>
                   </Pressable>
                 </View>
               </View>
@@ -180,7 +185,7 @@ export function HomeScreen() {
               onPress={() => dispatch({ type: 'openSearch' })}
               style={styles.find}
             >
-              <Text style={[styles.findText, { fontFamily: font.bold }]}>Find Keke</Text>
+              <Text style={styles.findText}>Find Keke</Text>
             </Pressable>
           </View>
 
@@ -192,7 +197,7 @@ export function HomeScreen() {
             style={styles.area}
           >
             <View style={styles.dotYellow} />
-            <Text style={[styles.areaText, { fontFamily: font.medium }]}>
+            <Text style={styles.areaText}>
               {area.nearby > 0 ? `${area.nearby} Kekes near you` : 'No Kekes near you'}
             </Text>
           </Pressable>
@@ -225,7 +230,7 @@ export function HomeScreen() {
             <QuietCopy />
           ) : rebookPlace && rebookQuote ? (
             <View style={{ gap: 12 }}>
-              <Text style={[styles.section, { fontFamily: font.bold }]}>Recent trips</Text>
+              <Text style={styles.section}>Recent trips</Text>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`Rebook ${rebookPlace.name}`}
@@ -233,15 +238,9 @@ export function HomeScreen() {
                 testID="rebook"
               >
                 <GlowCard contentStyle={styles.recent}>
-                  <Text
-                    style={[styles.fieldLabel, { color: vanta.muted, fontFamily: font.medium }]}
-                  >
-                    Last trip
-                  </Text>
-                  <Text style={[styles.fieldValue, { color: vanta.text, fontFamily: font.bold }]}>
-                    {rebookPlace.name}
-                  </Text>
-                  <Text style={[styles.tag, { fontFamily: font.regular }]}>
+                  <Text style={[styles.fieldLabel, { color: vanta.muted }]}>Last trip</Text>
+                  <Text style={[styles.fieldValue, { color: vanta.text }]}>{rebookPlace.name}</Text>
+                  <Text style={[styles.tag, { fontVariant: ['tabular-nums'] }]}>
                     From 23rd Road · {formatNaira(rebookQuote.midpointKobo)}
                   </Text>
                 </GlowCard>
@@ -270,18 +269,17 @@ function SignedInLine() {
 
 function QuietCopy() {
   const { state, dispatch } = usePassenger();
-  const font = useVantaFont();
   return (
     <View style={{ gap: spacing.sm }}>
-      <Text accessibilityRole="header" style={[layout.title, { fontFamily: font.bold }]}>
+      <Text accessibilityRole="header" style={layout.title}>
         No Kekes near you
       </Text>
-      <Text style={[layout.secondary, { fontFamily: font.regular }]}>
+      <Text style={layout.secondary}>
         Satellite Town is quiet. We can tell you when one is nearby, or you can set a destination
         and raise the fare.
       </Text>
       {state.notified ? (
-        <Text style={[layout.body, { color: '#70DDA0', fontFamily: font.medium }]}>
+        <Text style={[layout.body, { color: '#70DDA0' }]}>
           We will notify you when a Keke is nearby.
         </Text>
       ) : (
@@ -305,42 +303,30 @@ function QuietCopy() {
 
 const styles = StyleSheet.create({
   hero: {
-    height: 280,
-    backgroundColor: vanta.page,
+    height: 440,
+    backgroundColor: '#FAFAFA',
+  },
+  scroll: {
+    flex: 1,
+    marginTop: -28,
   },
   koke: {
     position: 'absolute',
-    right: 28,
-    top: 78,
+    right: 22,
+    top: 68,
   },
   heroCopy: {
     ...StyleSheet.absoluteFill,
     paddingHorizontal: 20,
   },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   topActions: {
     flexDirection: 'row',
     gap: 8,
-  },
-  word: {
-    color: vanta.yellow,
-    fontSize: 22,
-    letterSpacing: 0.4,
-  },
-  hello: {
-    color: vanta.text,
-    fontSize: 28,
-    lineHeight: 34,
-    marginTop: 28,
+    alignSelf: 'flex-end',
   },
   tag: {
     color: vanta.muted,
-    fontSize: 14,
-    lineHeight: 20,
+    ...typeStyle('caption'),
     marginTop: 6,
     maxWidth: 230,
   },
@@ -381,13 +367,16 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     color: '#6E6E73',
-    fontSize: 12,
-    lineHeight: 16,
+    ...typeStyle('caption'),
   },
   fieldValue: {
     color: vanta.ink,
-    fontSize: 16,
-    lineHeight: 21,
+    ...typeStyle('headline'),
+  },
+  money: {
+    color: vanta.ink,
+    ...typeStyle('title'),
+    fontVariant: ['tabular-nums'],
   },
   rule: {
     marginLeft: 20,
@@ -415,20 +404,22 @@ const styles = StyleSheet.create({
   },
   step: {
     color: vanta.ink,
-    fontSize: 20,
+    ...typeStyle('title'),
     minWidth: 24,
     textAlign: 'center',
   },
   find: {
+    alignSelf: 'center',
     backgroundColor: '#111111',
     borderRadius: 999,
-    minHeight: 56,
+    minHeight: 42,
+    paddingHorizontal: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
   findText: {
     color: '#FFFFFF',
-    fontSize: 17,
+    ...typeStyle('button'),
   },
   area: {
     flexDirection: 'row',
@@ -439,7 +430,7 @@ const styles = StyleSheet.create({
   },
   areaText: {
     color: vanta.text,
-    fontSize: 14,
+    ...typeStyle('label'),
   },
   areaPick: {
     flexDirection: 'row',
@@ -447,7 +438,7 @@ const styles = StyleSheet.create({
   },
   section: {
     color: vanta.text,
-    fontSize: 18,
+    ...typeStyle('headline'),
   },
   recent: {
     gap: 4,

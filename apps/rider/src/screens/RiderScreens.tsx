@@ -11,7 +11,8 @@ import {
   DemoBridge,
   FareStepper,
   Header,
-  MapCanvas,
+  CityMap,
+  YellowFill,
   Notice,
   PinDigits,
   PinPad,
@@ -21,7 +22,7 @@ import {
 } from '@drop/ui';
 import { colors, spacing } from '@drop/ui-tokens';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useRiderAccess } from '../access';
@@ -114,7 +115,7 @@ function Home() {
   return (
     <Screen testID={state.online ? 'screen-home' : 'screen-offline'}>
       <View style={{ flex: 1 }}>
-        <MapCanvas kekes={state.online ? 3 : 0} />
+        <CityMap kekes={state.online ? 3 : 0} />
         <View
           style={{
             position: 'absolute',
@@ -128,7 +129,6 @@ function Home() {
             paddingVertical: spacing.xs,
           }}
         >
-          <Text style={layout.wordmark}>DROP</Text>
           <Text style={layout.headline}>
             {riderProfile.colour} Keke · {riderProfile.plate}
           </Text>
@@ -168,12 +168,16 @@ function Home() {
               dispatch({ type: 'toggleOnline' });
             })();
           }}
-          style={[layout.online, state.online ? layout.onlineOn : layout.onlineOff]}
+          style={state.online ? undefined : [layout.online, layout.onlineOff]}
           testID="online-toggle"
         >
-          <Text style={state.online ? layout.onlineLabelOn : layout.onlineLabelOff}>
-            {state.online ? 'Online' : 'Offline'}
-          </Text>
+          {state.online ? (
+            <YellowFill style={layout.online}>
+              <Text style={layout.onlineLabelOn}>Online</Text>
+            </YellowFill>
+          ) : (
+            <Text style={layout.onlineLabelOff}>Offline</Text>
+          )}
         </Pressable>
         {state.online ? (
           <View style={{ gap: spacing.xs }}>
@@ -207,7 +211,10 @@ function Home() {
                     style={[layout.seat, on && layout.seatOn]}
                     testID={`seats-${count}`}
                   >
-                    <Text style={[layout.seatText, on && layout.seatTextOn]}>{count}</Text>
+                    {on ? <YellowFill style={StyleSheet.absoluteFill} /> : null}
+                    <Text style={[layout.seatText, on && layout.seatTextOn, on && { zIndex: 1 }]}>
+                      {count}
+                    </Text>
                   </Pressable>
                 );
               })}
@@ -304,7 +311,7 @@ function Request() {
         ]}
       >
         <Text style={layout.footnote}>Time to decide</Text>
-        <Text style={layout.fare} accessibilityLiveRegion="polite">
+        <Text style={layout.timer} accessibilityLiveRegion="polite">
           {clock}
         </Text>
         <Text accessibilityRole="header" style={layout.title}>
@@ -482,7 +489,7 @@ function Heading() {
   return (
     <Screen testID="screen-heading">
       <View style={{ flex: 1 }}>
-        <MapCanvas title="To pickup" subtitle={riderRequest.pickupTitle} />
+        <CityMap title="To pickup" subtitle={riderRequest.pickupTitle} />
       </View>
       <View
         style={[
@@ -547,7 +554,7 @@ function OnTrip() {
   return (
     <Screen testID="screen-trip">
       <View style={{ flex: 1 }}>
-        <MapCanvas
+        <CityMap
           title="On trip"
           subtitle="Map preview. Google Maps is not configured, so this is not a live street map."
           destination={riderRequest.destination}

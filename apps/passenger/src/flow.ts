@@ -61,6 +61,7 @@ export type PassengerAction =
   | { type: 'setForOther' }
   | { type: 'setLandmark'; note: string }
   | { type: 'stepFare'; direction: -1 | 1 }
+  | { type: 'setOffer'; offerKobo: number }
   | { type: 'toggleAutoAccept' }
   | { type: 'request' }
   | { type: 'armLiveFare'; offerKobo: number; minKobo: number }
@@ -242,6 +243,15 @@ export function passengerReducer(state: PassengerState, action: PassengerAction)
       return { ...state, forOther: true };
     case 'setLandmark':
       return { ...state, landmark: action.note };
+    case 'setOffer': {
+      const quote =
+        state.placeId && state.placeId !== 'live' ? quoteForPlace(state.placeId) : undefined;
+      const min = state.serverMinKobo ?? quote?.minKobo ?? defaultQuote().minKobo;
+      if (action.offerKobo < min) {
+        return state;
+      }
+      return { ...state, offerKobo: action.offerKobo };
+    }
     case 'stepFare': {
       const quote =
         state.placeId && state.placeId !== 'live' ? quoteForPlace(state.placeId) : undefined;

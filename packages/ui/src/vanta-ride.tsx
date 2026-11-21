@@ -7,8 +7,8 @@ import Svg, { Line } from 'react-native-svg';
 
 import { GlowCard } from './glow';
 import { KekeGlyph, YellowStar } from './keke';
+import { typeStyle } from './theme';
 import { Pill } from './vanta-controls';
-import { useVantaFont } from './vanta-font';
 
 export function RideOfferCard({
   name,
@@ -37,24 +37,19 @@ export function RideOfferCard({
   acceptTestID?: string;
   declineTestID?: string;
 }) {
-  const font = useVantaFont();
   const initial = name.slice(0, 1).toUpperCase();
   return (
     <GlowCard>
       <View style={styles.top}>
         <View style={styles.person}>
-          <InitialAvatar letter={initial} fontFamily={font.bold} />
+          <InitialAvatar letter={initial} />
           <View style={styles.grow}>
-            <Text style={[styles.name, { fontFamily: font.bold }]}>{name}</Text>
+            <Text style={styles.name}>{name}</Text>
             <View style={styles.meta}>
               <YellowStar />
-              <Text style={[styles.metaText, { fontFamily: font.medium }]}>
-                {rating.toFixed(1)}
-              </Text>
+              <Text style={styles.metaText}>{rating.toFixed(1)}</Text>
               <KekeGlyph size={13} color={vanta.muted} />
-              <Text style={[styles.metaText, { fontFamily: font.medium }]}>
-                {rides.toLocaleString('en-NG')} trips
-              </Text>
+              <Text style={styles.metaText}>{rides.toLocaleString('en-NG')} trips</Text>
             </View>
           </View>
         </View>
@@ -62,8 +57,8 @@ export function RideOfferCard({
       </View>
       <View style={styles.route}>
         <View>
-          <Text style={[styles.time, { fontFamily: font.bold }]}>{etaLabel}</Text>
-          <Text style={[styles.place, { fontFamily: font.regular }]}>Pickup</Text>
+          <Text style={styles.time}>{etaLabel}</Text>
+          <Text style={styles.place}>Pickup</Text>
         </View>
         <View style={styles.mid}>
           <KekeGlyph size={18} color={vanta.text} />
@@ -78,11 +73,11 @@ export function RideOfferCard({
               strokeDasharray="7 5"
             />
           </Svg>
-          <Text style={[styles.place, { fontFamily: font.regular }]}>{spanLabel}</Text>
+          <Text style={styles.place}>{spanLabel}</Text>
         </View>
         <View style={styles.end}>
-          <Text style={[styles.time, { fontFamily: font.bold }]}>{price}</Text>
-          <Text style={[styles.place, { fontFamily: font.regular }]}>Cash</Text>
+          <Text style={styles.price}>{price}</Text>
+          <Text style={styles.place}>Cash</Text>
         </View>
       </View>
       <View style={styles.dash} />
@@ -95,7 +90,7 @@ export function RideOfferCard({
             testID={declineTestID}
             style={styles.decline}
           >
-            <Text style={[styles.declineText, { fontFamily: font.semibold }]}>Decline</Text>
+            <Text style={styles.declineText}>Decline</Text>
           </Pressable>
         ) : null}
         <Pressable
@@ -105,7 +100,7 @@ export function RideOfferCard({
           testID={acceptTestID}
           style={styles.accept}
         >
-          <Text style={[styles.acceptText, { fontFamily: font.bold }]}>{acceptLabel}</Text>
+          <Text style={styles.acceptText}>{acceptLabel}</Text>
         </Pressable>
       </View>
     </GlowCard>
@@ -133,7 +128,6 @@ export function RouteTimeline({
   dropoffAddress: string;
   children?: ReactNode;
 }) {
-  const font = useVantaFont();
   return (
     <GlowCard>
       <Stop
@@ -143,9 +137,6 @@ export function RouteTimeline({
         address={pickupAddress}
         marker="start"
         icon="home"
-        fontBold={font.bold}
-        fontMedium={font.medium}
-        fontRegular={font.regular}
       />
       <View style={styles.lineCol}>
         <Svg width={2} height={28}>
@@ -167,9 +158,6 @@ export function RouteTimeline({
         address={dropoffAddress}
         marker="end"
         icon="map-pin"
-        fontBold={font.bold}
-        fontMedium={font.medium}
-        fontRegular={font.regular}
       />
       {children ? <View style={styles.chipRow}>{children}</View> : null}
     </GlowCard>
@@ -183,9 +171,6 @@ function Stop({
   address,
   marker,
   icon,
-  fontBold,
-  fontMedium,
-  fontRegular,
 }: {
   time: string;
   name: string;
@@ -193,18 +178,15 @@ function Stop({
   address: string;
   marker: 'start' | 'end';
   icon: keyof typeof Feather.glyphMap;
-  fontBold: string;
-  fontMedium: string;
-  fontRegular: string;
 }) {
   return (
     <View style={styles.stop}>
-      <Text style={[styles.time, styles.timeCol, { fontFamily: fontBold }]}>{time}</Text>
+      <Text style={[styles.time, styles.timeCol]}>{time}</Text>
       <View style={[styles.dot, marker === 'start' ? styles.dotStart : styles.dotEnd]} />
       <View style={styles.grow}>
-        <Text style={[styles.name, { fontFamily: fontBold }]}>{name}</Text>
-        <Text style={[styles.station, { fontFamily: fontMedium }]}>{station}</Text>
-        <Text style={[styles.place, { fontFamily: fontRegular }]}>{address}</Text>
+        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.station}>{station}</Text>
+        <Text style={styles.place}>{address}</Text>
       </View>
       <View style={styles.stopIcon}>
         <Feather name={icon} size={16} color={vanta.text} />
@@ -213,15 +195,7 @@ function Stop({
   );
 }
 
-export function InitialAvatar({
-  letter,
-  fontFamily,
-  size = 48,
-}: {
-  letter: string;
-  fontFamily: string;
-  size?: number;
-}) {
+export function InitialAvatar({ letter, size = 48 }: { letter: string; size?: number }) {
   return (
     <LinearGradient
       colors={['rgba(255,255,255,0.45)', 'rgba(255,255,255,0.06)']}
@@ -230,7 +204,7 @@ export function InitialAvatar({
       <View
         style={[styles.avatarInner, { borderRadius: size / 2, width: size - 3, height: size - 3 }]}
       >
-        <Text style={[styles.initial, { fontFamily }]}>{letter}</Text>
+        <Text style={styles.initial}>{letter}</Text>
       </View>
     </LinearGradient>
   );
@@ -243,13 +217,12 @@ export function FeatureChip({
   icon: keyof typeof Feather.glyphMap;
   label: string;
 }) {
-  const font = useVantaFont();
   return (
     <View style={styles.chip}>
       <View style={styles.chipIcon}>
         <Feather name={icon} size={16} color={vanta.text} />
       </View>
-      <Text style={[styles.chipLabel, { fontFamily: font.medium }]} numberOfLines={1}>
+      <Text style={styles.chipLabel} numberOfLines={1}>
         {label}
       </Text>
     </View>
@@ -271,13 +244,12 @@ const styles = StyleSheet.create({
   },
   initial: {
     color: vanta.text,
-    fontSize: 16,
+    ...typeStyle('headline'),
   },
   grow: { flex: 1 },
   name: {
     color: vanta.text,
-    fontSize: 16,
-    lineHeight: 21,
+    ...typeStyle('headline'),
   },
   meta: {
     flexDirection: 'row',
@@ -287,7 +259,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     color: vanta.muted,
-    fontSize: 13,
+    ...typeStyle('label'),
   },
   route: {
     flexDirection: 'row',
@@ -305,13 +277,16 @@ const styles = StyleSheet.create({
   end: { alignItems: 'flex-end' },
   time: {
     color: vanta.white,
-    fontSize: 20,
-    lineHeight: 26,
+    ...typeStyle('timer'),
+  },
+  price: {
+    color: vanta.text,
+    ...typeStyle('title'),
+    fontVariant: ['tabular-nums'],
   },
   place: {
     color: vanta.muted,
-    fontSize: 13,
-    lineHeight: 18,
+    ...typeStyle('caption'),
   },
   dash: {
     marginTop: 14,
@@ -333,7 +308,7 @@ const styles = StyleSheet.create({
   },
   declineText: {
     color: vanta.muted,
-    fontSize: 14,
+    ...typeStyle('label'),
   },
   accept: {
     backgroundColor: vanta.white,
@@ -345,7 +320,7 @@ const styles = StyleSheet.create({
   },
   acceptText: {
     color: vanta.ink,
-    fontSize: 14,
+    ...typeStyle('button'),
   },
   stop: {
     flexDirection: 'row',
@@ -386,8 +361,7 @@ const styles = StyleSheet.create({
   },
   chipLabel: {
     color: vanta.white,
-    fontSize: 14,
-    lineHeight: 18,
+    ...typeStyle('caption'),
     textAlign: 'center',
   },
   chipRow: {
@@ -401,8 +375,7 @@ const styles = StyleSheet.create({
   },
   station: {
     color: vanta.muted,
-    fontSize: 13,
-    lineHeight: 18,
+    ...typeStyle('label'),
     marginTop: 2,
   },
   timeCol: {

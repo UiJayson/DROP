@@ -5,7 +5,6 @@ import {
   FareStepper,
   Field,
   Header,
-  MapCanvas,
   Notice,
   Screen,
   SearchField,
@@ -15,13 +14,36 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useBooking } from '../booking';
+import { useDemoPoint, useSetDemoPickup } from '../demo/shell';
 import { layout } from '../layout';
+import { RideMap } from '../map/RideMap';
 import { usePassenger } from '../passenger-context';
+
+/** Room for the right-hand controls and the fare sheet under the map. */
+const fareCameraPadding = { top: 48, right: 96, bottom: 72, left: 56 };
+
+function rideOptions(
+  distanceM: number,
+  quote: { midpointKobo: number; suggestedLowKobo: number; suggestedHighKobo: number },
+) {
+  const base = Math.max(4, Math.round((distanceM / 1000 / 18) * 60));
+  return [
+    { id: 'recommended', label: 'Recommended · solo', fare: quote.midpointKobo, eta: base },
+    {
+      id: 'faster',
+      label: 'Faster · solo',
+      fare: quote.suggestedHighKobo,
+      eta: Math.max(3, base - 3),
+    },
+    { id: 'cheaper', label: 'Cheaper · shared', fare: quote.suggestedLowKobo, eta: base + 4 },
+  ];
+}
 
 export function SearchScreen() {
   const { state, dispatch } = usePassenger();
   const booking = useBooking();
   const insets = useSafeAreaInsets();
+  const setPickup = useSetDemoPickup();
   const results = booking.enabled
     ? booking.results.map((place) => ({
         id: place.id,
@@ -38,6 +60,27 @@ export function SearchScreen() {
         <Header title="Where to?" onBack={() => dispatch({ type: 'back' })} />
       </View>
       <View style={layout.bodyPad}>
+        {setPickup ? (
+          <View style={{ gap: spacing.xs }}>
+            <Text style={layout.footnote}>Pickup</Text>
+            <View style={[layout.row, { flexWrap: 'wrap' }]}>
+              <Button
+                size="compact"
+                label="23rd Road"
+                variant="secondary"
+                onPress={() => setPickup('festac')}
+                testID="pickup-current"
+              />
+              <Button
+                size="compact"
+                label="Shoprite gate"
+                variant="secondary"
+                onPress={() => setPickup('shoprite')}
+                testID="pickup-shoprite"
+              />
+            </View>
+          </View>
+        ) : null}
         <Text style={layout.footnote}>Destination</Text>
         <SearchField
           value={state.query}
@@ -117,6 +160,7 @@ export function FareScreen() {
   const { state, dispatch } = usePassenger();
   const booking = useBooking();
   const insets = useSafeAreaInsets();
+  const from = useDemoPoint();
   const live = booking.enabled && state.placeId === 'live';
   const place = live
     ? booking.destination
@@ -134,14 +178,36 @@ export function FareScreen() {
   }
   const lowball = state.offerKobo < quote.suggestedLowKobo;
   const who = state.forOther ? state.riderFor.trim() || 'Someone else' : 'For me';
+  const options = quote ? rideOptions(quote.distanceM, quote) : [];
+  const pickupPoint =
+    booking.enabled && booking.pickupPoint
+      ? {
+          lat: booking.pickupPoint.lat,
+          lng: booking.pickupPoint.lng,
+          label: booking.pickupLabel,
+        }
+      : from
+        ? { lat: from.lat, lng: from.lng, label: from.title }
+        : { lat: pickup.lat, lng: pickup.lng, label: pickup.title };
+  const bookedPlace = !live && state.placeId ? placeById(state.placeId) : undefined;
+  const dropoffPoint =
+    booking.enabled && booking.dropoffPoint
+      ? { ...booking.dropoffPoint, label: place.name }
+      : bookedPlace
+        ? { lat: bookedPlace.lat, lng: bookedPlace.lng, label: bookedPlace.name }
+        : null;
 
   return (
     <Screen testID="screen-fare">
       <View style={layout.mapShort}>
-        <MapCanvas
-          title={live ? booking.pickupLabel : pickup.area}
-          destination={place.name}
+        <RideMap
+          pickup={pickupPoint}
+          dropoff={dropoffPoint}
+          fallbackTitle={live ? booking.pickupLabel : pickup.area}
+          fallbackDetail={place.name}
           kekes={state.area === 'festac' ? 12 : 0}
+          cameraPadding={fareCameraPadding}
+          controlsInset={{ bottom: 16, right: 16 }}
         />
       </View>
       <ScrollView
@@ -153,8 +219,23 @@ export function FareScreen() {
           Your fare
         </Text>
         <Text style={layout.secondary}>
-          {live ? booking.pickupLabel : pickup.title} → {place.name}
+          {live ? booking.pickupLabel : (from?.title ?? pickup.title)} → {place.name}
         </Text>
+        {!booking.enabled ? (
+          <View style={{ gap: spacing.xs }}>
+            <Text style={layout.footnote}>Ride options</Text>
+            {options.map((option) => (
+              <ChoiceRow
+                key={option.id}
+                label={option.label}
+                detail={`${(quote.distanceM / 1000).toFixed(1)} km · about ${option.eta} min · ${formatNaira(option.fare)}`}
+                selected={state.offerKobo === option.fare}
+                onPress={() => dispatch({ type: 'setOffer', offerKobo: option.fare })}
+                testID={`option-${option.id}`}
+              />
+            ))}
+          </View>
+        ) : null}
         <View style={layout.split}>
           <View style={layout.grow}>
             <ChoiceRow

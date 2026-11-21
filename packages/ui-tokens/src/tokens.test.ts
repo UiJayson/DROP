@@ -1,16 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
-import { colors, lightColors } from './colors';
+import { colors, lightColors, yellowMetallic, yellowSheen } from './colors';
 import { metalCta, surfaceGlow, vanta } from './vanta';
 import { darkCssVariables } from './css';
 import { radii, spacing, tapTarget } from './spacing';
-import { typeScale } from './typography';
+import { fontFace, fontFallback, typeScale } from './typography';
 
 describe('design tokens', () => {
   it('uses the dark base and Keke Yellow from the UI doc', () => {
     expect(colors.bg).toBe('#09090B');
-    expect(colors.primary).toBe('#FFC629');
+    expect(colors.primary).toBe('#FFE14A');
     expect(colors.onPrimary).toBe('#101012');
+    expect(colors.gradAccentTop).toBe('#FFE07A');
+    expect(colors.gradAccentBottom).toBe('#E09600');
     expect(colors.gradTop).toBe('#202024');
     expect(colors.gradMid).toBe('#111113');
     expect(colors.gradBottom).toBe('#09090B');
@@ -26,14 +28,34 @@ describe('design tokens', () => {
     expect(lightColors.surface).toBe('#F4F5F7');
     expect(lightColors.textPrimary).toBe('#111214');
     expect(lightColors.textSecondary).toBe('#5F6368');
+    expect(lightColors.primary).toBe('#FFE14A');
     expect(lightColors.onPrimary).toBe('#101012');
+    expect(yellowMetallic).toEqual(['#FFE07A', '#F5C42E', '#E8A800', '#E09600']);
+    expect(yellowSheen[0]).toBe('rgba(255,255,255,0.36)');
   });
 
   it('matches the type scale, spacing grid, radii, and tap targets', () => {
-    expect(typeScale.largeTitle).toEqual({ fontSize: 34, lineHeight: 41, fontWeight: '700' });
-    expect(typeScale.body.fontSize).toBe(17);
-    expect(typeScale.footnote.fontSize).toBe(13);
-    expect(typeScale.fare).toEqual({ fontSize: 36, lineHeight: 44, fontWeight: '700' });
+    expect(typeScale.display).toMatchObject({
+      fontSize: 32,
+      lineHeight: 36,
+      fontWeight: '700',
+      letterSpacing: -0.5,
+      family: 'text',
+    });
+    expect(typeScale.title).toMatchObject({ fontSize: 22, lineHeight: 28, fontWeight: '600' });
+    expect(typeScale.headline).toMatchObject({ fontSize: 17, lineHeight: 22, fontWeight: '600' });
+    expect(typeScale.body).toMatchObject({ fontSize: 15, lineHeight: 21, fontWeight: '400' });
+    expect(typeScale.label).toMatchObject({ fontSize: 13, lineHeight: 18, fontWeight: '500' });
+    expect(typeScale.caption).toMatchObject({ fontSize: 12, lineHeight: 16, fontWeight: '400' });
+    expect(typeScale.button).toMatchObject({ fontSize: 15, lineHeight: 20, fontWeight: '600' });
+    expect(typeScale.fare.family).toBe('text');
+    expect(typeScale.fare.tabular).toBe(true);
+    expect(typeScale.digits.family).toBe('mono');
+    expect(typeScale.timer.family).toBe('mono');
+    expect(fontFace.regular).toBe('BricolageGrotesque_400Regular');
+    expect(fontFace.bold).toBe('BricolageGrotesque_700Bold');
+    expect(fontFace.mono).toBe('GeistMono_500Medium');
+    expect(fontFallback).toContain('sans-serif');
     expect(Object.values(spacing)).toEqual([4, 8, 12, 16, 24, 32, 48]);
     expect(radii.card).toBe(12);
     expect(radii.control).toBe(14);
@@ -46,7 +68,7 @@ describe('design tokens', () => {
   it('keeps the Vanta metallic surfaces separate from the app tokens', () => {
     expect(vanta.page).toBe('#040405');
     expect(vanta.surface).toBe('#1D1C21');
-    expect(vanta.yellow).toBe('#FFC629');
+    expect(vanta.yellow).toBe('#FFE14A');
     expect(surfaceGlow.card.cy).toBe('100%');
     expect(surfaceGlow.header.cy).toBe('0%');
     expect(metalCta[0]).toBe('#FFFFFF');
@@ -57,6 +79,6 @@ describe('design tokens', () => {
   it('exposes the dark colours as CSS variables', () => {
     const css = darkCssVariables();
     expect(css['--drop-bg']).toBe('#09090B');
-    expect(css['--drop-primary']).toBe('#FFC629');
+    expect(css['--drop-primary']).toBe('#FFE14A');
   });
 });

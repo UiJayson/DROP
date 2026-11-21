@@ -1,3 +1,4 @@
+import { DropFonts } from '@drop/ui';
 import { useEffect } from 'react';
 
 import { RiderRoot } from './src/RiderRoot';
@@ -8,5 +9,9 @@ export default function App() {
     void initSentry();
   }, []);
 
-  return <RiderRoot />;
+  return (
+    <DropFonts>
+      <RiderRoot />
+    </DropFonts>
+  );
 }

@@ -196,13 +196,13 @@ function Radar() {
 const styles = StyleSheet.create({
   map: {
     flex: 1,
-    backgroundColor: '#121418',
+    backgroundColor: '#FAFAFA',
     overflow: 'hidden',
     minHeight: 160,
   },
   road: {
     position: 'absolute',
-    backgroundColor: '#2C3038',
+    backgroundColor: '#EBEBEB',
   },
   roadH: {
     top: '46%',
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
   },
   lane: {
     position: 'absolute',
-    backgroundColor: '#3A3F36',
+    backgroundColor: '#FFFFFF',
   },
   laneA: {
     top: '22%',
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 48,
     borderRadius: 8,
-    backgroundColor: '#1A1D22',
+    backgroundColor: '#FFFFFF',
   },
   blockB: {
     position: 'absolute',
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
     width: 88,
     height: 40,
     borderRadius: 8,
-    backgroundColor: '#1A1D22',
+    backgroundColor: '#FFFFFF',
   },
   creek: {
     position: 'absolute',
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 70,
     borderRadius: 40,
-    backgroundColor: '#1A2428',
+    backgroundColor: '#E4E7EB',
   },
   keke: {
     position: 'absolute',
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   liveCaption: {
     color: colors.textPrimary,
     backgroundColor: colors.surface1,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: radii.pill,
     paddingHorizontal: spacing.xs,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
     maxWidth: 140,
   },
   radar: {
@@ -379,6 +379,6 @@ const styles = StyleSheet.create({
   },
   captionSub: {
     color: colors.textSecondary,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
   },
 });

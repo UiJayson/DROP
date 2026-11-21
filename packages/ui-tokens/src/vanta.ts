@@ -17,7 +17,7 @@ export const vanta = {
   muted: '#9C9C9E',
   dim: '#7F808A',
   faint: '#5B5858',
-  yellow: '#FFC629',
+  yellow: '#FFE14A',
   white: '#FFFFFF',
   metalMid: '#F2F2F2',
   metalEdge: '#9B9B9B',

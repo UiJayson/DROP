@@ -31,7 +31,11 @@
   "dependencies": {
     "@drop/shared": "workspace:*",
     "@drop/ui-tokens": "workspace:*",
+    "@expo-google-fonts/bricolage-grotesque": "^0.4.1",
+    "@expo-google-fonts/geist-mono": "^0.4.3",
     "@expo/vector-icons": "^15.1.1",
+    "expo-font": "~58.0.12",
+    "maplibre-gl": "6.19.0",
     "react-native-svg": "15.16.0"
   }
 }
