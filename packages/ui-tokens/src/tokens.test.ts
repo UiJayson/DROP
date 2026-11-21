@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { colors, lightColors } from './colors';
+import { colors, lightColors, yellowMetallic } from './colors';
 import { metalCta, surfaceGlow, vanta } from './vanta';
 import { darkCssVariables } from './css';
 import { radii, spacing, tapTarget } from './spacing';
@@ -9,8 +9,10 @@ import { typeScale } from './typography';
 describe('design tokens', () => {
   it('uses the dark base and Keke Yellow from the UI doc', () => {
     expect(colors.bg).toBe('#09090B');
-    expect(colors.primary).toBe('#FFC629');
+    expect(colors.primary).toBe('#FFE14A');
     expect(colors.onPrimary).toBe('#101012');
+    expect(colors.gradAccentTop).toBe('#FFF6B0');
+    expect(colors.gradAccentBottom).toBe('#E09600');
     expect(colors.gradTop).toBe('#202024');
     expect(colors.gradMid).toBe('#111113');
     expect(colors.gradBottom).toBe('#09090B');
@@ -26,7 +28,9 @@ describe('design tokens', () => {
     expect(lightColors.surface).toBe('#F4F5F7');
     expect(lightColors.textPrimary).toBe('#111214');
     expect(lightColors.textSecondary).toBe('#5F6368');
+    expect(lightColors.primary).toBe('#FFE14A');
     expect(lightColors.onPrimary).toBe('#101012');
+    expect(yellowMetallic).toEqual(['#FFF6B0', '#FFE14A', '#F5B400', '#E09600']);
   });
 
   it('matches the type scale, spacing grid, radii, and tap targets', () => {
@@ -46,7 +50,7 @@ describe('design tokens', () => {
   it('keeps the Vanta metallic surfaces separate from the app tokens', () => {
     expect(vanta.page).toBe('#040405');
     expect(vanta.surface).toBe('#1D1C21');
-    expect(vanta.yellow).toBe('#FFC629');
+    expect(vanta.yellow).toBe('#FFE14A');
     expect(surfaceGlow.card.cy).toBe('100%');
     expect(surfaceGlow.header.cy).toBe('0%');
     expect(metalCta[0]).toBe('#FFFFFF');
@@ -57,6 +61,6 @@ describe('design tokens', () => {
   it('exposes the dark colours as CSS variables', () => {
     const css = darkCssVariables();
     expect(css['--drop-bg']).toBe('#09090B');
-    expect(css['--drop-primary']).toBe('#FFC629');
+    expect(css['--drop-primary']).toBe('#FFE14A');
   });
 });

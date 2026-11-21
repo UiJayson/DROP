@@ -6,6 +6,7 @@ import { tapHaptic, type HapticKind } from './haptics';
 import { pressInSpring, pressOutSpring } from './motion';
 import { useReduceMotion } from './shell';
 import { typeStyle } from './theme';
+import { YellowFill } from './yellow';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
@@ -68,18 +69,19 @@ export function Button({
         style={[
           styles.button,
           size === 'compact' && styles.compact,
-          variant === 'primary' && styles.primary,
+          variant === 'primary' && !disabled && styles.primary,
           variant === 'secondary' && styles.secondary,
           variant === 'danger' && styles.danger,
           variant === 'ghost' && styles.ghost,
-          pressed && variant === 'primary' && styles.primaryPressed,
           pressed && variant !== 'primary' && styles.pressedSurface,
           disabled && styles.disabled,
         ]}
       >
+        {variant === 'primary' && !disabled ? <YellowFill style={StyleSheet.absoluteFill} /> : null}
         <Text
           style={[
             styles.buttonLabel,
+            styles.buttonLabelFront,
             variant === 'primary' ? styles.onPrimary : styles.onSurface,
             variant === 'danger' && styles.dangerLabel,
             disabled && styles.disabledLabel,
@@ -226,14 +228,11 @@ const styles = StyleSheet.create({
     minHeight: tapTarget.minDp,
   },
   primary: {
-    backgroundColor: colors.primary,
-    shadowColor: '#1F1F1F',
+    overflow: 'hidden',
+    shadowColor: '#E09600',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-  },
-  primaryPressed: {
-    backgroundColor: colors.primaryPressed,
+    shadowOpacity: 0.28,
+    shadowRadius: 5,
   },
   secondary: {
     backgroundColor: colors.surface3,
@@ -255,6 +254,9 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  buttonLabelFront: {
+    zIndex: 1,
   },
   onPrimary: {
     color: colors.onPrimary,

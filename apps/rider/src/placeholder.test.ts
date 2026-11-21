@@ -7,7 +7,7 @@ describe('rider placeholder', () => {
     expect(product.name).toBe('DROP');
     expect(product.tagline).toContain('Lagos');
     expect(colors.bg).toBe('#09090B');
-    expect(colors.primary).toBe('#FFC629');
+    expect(colors.primary).toBe('#FFE14A');
     expect(colors.textPrimary).toBe('#F5F5F7');
   });
 });

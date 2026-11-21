@@ -10,7 +10,7 @@ describe('passenger web manifest', () => {
     expect(manifest.short_name).toBe('DROP');
     expect(manifest.display).toBe('standalone');
     expect(manifest.background_color).toBe('#000000');
-    expect(manifest.theme_color).toBe('#FFC629');
+    expect(manifest.theme_color).toBe('#FFE14A');
     expect(manifest.icons.map((icon: { sizes: string }) => icon.sizes)).toEqual(
       expect.arrayContaining(['192x192', '512x512']),
     );

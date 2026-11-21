@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 import { tapHaptic } from './haptics';
+import { YellowFill } from './yellow';
 import { useReduceMotion } from './shell';
 import { useVantaFont } from './vanta-font';
 
@@ -167,7 +168,6 @@ export function FloatingTabBar({
     { id: 'safety', icon: 'shield', label: 'Safety' },
     { id: 'account', icon: 'user', label: 'You' },
   ];
-  const activeFill = accent === 'yellow' ? vanta.yellow : vanta.white;
   return (
     <View style={styles.tabWrap} pointerEvents="box-none">
       <LinearGradient
@@ -186,15 +186,24 @@ export function FloatingTabBar({
                 accessibilityLabel={tab.label}
                 accessibilityState={{ selected }}
                 onPress={() => onChange(tab.id)}
-                style={[
-                  styles.tabItem,
-                  selected && { backgroundColor: activeFill },
-                  !selected && styles.tabIdle,
-                ]}
+                style={[styles.tabItem, !selected && styles.tabIdle]}
               >
-                <Feather name={tab.icon} size={18} color={selected ? vanta.ink : vanta.text} />
+                {selected && accent === 'yellow' ? (
+                  <YellowFill style={StyleSheet.absoluteFill} />
+                ) : null}
+                {selected && accent !== 'yellow' ? (
+                  <View style={[StyleSheet.absoluteFill, { backgroundColor: vanta.white }]} />
+                ) : null}
+                <Feather
+                  name={tab.icon}
+                  size={18}
+                  color={selected ? vanta.ink : vanta.text}
+                  style={styles.tabFront}
+                />
                 {selected ? (
-                  <Text style={[styles.tabLabel, { fontFamily: font.semibold }]}>{tab.label}</Text>
+                  <Text style={[styles.tabLabel, styles.tabFront, { fontFamily: font.semibold }]}>
+                    {tab.label}
+                  </Text>
                 ) : null}
               </Pressable>
             );
@@ -362,6 +371,7 @@ const styles = StyleSheet.create({
   tabItem: {
     minHeight: 44,
     borderRadius: 999,
+    overflow: 'hidden',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -374,6 +384,9 @@ const styles = StyleSheet.create({
     backgroundColor: vanta.pill,
     borderWidth: 1,
     borderColor: vanta.rimIcon,
+  },
+  tabFront: {
+    zIndex: 1,
   },
   tabLabel: {
     color: vanta.ink,

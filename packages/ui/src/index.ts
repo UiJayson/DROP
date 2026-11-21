@@ -1,4 +1,5 @@
 export { Button, Chevron, DemoBridge, Header, IconButton, Notice, StatusPill } from './controls';
+export { YellowFill } from './yellow';
 export { tapHaptic } from './haptics';
 export type { HapticKind } from './haptics';
 export {

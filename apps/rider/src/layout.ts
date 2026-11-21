@@ -1,5 +1,5 @@
 import { typeStyle } from '@drop/ui';
-import { colors, radii, spacing, tapTarget } from '@drop/ui-tokens';
+import { colors, radii, spacing } from '@drop/ui-tokens';
 import { StyleSheet } from 'react-native';
 
 export const layout = StyleSheet.create({
@@ -41,23 +41,26 @@ export const layout = StyleSheet.create({
   grow: { flex: 1 },
   seat: {
     flex: 1,
-    minHeight: tapTarget.riderPrimaryHeightDp,
+    minHeight: 44,
     borderRadius: radii.card,
     backgroundColor: colors.surface3,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  seatOn: { backgroundColor: colors.primary },
+  seatOn: { backgroundColor: 'transparent' },
   seatText: { color: colors.textPrimary, ...typeStyle('headline') },
   seatTextOn: { color: colors.onPrimary },
   online: {
-    minHeight: 72,
+    alignSelf: 'center',
+    minHeight: 44,
     borderRadius: radii.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: 22,
+    overflow: 'hidden',
   },
-  onlineOn: { backgroundColor: colors.primary },
+  onlineOn: {},
   onlineOff: { backgroundColor: colors.surface3 },
   onlineLabelOn: { color: colors.onPrimary, ...typeStyle('title') },
   onlineLabelOff: { color: colors.textPrimary, ...typeStyle('title') },

@@ -8,7 +8,9 @@ export const rideMapColors = {
   buildingEdge: '#BDBFC1',
   label: '#616262',
   water: '#E4E7EB',
-  pickup: '#FFC629',
+  pickup: '#FFE14A',
+  pickupHighlight: '#FFF6B0',
+  pickupBase: '#E09600',
   dropoff: '#1F1F1F',
 } as const;
 

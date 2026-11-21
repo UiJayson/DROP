@@ -12,6 +12,7 @@ import {
   FareStepper,
   Header,
   CityMap,
+  YellowFill,
   Notice,
   PinDigits,
   PinPad,
@@ -21,7 +22,7 @@ import {
 } from '@drop/ui';
 import { colors, spacing } from '@drop/ui-tokens';
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useRiderAccess } from '../access';
@@ -128,7 +129,6 @@ function Home() {
             paddingVertical: spacing.xs,
           }}
         >
-          <Text style={layout.wordmark}>DROP</Text>
           <Text style={layout.headline}>
             {riderProfile.colour} Keke · {riderProfile.plate}
           </Text>
@@ -168,12 +168,16 @@ function Home() {
               dispatch({ type: 'toggleOnline' });
             })();
           }}
-          style={[layout.online, state.online ? layout.onlineOn : layout.onlineOff]}
+          style={state.online ? undefined : [layout.online, layout.onlineOff]}
           testID="online-toggle"
         >
-          <Text style={state.online ? layout.onlineLabelOn : layout.onlineLabelOff}>
-            {state.online ? 'Online' : 'Offline'}
-          </Text>
+          {state.online ? (
+            <YellowFill style={layout.online}>
+              <Text style={layout.onlineLabelOn}>Online</Text>
+            </YellowFill>
+          ) : (
+            <Text style={layout.onlineLabelOff}>Offline</Text>
+          )}
         </Pressable>
         {state.online ? (
           <View style={{ gap: spacing.xs }}>
@@ -207,7 +211,10 @@ function Home() {
                     style={[layout.seat, on && layout.seatOn]}
                     testID={`seats-${count}`}
                   >
-                    <Text style={[layout.seatText, on && layout.seatTextOn]}>{count}</Text>
+                    {on ? <YellowFill style={StyleSheet.absoluteFill} /> : null}
+                    <Text style={[layout.seatText, on && layout.seatTextOn, on && { zIndex: 1 }]}>
+                      {count}
+                    </Text>
                   </Pressable>
                 );
               })}

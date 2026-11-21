@@ -7,6 +7,7 @@ import { tapHaptic } from './haptics';
 import { enterSpring } from './motion';
 import { useReduceMotion } from './shell';
 import { typeStyle } from './theme';
+import { YellowFill } from './yellow';
 
 export function FareStepper({
   amountKobo,
@@ -178,12 +179,21 @@ export function ChoiceRow({
         onPress();
       }}
       testID={testID}
-      style={[styles.choice, selected && styles.choiceOn]}
+      style={selected ? undefined : styles.choice}
     >
-      <Text style={[styles.choiceLabel, selected && styles.choiceLabelOn]}>{label}</Text>
-      {detail ? (
-        <Text style={[styles.choiceDetail, selected && styles.choiceLabelOn]}>{detail}</Text>
-      ) : null}
+      {selected ? (
+        <YellowFill style={styles.choice}>
+          <Text style={[styles.choiceLabel, styles.choiceLabelOn]}>{label}</Text>
+          {detail ? (
+            <Text style={[styles.choiceDetail, styles.choiceLabelOn]}>{detail}</Text>
+          ) : null}
+        </YellowFill>
+      ) : (
+        <>
+          <Text style={styles.choiceLabel}>{label}</Text>
+          {detail ? <Text style={styles.choiceDetail}>{detail}</Text> : null}
+        </>
+      )}
     </Pressable>
   );
 }

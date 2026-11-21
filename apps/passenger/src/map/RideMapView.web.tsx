@@ -48,15 +48,21 @@ function pinNode(pin: RidePin): HTMLDivElement {
     width: '16px',
     height: '16px',
     borderRadius: '8px',
-    background: color,
+    background:
+      pin.kind === 'pickup'
+        ? `linear-gradient(165deg, ${rideMapColors.pickupHighlight} 0%, ${rideMapColors.pickup} 46%, ${rideMapColors.pickupBase} 100%)`
+        : color,
     border: `2px solid ${rideMapColors.white}`,
-    boxShadow: '0 2px 6px rgba(31,31,31,0.18)',
+    boxShadow:
+      pin.kind === 'pickup'
+        ? 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 5px rgba(31,31,31,0.18)'
+        : '0 2px 6px rgba(31,31,31,0.18)',
   });
   const stem = document.createElement('div');
   Object.assign(stem.style, {
     width: '2px',
     height: '8px',
-    background: color,
+    background: pin.kind === 'pickup' ? rideMapColors.pickupBase : color,
   });
   root.append(head, stem);
   return root;

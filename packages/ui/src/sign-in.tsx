@@ -61,7 +61,6 @@ export function PhoneSignIn({
   return (
     <SignInFrame testID="screen-phone">
       <View style={styles.copy}>
-        <Text style={styles.wordmark}>DROP</Text>
         <Text accessibilityRole="header" style={styles.title}>
           {audience === 'Rider' ? 'Ride with DROP' : 'Where to?'}
         </Text>

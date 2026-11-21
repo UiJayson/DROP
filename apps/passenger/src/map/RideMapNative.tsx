@@ -1,4 +1,4 @@
-import { rideMapColors, rideMapStyle, type RidePin } from '@drop/ui';
+import { rideMapColors, rideMapStyle, YellowFill, type RidePin } from '@drop/ui';
 import { Camera, Map, Marker, type CameraRef, type MapRef } from '@maplibre/maplibre-react-native';
 import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -78,11 +78,18 @@ function PinMark({ pin }: { pin: RidePin }) {
   if (pin.kind === 'user') {
     return <View accessibilityLabel={pin.label} style={styles.user} />;
   }
-  const color = pin.kind === 'pickup' ? rideMapColors.pickup : rideMapColors.dropoff;
+  if (pin.kind === 'pickup') {
+    return (
+      <View accessibilityLabel={pin.label} style={styles.pin}>
+        <YellowFill style={styles.head} />
+        <View style={[styles.stem, { backgroundColor: rideMapColors.pickupBase }]} />
+      </View>
+    );
+  }
   return (
     <View accessibilityLabel={pin.label} style={styles.pin}>
-      <View style={[styles.head, { backgroundColor: color }]} />
-      <View style={[styles.stem, { backgroundColor: color }]} />
+      <View style={[styles.head, { backgroundColor: rideMapColors.dropoff }]} />
+      <View style={[styles.stem, { backgroundColor: rideMapColors.dropoff }]} />
     </View>
   );
 }

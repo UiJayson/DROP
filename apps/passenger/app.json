@@ -26,7 +26,7 @@
       "shortName": "DROP",
       "description": "Preview a DROP Keke ride.",
       "lang": "en",
-      "themeColor": "#FFC629",
+      "themeColor": "#FFE14A",
       "backgroundColor": "#000000",
       "display": "standalone",
       "favicon": "./public/icons/icon-192.png"
