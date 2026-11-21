@@ -51,7 +51,7 @@ function Control({
 const styles = StyleSheet.create({
   column: {
     position: 'absolute',
-    gap: 8,
+    gap: 10,
     zIndex: 2,
   },
   button: {

@@ -27,7 +27,7 @@ import { layout } from '../layout';
 import { RideMap } from '../map/RideMap';
 import { usePassenger } from '../passenger-context';
 
-const homeCameraPadding = { top: 168, right: 24, bottom: 72, left: 24 };
+const homeCameraPadding = { top: 176, right: 96, bottom: 120, left: 32 };
 
 export function HomeScreen() {
   const { state, dispatch } = usePassenger();
@@ -84,7 +84,7 @@ export function HomeScreen() {
           pickup={{ lat: pickup.lat, lng: pickup.lng, label: pickup.title }}
           dropoff={null}
           fallbackTitle={pickup.area}
-          controlsInset={{ bottom: 44, right: 12 }}
+          controlsInset={{ bottom: 80, right: 16 }}
           cameraPadding={homeCameraPadding}
           onTone={setMapTone}
           style={StyleSheet.absoluteFill}
@@ -325,7 +325,7 @@ function QuietCopy() {
 
 const styles = StyleSheet.create({
   hero: {
-    height: 400,
+    height: 440,
     backgroundColor: '#FAFAFA',
   },
   scroll: {
@@ -334,8 +334,8 @@ const styles = StyleSheet.create({
   },
   koke: {
     position: 'absolute',
-    right: 28,
-    top: 78,
+    right: 72,
+    top: 68,
   },
   heroCopy: {
     ...StyleSheet.absoluteFill,

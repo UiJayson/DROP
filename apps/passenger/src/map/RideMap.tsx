@@ -1,5 +1,5 @@
 import type { LatLng } from '@drop/shared';
-import { framePoints, MapCanvas, rideFrame, rideMapColors, type RidePin } from '@drop/ui';
+import { MapCanvas, rideFrame, rideMapColors, type RidePin } from '@drop/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
@@ -65,7 +65,7 @@ export function RideMap({
   }, []);
 
   const anchors = [pickup, dropoff].filter((point): point is Point => point != null);
-  const frame = rideFrame(framePoints(anchors, user));
+  const frame = rideFrame(anchors);
   const pins: RidePin[] = [
     ...anchors.map((point) => ({
       ...point,

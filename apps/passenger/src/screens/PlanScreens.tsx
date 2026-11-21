@@ -18,6 +18,9 @@ import { layout } from '../layout';
 import { RideMap } from '../map/RideMap';
 import { usePassenger } from '../passenger-context';
 
+/** Room for the right-hand controls and the fare sheet under the map. */
+const fareCameraPadding = { top: 48, right: 96, bottom: 72, left: 56 };
+
 export function SearchScreen() {
   const { state, dispatch } = usePassenger();
   const booking = useBooking();
@@ -159,6 +162,8 @@ export function FareScreen() {
           fallbackTitle={live ? booking.pickupLabel : pickup.area}
           fallbackDetail={place.name}
           kekes={state.area === 'festac' ? 12 : 0}
+          cameraPadding={fareCameraPadding}
+          controlsInset={{ bottom: 16, right: 16 }}
         />
       </View>
       <ScrollView

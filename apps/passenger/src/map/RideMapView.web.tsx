@@ -7,6 +7,16 @@ import type { RideMapViewProps } from './types';
 
 let workerReady = false;
 
+function fillHost(node: HTMLElement) {
+  node.style.position = 'absolute';
+  node.style.top = '0';
+  node.style.right = '0';
+  node.style.bottom = '0';
+  node.style.left = '0';
+  node.style.width = '100%';
+  node.style.height = '100%';
+}
+
 function ensureWorker() {
   if (workerReady || typeof document === 'undefined') {
     return;
@@ -59,11 +69,14 @@ export function RideMapView({ pins, frame, padding, mapRef, onReady, onFail }: R
   const markers = useRef(new globalThis.Map<string, Marker>());
   const pinsRef = useRef(pins);
   const frameRef = useRef(frame);
+  const paddingRef = useRef(padding);
   const ready = useRef(false);
+  const fittedSize = useRef('');
 
   useEffect(() => {
     pinsRef.current = pins;
     frameRef.current = frame;
+    paddingRef.current = padding;
   });
 
   useEffect(() => {
@@ -73,6 +86,7 @@ export function RideMapView({ pins, frame, padding, mapRef, onReady, onFail }: R
       return undefined;
     }
     ensureWorker();
+    fillHost(node);
     let created: MapLibreMap;
     try {
       created = new MapLibreMap({
@@ -94,6 +108,8 @@ export function RideMapView({ pins, frame, padding, mapRef, onReady, onFail }: R
       return undefined;
     }
     map.current = created;
+    fillHost(node);
+    created.resize();
     const markerMap = markers.current;
     created.addControl(new AttributionControl({ compact: true }), 'bottom-left');
     const fail = () => {
@@ -142,20 +158,22 @@ export function RideMapView({ pins, frame, padding, mapRef, onReady, onFail }: R
     }
 
     function fit(target: MapLibreMap, immediate: boolean) {
-      if (frame.bounds) {
+      const next = frameRef.current;
+      const pad = paddingRef.current;
+      if (next.bounds) {
         target.fitBounds(
           [
-            [frame.bounds[0], frame.bounds[1]],
-            [frame.bounds[2], frame.bounds[3]],
+            [next.bounds[0], next.bounds[1]],
+            [next.bounds[2], next.bounds[3]],
           ],
-          { padding, maxZoom: 15.5, duration: immediate ? 0 : 600 },
+          { padding: pad, maxZoom: 15.5, duration: immediate ? 0 : 600 },
         );
         return;
       }
       target.easeTo({
-        center: frame.center,
-        zoom: frame.zoom,
-        padding,
+        center: next.center,
+        zoom: next.zoom,
+        padding: pad,
         duration: immediate ? 0 : 600,
       });
     }
@@ -244,7 +262,32 @@ export function RideMapView({ pins, frame, padding, mapRef, onReady, onFail }: R
     <View
       ref={host as never}
       style={StyleSheet.absoluteFill}
-      onLayout={() => map.current?.resize()}
+      onLayout={(event) => {
+        const { width, height } = event.nativeEvent.layout;
+        const target = map.current;
+        if (host.current) {
+          fillHost(host.current);
+        }
+        target?.resize();
+        const key = `${Math.round(width)}x${Math.round(height)}`;
+        if (!target || !ready.current || width < 40 || height < 40 || fittedSize.current === key) {
+          return;
+        }
+        fittedSize.current = key;
+        const next = frameRef.current;
+        const pad = paddingRef.current;
+        if (next.bounds) {
+          target.fitBounds(
+            [
+              [next.bounds[0], next.bounds[1]],
+              [next.bounds[2], next.bounds[3]],
+            ],
+            { padding: pad, maxZoom: 15.5, duration: 0 },
+          );
+          return;
+        }
+        target.jumpTo({ center: next.center, zoom: next.zoom, padding: pad });
+      }}
     />
   );
 }
