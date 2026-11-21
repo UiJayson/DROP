@@ -4,7 +4,7 @@ import { colors, lightColors, yellowMetallic } from './colors';
 import { metalCta, surfaceGlow, vanta } from './vanta';
 import { darkCssVariables } from './css';
 import { radii, spacing, tapTarget } from './spacing';
-import { typeScale } from './typography';
+import { fontFace, fontFallback, typeScale } from './typography';
 
 describe('design tokens', () => {
   it('uses the dark base and Keke Yellow from the UI doc', () => {
@@ -34,10 +34,27 @@ describe('design tokens', () => {
   });
 
   it('matches the type scale, spacing grid, radii, and tap targets', () => {
-    expect(typeScale.largeTitle).toEqual({ fontSize: 34, lineHeight: 41, fontWeight: '700' });
-    expect(typeScale.body.fontSize).toBe(17);
-    expect(typeScale.footnote.fontSize).toBe(13);
-    expect(typeScale.fare).toEqual({ fontSize: 36, lineHeight: 44, fontWeight: '700' });
+    expect(typeScale.display).toMatchObject({
+      fontSize: 32,
+      lineHeight: 36,
+      fontWeight: '700',
+      letterSpacing: -0.5,
+      family: 'text',
+    });
+    expect(typeScale.title).toMatchObject({ fontSize: 22, lineHeight: 28, fontWeight: '600' });
+    expect(typeScale.headline).toMatchObject({ fontSize: 17, lineHeight: 22, fontWeight: '600' });
+    expect(typeScale.body).toMatchObject({ fontSize: 15, lineHeight: 21, fontWeight: '400' });
+    expect(typeScale.label).toMatchObject({ fontSize: 13, lineHeight: 18, fontWeight: '500' });
+    expect(typeScale.caption).toMatchObject({ fontSize: 12, lineHeight: 16, fontWeight: '400' });
+    expect(typeScale.button).toMatchObject({ fontSize: 15, lineHeight: 20, fontWeight: '600' });
+    expect(typeScale.fare.family).toBe('text');
+    expect(typeScale.fare.tabular).toBe(true);
+    expect(typeScale.digits.family).toBe('mono');
+    expect(typeScale.timer.family).toBe('mono');
+    expect(fontFace.regular).toBe('BricolageGrotesque_400Regular');
+    expect(fontFace.bold).toBe('BricolageGrotesque_700Bold');
+    expect(fontFace.mono).toBe('GeistMono_500Medium');
+    expect(fontFallback).toContain('sans-serif');
     expect(Object.values(spacing)).toEqual([4, 8, 12, 16, 24, 32, 48]);
     expect(radii.card).toBe(12);
     expect(radii.control).toBe(14);

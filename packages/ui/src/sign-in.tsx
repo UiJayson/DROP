@@ -304,15 +304,12 @@ const styles = StyleSheet.create({
   form: { gap: spacing.sm },
   wordmark: {
     color: colors.primary,
-    fontSize: 22,
-    lineHeight: 28,
-    fontWeight: '700',
-    letterSpacing: 1.4,
+    ...typeStyle('title'),
   },
   title: { color: colors.textPrimary, ...typeStyle('title') },
   body: { color: colors.textSecondary, ...typeStyle('body') },
-  label: { color: colors.textSecondary, ...typeStyle('footnote') },
-  hint: { color: colors.textSecondary, ...typeStyle('footnote') },
+  label: { color: colors.textSecondary, ...typeStyle('label') },
+  hint: { color: colors.textSecondary, ...typeStyle('caption') },
   phoneRow: { flexDirection: 'row', gap: spacing.xs },
   prefix: {
     minHeight: tapTarget.riderPrimaryHeightDp,
@@ -345,10 +342,7 @@ const styles = StyleSheet.create({
   },
   codeDigit: {
     color: colors.primary,
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+    ...typeStyle('digits'),
   },
   codeInput: {
     position: 'absolute',

@@ -6,7 +6,7 @@ import {
   IconCircleButton,
   KekeArt,
   Screen,
-  useVantaFont,
+  typeStyle,
   type VantaTab,
 } from '@drop/ui';
 import { spacing, vanta } from '@drop/ui-tokens';
@@ -24,7 +24,6 @@ const homeCameraPadding = { top: 176, right: 96, bottom: 120, left: 32 };
 export function HomeScreen() {
   const { state, dispatch } = usePassenger();
   const insets = useSafeAreaInsets();
-  const font = useVantaFont();
   const [safety, setSafety] = useState(false);
   const [pickingArea, setPickingArea] = useState(false);
   const area = areas[state.area];
@@ -34,15 +33,13 @@ export function HomeScreen() {
     return (
       <Screen testID="screen-safety" padded tone="vanta">
         <View style={{ paddingTop: Math.max(insets.top, spacing.sm), gap: spacing.md, flex: 1 }}>
-          <Text accessibilityRole="header" style={[layout.title, { fontFamily: font.bold }]}>
+          <Text accessibilityRole="header" style={layout.title}>
             Safety
           </Text>
-          <Text style={[layout.body, { fontFamily: font.regular }]}>
+          <Text style={layout.body}>
             Share trip, call, and report sit on the trip itself. Nothing here interrupts booking.
           </Text>
-          <Text style={[layout.secondary, { fontFamily: font.regular }]}>
-            A trusted contact can be added after the prototype.
-          </Text>
+          <Text style={layout.secondary}>A trusted contact can be added after the prototype.</Text>
           <SignedInLine />
           <Button label="Back to booking" onPress={() => setSafety(false)} testID="close-safety" />
         </View>
@@ -106,10 +103,8 @@ export function HomeScreen() {
                 <View style={styles.stop}>
                   <View style={styles.dotYellow} />
                   <View>
-                    <Text style={[styles.fieldLabel, { fontFamily: font.medium }]}>From</Text>
-                    <Text style={[styles.fieldValue, { fontFamily: font.bold }]}>
-                      {pickup.title}
-                    </Text>
+                    <Text style={styles.fieldLabel}>From</Text>
+                    <Text style={styles.fieldValue}>{pickup.title}</Text>
                   </View>
                 </View>
                 <View style={styles.rule} />
@@ -122,8 +117,8 @@ export function HomeScreen() {
                 >
                   <View style={styles.dotInk} />
                   <View>
-                    <Text style={[styles.fieldLabel, { fontFamily: font.medium }]}>To</Text>
-                    <Text style={[styles.fieldValue, { fontFamily: font.bold }]}>Where to?</Text>
+                    <Text style={styles.fieldLabel}>To</Text>
+                    <Text style={styles.fieldValue}>Where to?</Text>
                   </View>
                 </Pressable>
               </View>
@@ -137,12 +132,12 @@ export function HomeScreen() {
             </View>
             <View style={styles.metaRow}>
               <View style={styles.metaCell}>
-                <Text style={[styles.fieldLabel, { fontFamily: font.medium }]}>Now</Text>
-                <Text style={[styles.fieldValue, { fontFamily: font.semibold }]}>Leave now</Text>
+                <Text style={styles.fieldLabel}>Now</Text>
+                <Text style={styles.fieldValue}>Leave now</Text>
               </View>
               <View style={styles.metaDivider} />
               <View style={styles.metaCell}>
-                <Text style={[styles.fieldLabel, { fontFamily: font.medium }]}>Your offer</Text>
+                <Text style={styles.fieldLabel}>Your offer</Text>
                 <View style={styles.offerRow}>
                   <Pressable
                     accessibilityRole="button"
@@ -150,18 +145,16 @@ export function HomeScreen() {
                     onPress={() => dispatch({ type: 'stepFare', direction: -1 })}
                     hitSlop={8}
                   >
-                    <Text style={[styles.step, { fontFamily: font.bold }]}>–</Text>
+                    <Text style={styles.step}>–</Text>
                   </Pressable>
-                  <Text style={[styles.fieldValue, { fontFamily: font.bold }]}>
-                    {formatNaira(state.offerKobo)}
-                  </Text>
+                  <Text style={styles.money}>{formatNaira(state.offerKobo)}</Text>
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Raise your offer"
                     onPress={() => dispatch({ type: 'stepFare', direction: 1 })}
                     hitSlop={8}
                   >
-                    <Text style={[styles.step, { fontFamily: font.bold }]}>+</Text>
+                    <Text style={styles.step}>+</Text>
                   </Pressable>
                 </View>
               </View>
@@ -172,7 +165,7 @@ export function HomeScreen() {
               onPress={() => dispatch({ type: 'openSearch' })}
               style={styles.find}
             >
-              <Text style={[styles.findText, { fontFamily: font.bold }]}>Find Keke</Text>
+              <Text style={styles.findText}>Find Keke</Text>
             </Pressable>
           </View>
 
@@ -184,7 +177,7 @@ export function HomeScreen() {
             style={styles.area}
           >
             <View style={styles.dotYellow} />
-            <Text style={[styles.areaText, { fontFamily: font.medium }]}>
+            <Text style={styles.areaText}>
               {area.nearby > 0 ? `${area.nearby} Kekes near you` : 'No Kekes near you'}
             </Text>
           </Pressable>
@@ -217,7 +210,7 @@ export function HomeScreen() {
             <QuietCopy />
           ) : rebookPlace && rebookQuote ? (
             <View style={{ gap: 12 }}>
-              <Text style={[styles.section, { fontFamily: font.bold }]}>Recent trips</Text>
+              <Text style={styles.section}>Recent trips</Text>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`Rebook ${rebookPlace.name}`}
@@ -225,15 +218,9 @@ export function HomeScreen() {
                 testID="rebook"
               >
                 <GlowCard contentStyle={styles.recent}>
-                  <Text
-                    style={[styles.fieldLabel, { color: vanta.muted, fontFamily: font.medium }]}
-                  >
-                    Last trip
-                  </Text>
-                  <Text style={[styles.fieldValue, { color: vanta.text, fontFamily: font.bold }]}>
-                    {rebookPlace.name}
-                  </Text>
-                  <Text style={[styles.tag, { fontFamily: font.regular }]}>
+                  <Text style={[styles.fieldLabel, { color: vanta.muted }]}>Last trip</Text>
+                  <Text style={[styles.fieldValue, { color: vanta.text }]}>{rebookPlace.name}</Text>
+                  <Text style={[styles.tag, { fontVariant: ['tabular-nums'] }]}>
                     From 23rd Road · {formatNaira(rebookQuote.midpointKobo)}
                   </Text>
                 </GlowCard>
@@ -262,18 +249,17 @@ function SignedInLine() {
 
 function QuietCopy() {
   const { state, dispatch } = usePassenger();
-  const font = useVantaFont();
   return (
     <View style={{ gap: spacing.sm }}>
-      <Text accessibilityRole="header" style={[layout.title, { fontFamily: font.bold }]}>
+      <Text accessibilityRole="header" style={layout.title}>
         No Kekes near you
       </Text>
-      <Text style={[layout.secondary, { fontFamily: font.regular }]}>
+      <Text style={layout.secondary}>
         Satellite Town is quiet. We can tell you when one is nearby, or you can set a destination
         and raise the fare.
       </Text>
       {state.notified ? (
-        <Text style={[layout.body, { color: '#70DDA0', fontFamily: font.medium }]}>
+        <Text style={[layout.body, { color: '#70DDA0' }]}>
           We will notify you when a Keke is nearby.
         </Text>
       ) : (
@@ -320,8 +306,7 @@ const styles = StyleSheet.create({
   },
   tag: {
     color: vanta.muted,
-    fontSize: 14,
-    lineHeight: 20,
+    ...typeStyle('caption'),
     marginTop: 6,
     maxWidth: 230,
   },
@@ -362,13 +347,16 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     color: '#6E6E73',
-    fontSize: 12,
-    lineHeight: 16,
+    ...typeStyle('caption'),
   },
   fieldValue: {
     color: vanta.ink,
-    fontSize: 16,
-    lineHeight: 21,
+    ...typeStyle('headline'),
+  },
+  money: {
+    color: vanta.ink,
+    ...typeStyle('title'),
+    fontVariant: ['tabular-nums'],
   },
   rule: {
     marginLeft: 20,
@@ -396,7 +384,7 @@ const styles = StyleSheet.create({
   },
   step: {
     color: vanta.ink,
-    fontSize: 20,
+    ...typeStyle('title'),
     minWidth: 24,
     textAlign: 'center',
   },
@@ -411,8 +399,7 @@ const styles = StyleSheet.create({
   },
   findText: {
     color: '#FFFFFF',
-    fontSize: 14,
-    lineHeight: 18,
+    ...typeStyle('button'),
   },
   area: {
     flexDirection: 'row',
@@ -423,7 +410,7 @@ const styles = StyleSheet.create({
   },
   areaText: {
     color: vanta.text,
-    fontSize: 14,
+    ...typeStyle('label'),
   },
   areaPick: {
     flexDirection: 'row',
@@ -431,7 +418,7 @@ const styles = StyleSheet.create({
   },
   section: {
     color: vanta.text,
-    fontSize: 18,
+    ...typeStyle('headline'),
   },
   recent: {
     gap: 4,

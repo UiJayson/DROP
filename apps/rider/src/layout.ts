@@ -10,20 +10,20 @@ export const layout = StyleSheet.create({
   },
   wordmark: {
     color: colors.primary,
-    fontSize: 22,
-    lineHeight: 28,
-    fontWeight: '700',
-    letterSpacing: 1.4,
+    ...typeStyle('title'),
   },
   title: { color: colors.textPrimary, ...typeStyle('title') },
   headline: { color: colors.textPrimary, ...typeStyle('headline') },
   body: { color: colors.textPrimary, ...typeStyle('body') },
-  secondary: { color: colors.textSecondary, ...typeStyle('callout') },
-  footnote: { color: colors.textSecondary, ...typeStyle('footnote') },
+  secondary: { color: colors.textSecondary, ...typeStyle('body') },
+  footnote: { color: colors.textSecondary, ...typeStyle('caption') },
   fare: {
     color: colors.textPrimary,
     ...typeStyle('fare'),
-    fontVariant: ['tabular-nums'],
+  },
+  timer: {
+    color: colors.textPrimary,
+    ...typeStyle('timer'),
   },
   card: {
     backgroundColor: colors.surface1,
@@ -62,8 +62,8 @@ export const layout = StyleSheet.create({
   },
   onlineOn: {},
   onlineOff: { backgroundColor: colors.surface3 },
-  onlineLabelOn: { color: colors.onPrimary, ...typeStyle('title') },
-  onlineLabelOff: { color: colors.textPrimary, ...typeStyle('title') },
+  onlineLabelOn: { color: colors.onPrimary, ...typeStyle('button') },
+  onlineLabelOff: { color: colors.textPrimary, ...typeStyle('button') },
   center: {
     flexGrow: 1,
     justifyContent: 'center',

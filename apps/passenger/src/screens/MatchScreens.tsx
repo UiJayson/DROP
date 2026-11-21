@@ -27,7 +27,7 @@ import {
   RideOfferCard,
   RouteTimeline,
   Screen,
-  useVantaFont,
+  typeStyle,
   type VantaTab,
 } from '@drop/ui';
 import { vanta } from '@drop/ui-tokens';
@@ -132,7 +132,6 @@ function Searching() {
       ? `Looking for the first rider at ${formatNaira(state.offerKobo)}`
       : '5 riders are viewing your request';
 
-  const font = useVantaFont();
   const place = state.placeId ? placeById(state.placeId) : undefined;
 
   function onTab(tab: VantaTab) {
@@ -160,10 +159,7 @@ function Searching() {
               icon="arrow-left"
               onPress={() => dispatch({ type: 'back' })}
             />
-            <Text
-              accessibilityRole="header"
-              style={[styles.headerTitle, { fontFamily: font.bold }]}
-            >
+            <Text accessibilityRole="header" style={styles.headerTitle}>
               {state.route === 'searching' ? 'Finding riders' : 'Rider offers'}
             </Text>
             <IconCircleButton
@@ -172,15 +168,12 @@ function Searching() {
               onPress={() => undefined}
             />
           </View>
-          <Text
-            style={[styles.headerMeta, { fontFamily: font.medium }]}
-            accessibilityLiveRegion="polite"
-          >
+          <Text style={styles.headerMeta} accessibilityLiveRegion="polite">
             {state.route === 'searching'
               ? `${left == null ? '1:00' : clock(left)} · ${formatNaira(state.offerKobo)} cash`
               : `${offers.length} ${offers.length === 1 ? 'offer' : 'offers'}${left == null ? '' : ` · ${clock(left)}`}`}
           </Text>
-          <Text style={[styles.headerSub, { fontFamily: font.regular }]}>
+          <Text style={styles.headerSub}>
             {state.route === 'searching'
               ? `${viewing} ${radiusSearchLabel(booking.enabled ? booking.radiusM : null)}`
               : `To ${place?.name ?? 'your drop-off'} · cash, fare locked when you accept`}
@@ -332,7 +325,6 @@ function OfferSelected() {
   const { state, dispatch } = usePassenger();
   const booking = useBooking();
   const insets = useSafeAreaInsets();
-  const font = useVantaFont();
   const live = booking.offers.find((item) => item.id === state.offerId);
   const offer = live
     ? {
@@ -390,7 +382,7 @@ function OfferSelected() {
             icon="arrow-left"
             onPress={() => dispatch({ type: 'back' })}
           />
-          <Text accessibilityRole="header" style={[styles.headerTitle, { fontFamily: font.bold }]}>
+          <Text accessibilityRole="header" style={styles.headerTitle}>
             Rider details
           </Text>
           <IconCircleButton
@@ -401,18 +393,14 @@ function OfferSelected() {
         </View>
         <View style={styles.riderBlock}>
           <View style={styles.riderRow}>
-            <InitialAvatar letter={offer.name.slice(0, 1)} fontFamily={font.bold} size={52} />
+            <InitialAvatar letter={offer.name.slice(0, 1)} size={52} />
             <View style={styles.riderCopy}>
-              <Text style={[styles.riderName, { fontFamily: font.bold }]}>{offer.name}</Text>
+              <Text style={styles.riderName}>{offer.name}</Text>
               <View style={styles.riderMeta}>
                 <YellowStar />
-                <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
-                  {offer.rating.toFixed(1)}
-                </Text>
+                <Text style={styles.headerSub}>{offer.rating.toFixed(1)}</Text>
                 <KekeGlyph size={13} color={vanta.muted} />
-                <Text style={[styles.headerSub, { fontFamily: font.medium }]}>
-                  {offer.rides.toLocaleString('en-NG')} trips
-                </Text>
+                <Text style={styles.headerSub}>{offer.rides.toLocaleString('en-NG')} trips</Text>
               </View>
               <Pill label={offer.seats > 0 ? `Carrying ${offer.seats}` : 'Verified'} tone="solid" />
             </View>
@@ -442,27 +430,23 @@ function OfferSelected() {
           <GlowCard>
             <View style={styles.fareRow}>
               <View style={styles.grow}>
-                <Text style={[styles.fareLabel, { fontFamily: font.medium }]}>Agreed fare</Text>
-                <Text style={[styles.fareHint, { fontFamily: font.regular }]}>
+                <Text style={styles.fareLabel}>Agreed fare</Text>
+                <Text style={styles.fareHint}>
                   {state.forOther && state.riderFor.trim()
                     ? `For ${state.riderFor.trim()}`
                     : 'Locked if you confirm'}
                 </Text>
               </View>
-              <Text style={[styles.fareValue, { fontFamily: font.bold }]}>
-                {formatNaira(offer.amountKobo)}
-              </Text>
+              <Text style={styles.fareValue}>{formatNaira(offer.amountKobo)}</Text>
             </View>
           </GlowCard>
           <GlowCard>
             <View style={styles.fareRow}>
               <View style={styles.grow}>
-                <Text style={[styles.fareLabel, { fontFamily: font.medium }]}>Payment</Text>
-                <Text style={[styles.fareHint, { fontFamily: font.regular }]}>
-                  {offer.colour} Keke · pay the rider
-                </Text>
+                <Text style={styles.fareLabel}>Payment</Text>
+                <Text style={styles.fareHint}>{offer.colour} Keke · pay the rider</Text>
               </View>
-              <Text style={[styles.cash, { fontFamily: font.bold }]}>Cash</Text>
+              <Text style={styles.cash}>Cash</Text>
             </View>
           </GlowCard>
           {booking.error ? <Notice message={booking.error} /> : null}
@@ -488,19 +472,18 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     color: vanta.text,
-    fontSize: 18,
+    ...typeStyle('headline'),
     flex: 1,
     textAlign: 'center',
   },
   headerMeta: {
     color: vanta.text,
-    fontSize: 16,
+    ...typeStyle('body'),
     marginTop: 16,
   },
   headerSub: {
     color: vanta.muted,
-    fontSize: 13,
-    lineHeight: 18,
+    ...typeStyle('caption'),
     marginTop: 4,
   },
   list: {
@@ -527,7 +510,7 @@ const styles = StyleSheet.create({
   grow: { flex: 1, gap: 4 },
   riderName: {
     color: vanta.text,
-    fontSize: 18,
+    ...typeStyle('headline'),
   },
   chips: {
     flexDirection: 'row',
@@ -541,19 +524,20 @@ const styles = StyleSheet.create({
   },
   fareLabel: {
     color: vanta.text,
-    fontSize: 15,
+    ...typeStyle('label'),
   },
   fareHint: {
     color: vanta.muted,
-    fontSize: 13,
+    ...typeStyle('caption'),
     marginTop: 2,
   },
   fareValue: {
     color: vanta.text,
-    fontSize: 20,
+    ...typeStyle('title'),
+    fontVariant: ['tabular-nums'],
   },
   cash: {
     color: vanta.yellow,
-    fontSize: 16,
+    ...typeStyle('label'),
   },
 });

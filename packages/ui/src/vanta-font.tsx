@@ -5,6 +5,7 @@ export type VantaFaces = {
   medium: string;
   semibold: string;
   bold: string;
+  mono: string;
 };
 
 const system: VantaFaces = {
@@ -12,6 +13,7 @@ const system: VantaFaces = {
   medium: 'System',
   semibold: 'System',
   bold: 'System',
+  mono: 'System',
 };
 
 const FontContext = createContext<VantaFaces>(system);

@@ -33,6 +33,7 @@ export {
   VantaText,
 } from './vanta-controls';
 export type { VantaTab } from './vanta-controls';
+export { DropFonts } from './fonts';
 export { VantaFontProvider, useVantaFont } from './vanta-font';
 export type { VantaFaces } from './vanta-font';
 export { FeatureChip, InitialAvatar, RideOfferCard, RouteTimeline } from './vanta-ride';

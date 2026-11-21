@@ -311,7 +311,7 @@ function Request() {
         ]}
       >
         <Text style={layout.footnote}>Time to decide</Text>
-        <Text style={layout.fare} accessibilityLiveRegion="polite">
+        <Text style={layout.timer} accessibilityLiveRegion="polite">
           {clock}
         </Text>
         <Text accessibilityRole="header" style={layout.title}>

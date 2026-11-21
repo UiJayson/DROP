@@ -1,4 +1,4 @@
-import { colors, radii, spacing, tapTarget, typeScale } from '@drop/ui-tokens';
+import { colors, radii, spacing, tapTarget } from '@drop/ui-tokens';
 import { formatNaira } from '@drop/shared';
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -341,9 +341,7 @@ const styles = StyleSheet.create({
   },
   stepGlyph: {
     color: colors.textPrimary,
-    fontSize: 32,
-    lineHeight: 36,
-    fontWeight: '500',
+    ...typeStyle('title'),
   },
   stepGlyphDisabled: {
     color: colors.disabled,
@@ -354,21 +352,18 @@ const styles = StyleSheet.create({
   },
   fare: {
     color: colors.textPrimary,
-    fontSize: typeScale.fare.fontSize,
-    lineHeight: typeScale.fare.lineHeight,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+    ...typeStyle('fare'),
   },
   field: {
     gap: spacing.xs,
   },
   fieldLabel: {
     color: colors.textSecondary,
-    ...typeStyle('footnote'),
+    ...typeStyle('label'),
   },
   fieldHint: {
     color: colors.textSecondary,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
   },
   input: {
     minHeight: tapTarget.minDp,
@@ -420,7 +415,7 @@ const styles = StyleSheet.create({
   },
   clearText: {
     color: colors.textSecondary,
-    ...typeStyle('callout'),
+    ...typeStyle('label'),
   },
   choice: {
     minHeight: tapTarget.minDp,
@@ -445,7 +440,7 @@ const styles = StyleSheet.create({
   },
   choiceDetail: {
     color: colors.textSecondary,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
   },
   pinRow: {
     flexDirection: 'row',
@@ -462,10 +457,7 @@ const styles = StyleSheet.create({
   },
   pinDigit: {
     color: colors.textPrimary,
-    fontSize: typeScale.fare.fontSize,
-    lineHeight: typeScale.fare.lineHeight,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+    ...typeStyle('digits'),
   },
   pad: {
     flexDirection: 'row',
@@ -487,13 +479,10 @@ const styles = StyleSheet.create({
   },
   padGlyph: {
     color: colors.textPrimary,
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: '600',
+    ...typeStyle('digits'),
   },
   padDelete: {
-    fontSize: 18,
-    lineHeight: 22,
+    ...typeStyle('headline'),
   },
   stars: {
     flexDirection: 'row',
@@ -507,8 +496,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   starGlyph: {
-    fontSize: 36,
-    lineHeight: 40,
+    ...typeStyle('display'),
   },
   starOn: {
     color: colors.primary,

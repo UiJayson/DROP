@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 
 import { tapHaptic } from './haptics';
+import { typeStyle } from './theme';
 import { YellowFill } from './yellow';
 import { useReduceMotion } from './shell';
 import { useVantaFont } from './vanta-font';
@@ -92,21 +93,18 @@ export function Pill({
   label: string;
   tone?: 'muted' | 'solid' | 'yellow';
 }) {
-  const font = useVantaFont();
   if (tone === 'solid' || tone === 'yellow') {
     return (
       <View
         style={[styles.pill, { backgroundColor: tone === 'yellow' ? vanta.yellow : vanta.white }]}
       >
-        <Text style={[styles.pillText, { color: vanta.ink, fontFamily: font.semibold }]}>
-          {label}
-        </Text>
+        <Text style={[styles.pillText, { color: vanta.ink }]}>{label}</Text>
       </View>
     );
   }
   return (
     <LinearGradient colors={[...pillFill]} style={styles.pill}>
-      <Text style={[styles.pillText, { color: vanta.text, fontFamily: font.medium }]}>{label}</Text>
+      <Text style={[styles.pillText, { color: vanta.text }]}>{label}</Text>
     </LinearGradient>
   );
 }
@@ -122,7 +120,6 @@ export function MetalButton({
   disabled?: boolean;
   testID?: string;
 }) {
-  const font = useVantaFont();
   const { scale, to } = usePressScale();
   return (
     <Animated.View style={[{ transform: [{ scale }] }, styles.metalWrap]}>
@@ -143,7 +140,7 @@ export function MetalButton({
           colors={[vanta.white, vanta.metalMid, vanta.metalEdge]}
           style={[styles.metal, disabled && styles.disabled]}
         >
-          <Text style={[styles.metalText, { fontFamily: font.bold }]}>{label}</Text>
+          <Text style={styles.metalText}>{label}</Text>
         </LinearGradient>
       </Pressable>
     </Animated.View>
@@ -161,7 +158,6 @@ export function FloatingTabBar({
   accent?: 'yellow' | 'white';
   onChange: (tab: VantaTab) => void;
 }) {
-  const font = useVantaFont();
   const tabs: { id: VantaTab; icon: keyof typeof Feather.glyphMap; label: string }[] = [
     { id: 'home', icon: 'home', label: 'Home' },
     { id: 'ride', icon: 'navigation', label: 'Ride' },
@@ -201,9 +197,7 @@ export function FloatingTabBar({
                   style={styles.tabFront}
                 />
                 {selected ? (
-                  <Text style={[styles.tabLabel, styles.tabFront, { fontFamily: font.semibold }]}>
-                    {tab.label}
-                  </Text>
+                  <Text style={[styles.tabLabel, styles.tabFront]}>{tab.label}</Text>
                 ) : null}
               </Pressable>
             );
@@ -223,7 +217,6 @@ export function DatePillStrip({
   selected: string;
   onSelect: (id: string) => void;
 }) {
-  const font = useVantaFont();
   return (
     <View style={styles.dates}>
       {days.map((day) => {
@@ -237,22 +230,10 @@ export function DatePillStrip({
             onPress={() => onSelect(day.id)}
             style={[styles.datePill, on ? styles.dateOn : styles.dateOff]}
           >
-            <Text
-              style={[
-                styles.dateLabel,
-                { color: on ? vanta.ink : vanta.muted, fontFamily: font.medium },
-              ]}
-            >
+            <Text style={[styles.dateLabel, { color: on ? vanta.ink : vanta.muted }]}>
               {day.label}
             </Text>
-            <Text
-              style={[
-                styles.dateNum,
-                { color: on ? vanta.ink : vanta.text, fontFamily: font.bold },
-              ]}
-            >
-              {day.date}
-            </Text>
+            <Text style={[styles.dateNum, { color: on ? vanta.ink : vanta.text }]}>{day.date}</Text>
           </Pressable>
         );
       })}
@@ -271,23 +252,25 @@ export function VantaText({
 }) {
   const font = useVantaFont();
   const face =
-    role === 'display' || role === 'time' || role === 'title'
-      ? font.bold
-      : role === 'label'
-        ? font.semibold
-        : role === 'muted'
-          ? font.regular
-          : font.medium;
+    role === 'time'
+      ? font.mono
+      : role === 'display'
+        ? font.bold
+        : role === 'title'
+          ? font.semibold
+          : role === 'label'
+            ? font.medium
+            : font.regular;
   return <Text style={[roles[role], { fontFamily: face }, style]}>{children}</Text>;
 }
 
 const roles = StyleSheet.create({
-  display: { color: vanta.text, fontSize: 32, lineHeight: 38 },
-  title: { color: vanta.text, fontSize: 18, lineHeight: 24 },
-  time: { color: vanta.white, fontSize: 20, lineHeight: 26 },
-  body: { color: vanta.text, fontSize: 15, lineHeight: 20 },
-  muted: { color: vanta.muted, fontSize: 13, lineHeight: 18 },
-  label: { color: vanta.text, fontSize: 13, lineHeight: 18 },
+  display: { color: vanta.text, ...typeStyle('display') },
+  title: { color: vanta.text, ...typeStyle('title') },
+  time: { color: vanta.white, ...typeStyle('timer') },
+  body: { color: vanta.text, ...typeStyle('body') },
+  muted: { color: vanta.muted, ...typeStyle('caption') },
+  label: { color: vanta.text, ...typeStyle('label') },
 });
 
 const styles = StyleSheet.create({
@@ -317,8 +300,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   pillText: {
-    fontSize: 12,
-    lineHeight: 16,
+    ...typeStyle('label'),
   },
   metalWrap: {
     alignSelf: 'center',
@@ -334,8 +316,7 @@ const styles = StyleSheet.create({
   metalText: {
     zIndex: 1,
     color: vanta.ink,
-    fontSize: 15,
-    lineHeight: 20,
+    ...typeStyle('button'),
   },
   disabled: {
     opacity: 0.5,
@@ -390,7 +371,7 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     color: vanta.ink,
-    fontSize: 14,
+    ...typeStyle('label'),
   },
   dates: {
     flexDirection: 'row',
@@ -412,10 +393,9 @@ const styles = StyleSheet.create({
     borderColor: vanta.rim,
   },
   dateLabel: {
-    fontSize: 12,
+    ...typeStyle('caption'),
   },
   dateNum: {
-    fontSize: 20,
-    lineHeight: 24,
+    ...typeStyle('title'),
   },
 });

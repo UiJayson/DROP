@@ -1,4 +1,4 @@
-import { colors, radii, spacing, tapTarget, typeScale } from '@drop/ui-tokens';
+import { colors, radii, spacing, tapTarget } from '@drop/ui-tokens';
 import { useRef, useState, type ReactNode } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -250,9 +250,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface3,
   },
   buttonLabel: {
-    fontSize: 15,
-    lineHeight: 20,
-    fontWeight: '600',
+    ...typeStyle('button'),
     textAlign: 'center',
   },
   buttonLabelFront: {
@@ -327,9 +325,7 @@ const styles = StyleSheet.create({
   dotNeutral: { backgroundColor: colors.textSecondary },
   pillText: {
     color: colors.textPrimary,
-    fontSize: typeScale.footnote.fontSize,
-    lineHeight: typeScale.footnote.lineHeight,
-    fontWeight: '600',
+    ...typeStyle('label'),
   },
   notice: {
     backgroundColor: colors.surface3,
@@ -340,7 +336,7 @@ const styles = StyleSheet.create({
   },
   noticeText: {
     color: colors.textPrimary,
-    ...typeStyle('callout'),
+    ...typeStyle('body'),
   },
   demo: {
     minHeight: tapTarget.minDp,
@@ -353,7 +349,7 @@ const styles = StyleSheet.create({
   },
   demoText: {
     color: colors.textSecondary,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
     textAlign: 'center',
   },
 });

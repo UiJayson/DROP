@@ -7,7 +7,7 @@ import {
   type OnboardingDraft,
   type OnboardingStep,
 } from '@drop/shared';
-import { Button, Field, Header, Notice, Screen } from '@drop/ui';
+import { Button, Field, Header, Notice, Screen, typeStyle } from '@drop/ui';
 import { colors, radii, spacing, tapTarget } from '@drop/ui-tokens';
 import * as ImagePicker from 'expo-image-picker';
 import { useReducer, useState } from 'react';
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     gap: spacing.md,
   },
-  label: { color: colors.textSecondary, fontSize: 13, lineHeight: 18 },
+  label: { color: colors.textSecondary, ...typeStyle('label') },
   ninRow: { flexDirection: 'row', gap: spacing.xs, alignItems: 'center' },
   ninInput: {
     flex: 1,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface3,
     color: colors.textPrimary,
     paddingHorizontal: spacing.md,
-    fontSize: 17,
+    ...typeStyle('body'),
   },
   show: {
     minWidth: tapTarget.minDp,
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.sm,
   },
-  showText: { color: colors.primary, fontSize: 17, fontWeight: '600' },
+  showText: { color: colors.primary, ...typeStyle('button') },
   consent: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -341,5 +341,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   boxOn: { backgroundColor: colors.primary, borderColor: colors.primary },
-  boxMark: { color: colors.onPrimary, fontSize: 16, fontWeight: '700' },
+  boxMark: { color: colors.onPrimary, ...typeStyle('headline') },
 });

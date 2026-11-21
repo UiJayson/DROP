@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   liveCaption: {
     color: colors.textPrimary,
     backgroundColor: colors.surface1,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: radii.pill,
     paddingHorizontal: spacing.xs,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
     maxWidth: 140,
   },
   radar: {
@@ -379,6 +379,6 @@ const styles = StyleSheet.create({
   },
   captionSub: {
     color: colors.textSecondary,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
   },
 });
