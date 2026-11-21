@@ -12,7 +12,6 @@ import {
   FloatingTabBar,
   GlowCard,
   IconCircleButton,
-  KekeArt,
   Screen,
   useVantaFont,
   type VantaTab,
@@ -89,9 +88,6 @@ export function HomeScreen() {
           onTone={setMapTone}
           style={StyleSheet.absoluteFill}
         />
-        <View style={styles.koke} pointerEvents="none">
-          <KekeArt width={104} glow />
-        </View>
         <View
           pointerEvents="box-none"
           style={[styles.heroCopy, { paddingTop: Math.max(insets.top, 12) }]}
@@ -331,11 +327,6 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     marginTop: -28,
-  },
-  koke: {
-    position: 'absolute',
-    right: 72,
-    top: 68,
   },
   heroCopy: {
     ...StyleSheet.absoluteFill,
