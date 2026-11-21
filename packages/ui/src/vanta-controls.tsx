@@ -42,13 +42,22 @@ export function IconCircleButton({
   icon,
   onPress,
   testID,
+  rotate = 0,
+  tone = 'metal',
 }: {
   label: string;
   icon: keyof typeof Feather.glyphMap;
   onPress: () => void;
   testID?: string;
+  rotate?: number;
+  tone?: 'metal' | 'ink';
 }) {
   const { scale, to } = usePressScale();
+  const glyph = (
+    <View style={rotate ? { transform: [{ rotate: `${rotate}deg` }] } : undefined}>
+      <Feather name={icon} size={18} color={tone === 'ink' ? '#D0D0D0' : vanta.text} />
+    </View>
+  );
   return (
     <Animated.View style={{ transform: [{ scale }] }}>
       <Pressable
@@ -63,9 +72,13 @@ export function IconCircleButton({
         }}
         style={styles.circleHit}
       >
-        <LinearGradient colors={[...pillFill]} style={styles.circle}>
-          <Feather name={icon} size={18} color={vanta.text} />
-        </LinearGradient>
+        {tone === 'ink' ? (
+          <View style={[styles.circle, styles.circleInk]}>{glyph}</View>
+        ) : (
+          <LinearGradient colors={[...pillFill]} style={styles.circle}>
+            {glyph}
+          </LinearGradient>
+        )}
       </Pressable>
     </Animated.View>
   );
@@ -281,6 +294,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: vanta.rimIcon,
+  },
+  circleInk: {
+    backgroundColor: '#1A1A1A',
+    borderColor: '#1A1A1A',
   },
   pill: {
     borderRadius: 999,

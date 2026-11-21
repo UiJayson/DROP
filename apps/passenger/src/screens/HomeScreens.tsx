@@ -1,12 +1,4 @@
-import {
-  areas,
-  formatNaira,
-  passengerProfile,
-  pickup,
-  placeById,
-  quoteForPlace,
-  rebookPlaceId,
-} from '@drop/shared';
+import { areas, formatNaira, pickup, placeById, quoteForPlace, rebookPlaceId } from '@drop/shared';
 import {
   Button,
   FloatingTabBar,
@@ -33,20 +25,11 @@ export function HomeScreen() {
   const { state, dispatch } = usePassenger();
   const insets = useSafeAreaInsets();
   const font = useVantaFont();
-  const account = useAccount();
   const [safety, setSafety] = useState(false);
   const [pickingArea, setPickingArea] = useState(false);
-  const [mapTone, setMapTone] = useState<'light' | 'dark'>('light');
-  const ink = mapTone === 'light' ? '#1F1F1F' : vanta.text;
-  const mute = mapTone === 'light' ? '#616262' : vanta.muted;
   const area = areas[state.area];
   const rebookPlace = placeById(rebookPlaceId);
   const rebookQuote = quoteForPlace(rebookPlaceId);
-  const hello =
-    !account || account.phoneMask === '+234 80 ••• ••00'
-      ? `Hello, ${passengerProfile.name}`
-      : 'Hello';
-
   if (safety) {
     return (
       <Screen testID="screen-safety" padded tone="vanta">
@@ -86,7 +69,6 @@ export function HomeScreen() {
           fallbackTitle={pickup.area}
           controlsInset={{ bottom: 80, right: 16 }}
           cameraPadding={homeCameraPadding}
-          onTone={setMapTone}
           style={StyleSheet.absoluteFill}
         />
         <View style={styles.koke} pointerEvents="none">
@@ -96,31 +78,19 @@ export function HomeScreen() {
           pointerEvents="box-none"
           style={[styles.heroCopy, { paddingTop: Math.max(insets.top, 12) }]}
         >
-          <View style={styles.topRow}>
-            <Text style={[styles.word, { fontFamily: font.bold, color: vanta.yellow }]}>DROP</Text>
-            <View style={styles.topActions}>
-              <IconCircleButton
-                label="Search"
-                icon="search"
-                onPress={() => dispatch({ type: 'openSearch' })}
-              />
-              <IconCircleButton
-                label="Safety"
-                icon="bell"
-                onPress={() => setSafety(true)}
-                testID="safety"
-              />
-            </View>
+          <View style={styles.topActions}>
+            <IconCircleButton
+              label="Search"
+              icon="search"
+              onPress={() => dispatch({ type: 'openSearch' })}
+            />
+            <IconCircleButton
+              label="Safety"
+              icon="bell"
+              onPress={() => setSafety(true)}
+              testID="safety"
+            />
           </View>
-          <Text
-            accessibilityRole="header"
-            style={[styles.hello, { fontFamily: font.bold, color: ink }]}
-          >
-            {hello}
-          </Text>
-          <Text style={[styles.tag, { fontFamily: font.regular, color: mute }]}>
-            Travel where you want. Agree the fare, then pay the rider in cash.
-          </Text>
         </View>
       </View>
 
@@ -160,6 +130,8 @@ export function HomeScreen() {
               <IconCircleButton
                 label="Choose pickup and destination"
                 icon="repeat"
+                rotate={90}
+                tone="ink"
                 onPress={() => dispatch({ type: 'openSearch' })}
               />
             </View>
@@ -341,25 +313,10 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     paddingHorizontal: 20,
   },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   topActions: {
     flexDirection: 'row',
     gap: 8,
-  },
-  word: {
-    color: vanta.yellow,
-    fontSize: 22,
-    letterSpacing: 0.4,
-  },
-  hello: {
-    color: vanta.text,
-    fontSize: 28,
-    lineHeight: 34,
-    marginTop: 28,
+    alignSelf: 'flex-end',
   },
   tag: {
     color: vanta.muted,
@@ -446,13 +403,15 @@ const styles = StyleSheet.create({
   find: {
     backgroundColor: '#111111',
     borderRadius: 999,
-    minHeight: 56,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 16,
   },
   findText: {
     color: '#FFFFFF',
-    fontSize: 17,
+    fontSize: 15,
+    lineHeight: 20,
   },
   area: {
     flexDirection: 'row',

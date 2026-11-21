@@ -31,12 +31,11 @@ function pinNode(pin: RidePin): HTMLDivElement {
   root.setAttribute('aria-label', pin.label);
   if (pin.kind === 'user') {
     Object.assign(root.style, {
-      width: '16px',
-      height: '16px',
-      borderRadius: '8px',
-      background: rideMapColors.white,
-      border: `2px solid ${rideMapColors.dropoff}`,
-      boxShadow: '0 0 0 6px rgba(31,31,31,0.12)',
+      width: '8px',
+      height: '8px',
+      borderRadius: '4px',
+      background: '#1F1F1F',
+      boxShadow: '0 0 0 7px rgba(31,31,31,0.10)',
     });
     return root;
   }
