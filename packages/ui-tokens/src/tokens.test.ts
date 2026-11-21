@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { colors, lightColors, yellowMetallic } from './colors';
+import { colors, lightColors, yellowMetallic, yellowSheen } from './colors';
 import { metalCta, surfaceGlow, vanta } from './vanta';
 import { darkCssVariables } from './css';
 import { radii, spacing, tapTarget } from './spacing';
@@ -11,7 +11,7 @@ describe('design tokens', () => {
     expect(colors.bg).toBe('#09090B');
     expect(colors.primary).toBe('#FFE14A');
     expect(colors.onPrimary).toBe('#101012');
-    expect(colors.gradAccentTop).toBe('#FFF6B0');
+    expect(colors.gradAccentTop).toBe('#FFE07A');
     expect(colors.gradAccentBottom).toBe('#E09600');
     expect(colors.gradTop).toBe('#202024');
     expect(colors.gradMid).toBe('#111113');
@@ -30,7 +30,8 @@ describe('design tokens', () => {
     expect(lightColors.textSecondary).toBe('#5F6368');
     expect(lightColors.primary).toBe('#FFE14A');
     expect(lightColors.onPrimary).toBe('#101012');
-    expect(yellowMetallic).toEqual(['#FFF6B0', '#FFE14A', '#F5B400', '#E09600']);
+    expect(yellowMetallic).toEqual(['#FFE07A', '#F5C42E', '#E8A800', '#E09600']);
+    expect(yellowSheen[0]).toBe('rgba(255,255,255,0.36)');
   });
 
   it('matches the type scale, spacing grid, radii, and tap targets', () => {

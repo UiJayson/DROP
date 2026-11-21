@@ -1,4 +1,4 @@
-export { colors, gradients, lightColors, yellowMetallic } from './colors';
+export { colors, gradients, lightColors, yellowMetallic, yellowSheen } from './colors';
 export { metalCta, pillFill, surfaceGlow, vanta } from './vanta';
 export type { ColorToken } from './colors';
 export { darkCssVariables } from './css';

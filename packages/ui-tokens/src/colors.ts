@@ -11,7 +11,7 @@ export const colors = {
   gradBottom: '#09090B',
   gradSheetTop: '#242427',
   gradSheetBottom: '#171719',
-  gradAccentTop: '#FFF6B0',
+  gradAccentTop: '#FFE07A',
   gradAccentBottom: '#E09600',
   /** Brighter solid for small dots and text. Large fills use yellowMetallic. */
   primary: '#FFE14A',
@@ -39,10 +39,14 @@ export const lightColors = {
 } as const;
 
 /**
- * Glossy keke yellow. Bright highlight, electric middle, warm amber base.
- * Text on these fills stays #101012 so it meets WCAG AA.
+ * Glossy keke yellow. A rich gold highlight, a warm middle, and an amber base.
+ * The top stop stays luminous without going cream-white. Text on these fills
+ * stays #101012 so it meets WCAG AA.
  */
-export const yellowMetallic = ['#FFF6B0', '#FFE14A', '#F5B400', '#E09600'] as const;
+export const yellowMetallic = ['#FFE07A', '#F5C42E', '#E8A800', '#E09600'] as const;
+
+/** Soft inner sheen. Kept lighter than the gold, not a white cap. */
+export const yellowSheen = ['rgba(255,255,255,0.36)', 'rgba(255,255,255,0)'] as const;
 
 export const gradients = {
   screen: { top: colors.gradTop, mid: colors.gradMid, bottom: colors.gradBottom },

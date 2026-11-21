@@ -1,11 +1,11 @@
-import { yellowMetallic } from '@drop/ui-tokens';
+import { yellowMetallic, yellowSheen } from '@drop/ui-tokens';
 import { LinearGradient } from 'expo-linear-gradient';
 import { type ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 /**
  * Glossy keke yellow for pills, tabs, chips, and pins.
- * A bright top highlight, an electric middle, and a warm amber base.
+ * A rich gold highlight, a warm middle, and an amber base.
  */
 export function YellowFill({
   children,
@@ -24,7 +24,7 @@ export function YellowFill({
     >
       <LinearGradient
         pointerEvents="none"
-        colors={['rgba(255,255,255,0.7)', 'rgba(255,255,255,0)']}
+        colors={[...yellowSheen]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 0.55 }}
         style={StyleSheet.absoluteFill}

@@ -55,7 +55,7 @@ function pinNode(pin: RidePin): HTMLDivElement {
     border: `2px solid ${rideMapColors.white}`,
     boxShadow:
       pin.kind === 'pickup'
-        ? 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 5px rgba(31,31,31,0.18)'
+        ? 'inset 0 1px 0 rgba(255,255,255,0.4), 0 2px 4px rgba(31,31,31,0.14)'
         : '0 2px 6px rgba(31,31,31,0.18)',
   });
   const stem = document.createElement('div');
