@@ -401,17 +401,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   find: {
+    alignSelf: 'center',
     backgroundColor: '#111111',
     borderRadius: 999,
-    minHeight: 44,
+    minHeight: 42,
+    paddingHorizontal: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
   },
   findText: {
     color: '#FFFFFF',
-    fontSize: 15,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 18,
   },
   area: {
     flexDirection: 'row',

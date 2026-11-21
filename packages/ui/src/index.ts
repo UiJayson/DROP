@@ -11,6 +11,7 @@ export {
   SearchField,
   Stars,
 } from './inputs';
+export { CityMap } from './city-map';
 export { MapCanvas, TripMap } from './map';
 export { framePoints, rideFrame, rideMapColors, rideMapStyle } from './ride-map-style';
 export type { RideFrame, RideMapStyle, RidePin, RidePinKind } from './ride-map-style';

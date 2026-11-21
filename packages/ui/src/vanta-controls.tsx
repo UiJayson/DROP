@@ -124,7 +124,7 @@ export function MetalButton({
   const font = useVantaFont();
   const { scale, to } = usePressScale();
   return (
-    <Animated.View style={{ transform: [{ scale }] }}>
+    <Animated.View style={[{ transform: [{ scale }] }, styles.metalWrap]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={label}
@@ -311,19 +311,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
   },
+  metalWrap: {
+    alignSelf: 'center',
+  },
   metal: {
-    minHeight: 56,
+    minHeight: 44,
     borderRadius: 999,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
   },
   metalText: {
     zIndex: 1,
     color: vanta.ink,
-    fontSize: 17,
-    lineHeight: 22,
+    fontSize: 15,
+    lineHeight: 20,
   },
   disabled: {
     opacity: 0.5,

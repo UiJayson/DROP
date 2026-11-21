@@ -1,15 +1,5 @@
-import { BOARDING_PIN, formatNaira, ratingTags } from '@drop/shared';
-import {
-  Button,
-  DemoBridge,
-  MapCanvas,
-  Notice,
-  PinDigits,
-  Screen,
-  Sheet,
-  Stars,
-  StatusPill,
-} from '@drop/ui';
+import { BOARDING_PIN, formatNaira, pickup, placeById, ratingTags } from '@drop/shared';
+import { Button, DemoBridge, Notice, PinDigits, Screen, Sheet, Stars, StatusPill } from '@drop/ui';
 import { colors, spacing } from '@drop/ui-tokens';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
@@ -19,7 +9,16 @@ import { useBooking } from '../booking';
 import { selectedOffer } from '../flow';
 import { layout } from '../layout';
 import { usePassenger } from '../passenger-context';
+import { RideMap } from '../map/RideMap';
 import { LivePassengerTrip } from './LiveTripScreen';
+
+function rideEnds(placeId: string | null) {
+  const place = placeId ? placeById(placeId) : undefined;
+  return {
+    pickup: { lat: pickup.lat, lng: pickup.lng, label: pickup.title },
+    dropoff: place ? { lat: place.lat, lng: place.lng, label: place.name } : null,
+  };
+}
 
 export function RideScreen() {
   const { state } = usePassenger();
@@ -63,11 +62,7 @@ function Arriving() {
   return (
     <Screen testID="screen-arriving">
       <View style={layout.mapSlot}>
-        <MapCanvas
-          title="Rider arriving"
-          subtitle={offer ? `${offer.etaMin} min` : undefined}
-          kekes={1}
-        />
+        <RideMap {...rideEnds(state.placeId)} />
       </View>
       <Sheet style={{ maxHeight: '62%', paddingBottom: Math.max(insets.bottom, spacing.md) }}>
         <ScrollView contentContainerStyle={{ gap: spacing.sm, paddingBottom: spacing.sm }}>
@@ -153,12 +148,7 @@ function Trip() {
   return (
     <Screen testID="screen-trip">
       <View style={layout.mapSlot}>
-        <MapCanvas
-          title="On trip"
-          subtitle="Map preview. Google Maps is not configured, so this is not a live street map."
-          destination="Alaba"
-          kekes={0}
-        />
+        <RideMap {...rideEnds(state.placeId)} />
       </View>
       <View
         style={[

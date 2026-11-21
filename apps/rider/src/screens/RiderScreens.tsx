@@ -11,7 +11,7 @@ import {
   DemoBridge,
   FareStepper,
   Header,
-  MapCanvas,
+  CityMap,
   Notice,
   PinDigits,
   PinPad,
@@ -114,7 +114,7 @@ function Home() {
   return (
     <Screen testID={state.online ? 'screen-home' : 'screen-offline'}>
       <View style={{ flex: 1 }}>
-        <MapCanvas kekes={state.online ? 3 : 0} />
+        <CityMap kekes={state.online ? 3 : 0} />
         <View
           style={{
             position: 'absolute',
@@ -482,7 +482,7 @@ function Heading() {
   return (
     <Screen testID="screen-heading">
       <View style={{ flex: 1 }}>
-        <MapCanvas title="To pickup" subtitle={riderRequest.pickupTitle} />
+        <CityMap title="To pickup" subtitle={riderRequest.pickupTitle} />
       </View>
       <View
         style={[
@@ -547,7 +547,7 @@ function OnTrip() {
   return (
     <Screen testID="screen-trip">
       <View style={{ flex: 1 }}>
-        <MapCanvas
+        <CityMap
           title="On trip"
           subtitle="Map preview. Google Maps is not configured, so this is not a live street map."
           destination={riderRequest.destination}

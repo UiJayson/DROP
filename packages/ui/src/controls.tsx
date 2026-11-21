@@ -212,21 +212,25 @@ export function DemoBridge({
 
 const styles = StyleSheet.create({
   fill: {
-    width: '100%',
+    alignSelf: 'center',
   },
   button: {
-    minHeight: tapTarget.riderPrimaryHeightDp,
-    borderRadius: radii.control,
+    minHeight: 44,
+    borderRadius: radii.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: 22,
+    paddingVertical: 8,
   },
   compact: {
     minHeight: tapTarget.minDp,
   },
   primary: {
     backgroundColor: colors.primary,
+    shadowColor: '#1F1F1F',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
   },
   primaryPressed: {
     backgroundColor: colors.primaryPressed,
@@ -247,8 +251,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface3,
   },
   buttonLabel: {
-    fontSize: typeScale.headline.fontSize,
-    lineHeight: typeScale.headline.lineHeight,
+    fontSize: 15,
+    lineHeight: 20,
     fontWeight: '600',
     textAlign: 'center',
   },
