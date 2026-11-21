@@ -36,6 +36,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useBooking } from '../booking';
+import { useDemoShell } from '../demo/shell';
 import { selectedOffer, visibleOffers } from '../flow';
 import { layout } from '../layout';
 import { usePassenger } from '../passenger-context';
@@ -134,11 +135,21 @@ function Searching() {
 
   const place = state.placeId ? placeById(state.placeId) : undefined;
 
+  const demo = useDemoShell();
   function onTab(tab: VantaTab) {
     if (tab === 'home') {
+      demo?.close();
       if (!booking.enabled) {
         dispatch({ type: 'cancel' });
       }
+      return;
+    }
+    if (demo && tab === 'safety') {
+      demo.open('safety');
+      return;
+    }
+    if (demo && tab === 'account') {
+      demo.open('account');
       return;
     }
     if (tab === 'safety' || tab === 'account') {
@@ -325,6 +336,7 @@ function OfferSelected() {
   const { state, dispatch } = usePassenger();
   const booking = useBooking();
   const insets = useSafeAreaInsets();
+  const demo = useDemoShell();
   const live = booking.offers.find((item) => item.id === state.offerId);
   const offer = live
     ? {
@@ -366,7 +378,16 @@ function OfferSelected() {
 
   function onTab(tab: VantaTab) {
     if (tab === 'home' && !booking.enabled) {
+      demo?.close();
       dispatch({ type: 'cancel' });
+    }
+    if (demo && tab === 'safety') {
+      demo.open('safety');
+      return;
+    }
+    if (demo && tab === 'account') {
+      demo.open('account');
+      return;
     }
     if (tab === 'ride') {
       dispatch({ type: 'back' });

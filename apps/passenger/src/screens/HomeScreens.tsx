@@ -15,6 +15,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAccount } from '../account';
+import { useDemoPoint, useDemoShell } from '../demo/shell';
 import { layout } from '../layout';
 import { RideMap } from '../map/RideMap';
 import { usePassenger } from '../passenger-context';
@@ -29,6 +30,8 @@ export function HomeScreen() {
   const area = areas[state.area];
   const rebookPlace = placeById(rebookPlaceId);
   const rebookQuote = quoteForPlace(rebookPlaceId);
+  const demo = useDemoShell();
+  const from = useDemoPoint();
   if (safety) {
     return (
       <Screen testID="screen-safety" padded tone="vanta">
@@ -49,7 +52,20 @@ export function HomeScreen() {
 
   function onTab(tab: VantaTab) {
     if (tab === 'ride') {
+      demo?.close();
       dispatch({ type: 'openSearch' });
+      return;
+    }
+    if (demo && tab === 'safety') {
+      demo.open('safety');
+      return;
+    }
+    if (demo && tab === 'account') {
+      demo.open('account');
+      return;
+    }
+    if (tab === 'home') {
+      demo?.close();
       return;
     }
     if (tab === 'safety' || tab === 'account') {
@@ -61,7 +77,11 @@ export function HomeScreen() {
     <Screen testID={state.route === 'quiet' ? 'screen-quiet' : 'screen-home'} tone="vanta">
       <View style={styles.hero}>
         <RideMap
-          pickup={{ lat: pickup.lat, lng: pickup.lng, label: pickup.title }}
+          pickup={{
+            lat: from?.lat ?? pickup.lat,
+            lng: from?.lng ?? pickup.lng,
+            label: from?.title ?? pickup.title,
+          }}
           dropoff={null}
           fallbackTitle={pickup.area}
           controlsInset={{ bottom: 80, right: 16 }}
@@ -84,7 +104,7 @@ export function HomeScreen() {
             <IconCircleButton
               label="Safety"
               icon="bell"
-              onPress={() => setSafety(true)}
+              onPress={() => (demo ? demo.open('safety') : setSafety(true))}
               testID="safety"
             />
           </View>
@@ -104,7 +124,7 @@ export function HomeScreen() {
                   <View style={styles.dotYellow} />
                   <View>
                     <Text style={styles.fieldLabel}>From</Text>
-                    <Text style={styles.fieldValue}>{pickup.title}</Text>
+                    <Text style={styles.fieldValue}>{from?.title ?? pickup.title}</Text>
                   </View>
                 </View>
                 <View style={styles.rule} />

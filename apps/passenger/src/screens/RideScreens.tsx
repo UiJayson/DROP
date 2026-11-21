@@ -1,7 +1,7 @@
 import { BOARDING_PIN, formatNaira, pickup, placeById, ratingTags } from '@drop/shared';
 import { Button, DemoBridge, Notice, PinDigits, Screen, Sheet, Stars, StatusPill } from '@drop/ui';
 import { colors, spacing } from '@drop/ui-tokens';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -58,6 +58,14 @@ function Arriving() {
     : prototype;
   const pin = booking.enabled ? (booking.chosen?.pin ?? null) : BOARDING_PIN;
   const [tool, setTool] = useState<'call' | 'share' | 'report' | null>(null);
+  const [etaLeft, setEtaLeft] = useState(offer?.etaMin ?? 3);
+  useEffect(() => {
+    if (booking.enabled) {
+      return undefined;
+    }
+    const timer = setInterval(() => setEtaLeft((value) => (value <= 1 ? 1 : value - 1)), 4000);
+    return () => clearInterval(timer);
+  }, [booking.enabled]);
 
   return (
     <Screen testID="screen-arriving">
@@ -67,7 +75,12 @@ function Arriving() {
       <Sheet style={{ maxHeight: '62%', paddingBottom: Math.max(insets.bottom, spacing.md) }}>
         <ScrollView contentContainerStyle={{ gap: spacing.sm, paddingBottom: spacing.sm }}>
           <View style={layout.grabber} />
-          <StatusPill tone="yellow" label={offer ? `Arriving · ${offer.etaMin} min` : 'Arriving'} />
+          <StatusPill
+            tone="yellow"
+            label={
+              offer ? `Arriving · ${booking.enabled ? offer.etaMin : etaLeft} min` : 'Arriving'
+            }
+          />
           <Text style={layout.headline}>{offer?.name ?? 'Your rider'}</Text>
           <Text style={layout.plate}>
             {offer ? `${offer.colour} Keke · ${offer.plate}` : 'Check the plate'}
@@ -143,8 +156,25 @@ function Arriving() {
 
 function Trip() {
   const { state, dispatch } = usePassenger();
+  const booking = useBooking();
   const insets = useSafeAreaInsets();
   const offer = selectedOffer(state);
+  const [leftM, setLeftM] = useState(2400);
+  useEffect(() => {
+    if (booking.enabled) {
+      return undefined;
+    }
+    const timer = setInterval(() => {
+      setLeftM((value) => {
+        if (value <= 400) {
+          dispatch({ type: 'demoArrived' });
+          return value;
+        }
+        return value - 400;
+      });
+    }, 1200);
+    return () => clearInterval(timer);
+  }, [booking.enabled, dispatch]);
   return (
     <Screen testID="screen-trip">
       <View style={layout.mapSlot}>
@@ -161,7 +191,11 @@ function Trip() {
         <Text accessibilityRole="header" style={layout.title}>
           Heading to {offer ? 'the drop-off' : 'Alaba'}
         </Text>
-        <Text style={layout.secondary}>Location updated 5 seconds ago.</Text>
+        <Text style={layout.secondary}>
+          {booking.enabled
+            ? 'Location updated 5 seconds ago.'
+            : `Moving · ${(leftM / 1000).toFixed(1)} km left`}
+        </Text>
         <Text style={layout.footnote}>Agreed fare · cash</Text>
         <Text style={layout.fare}>{offer ? formatNaira(offer.amountKobo) : ''}</Text>
         <Text style={layout.footnote}>
@@ -179,6 +213,7 @@ function Trip() {
 
 function Cash() {
   const { state, dispatch } = usePassenger();
+  const booking = useBooking();
   const insets = useSafeAreaInsets();
   const offer = selectedOffer(state);
   const amount = offer ? formatNaira(offer.amountKobo) : '';
@@ -190,8 +225,9 @@ function Cash() {
           {amount}
         </Text>
         <Text style={layout.body}>
-          Hand {amount} to {offer?.name ?? 'your rider'}. They confirm it on their phone. The fare
-          cannot change.
+          {booking.enabled
+            ? `Hand ${amount} to ${offer?.name ?? 'your rider'}. They confirm it on their phone. The fare cannot change.`
+            : `Demo payment. This is not a real charge. You would hand ${amount} cash to ${offer?.name ?? 'your rider'}.`}
         </Text>
         <DemoBridge
           label="Prototype · rider confirmed the cash"

@@ -25,6 +25,41 @@ function ensureWorker() {
   workerReady = true;
 }
 
+function drawRoute(target: MapLibreMap, pins: RidePin[]) {
+  const from = pins.find((pin) => pin.kind === 'pickup');
+  const to = pins.find((pin) => pin.kind === 'dropoff');
+  const data = {
+    type: 'Feature' as const,
+    properties: {},
+    geometry: {
+      type: 'LineString' as const,
+      coordinates:
+        from && to
+          ? [
+              [from.lng, from.lat],
+              [to.lng, to.lat],
+            ]
+          : [],
+    },
+  };
+  const existing = target.getSource('drop-route') as
+    { setData?: (value: unknown) => void } | undefined;
+  if (existing?.setData) {
+    existing.setData(data);
+    return;
+  }
+  if (!from || !to) {
+    return;
+  }
+  target.addSource('drop-route', { type: 'geojson', data });
+  target.addLayer({
+    id: 'drop-route',
+    type: 'line',
+    source: 'drop-route',
+    paint: { 'line-color': '#1F1F1F', 'line-width': 3, 'line-opacity': 0.45 },
+  });
+}
+
 function pinNode(pin: RidePin): HTMLDivElement {
   const root = document.createElement('div');
   root.setAttribute('role', 'img');
@@ -127,6 +162,7 @@ export function RideMapView({ pins, frame, padding, mapRef, onReady, onFail }: R
       ready.current = true;
       clearTimeout(timer);
       placeMarkers(created);
+      drawRoute(created, pinsRef.current);
       fit(created, true);
       onReady();
     });
@@ -237,6 +273,7 @@ export function RideMapView({ pins, frame, padding, mapRef, onReady, onFail }: R
         markers.current.delete(id);
       }
     }
+    drawRoute(target, pins);
   }, [pins]);
 
   const anchorKey = pins
