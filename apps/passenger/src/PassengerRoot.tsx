@@ -7,7 +7,7 @@ import { MatchScreen } from './screens/MatchScreens';
 import { FareScreen, SearchScreen } from './screens/PlanScreens';
 import { RideScreen } from './screens/RideScreens';
 
-function PassengerSwitch() {
+export function PassengerSwitch() {
   const { state } = usePassenger();
   switch (state.route) {
     case 'home':

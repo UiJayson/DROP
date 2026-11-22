@@ -6,7 +6,7 @@ export const layout = StyleSheet.create({
   fill: { flex: 1 },
   mapSlot: { flex: 1, minHeight: 180 },
   mapHome: { height: 240 },
-  mapShort: { height: 188 },
+  mapShort: { height: 320 },
   overlayTop: {
     position: 'absolute',
     top: 0,
@@ -25,10 +25,7 @@ export const layout = StyleSheet.create({
   },
   wordmark: {
     color: colors.primary,
-    fontSize: 22,
-    lineHeight: 28,
-    fontWeight: '700',
-    letterSpacing: 1.4,
+    ...typeStyle('title'),
   },
   safety: {
     minHeight: 44,
@@ -42,8 +39,7 @@ export const layout = StyleSheet.create({
   },
   safetyText: {
     color: colors.textPrimary,
-    ...typeStyle('callout'),
-    fontWeight: '600',
+    ...typeStyle('button'),
   },
   sheet: {
     backgroundColor: colors.surface2,
@@ -78,9 +74,7 @@ export const layout = StyleSheet.create({
   },
   whereText: {
     color: colors.textPrimary,
-    fontSize: 22,
-    lineHeight: 28,
-    fontWeight: '600',
+    ...typeStyle('title'),
   },
   card: {
     backgroundColor: colors.surface1,
@@ -110,21 +104,19 @@ export const layout = StyleSheet.create({
   },
   secondary: {
     color: colors.textSecondary,
-    ...typeStyle('callout'),
+    ...typeStyle('body'),
   },
   footnote: {
     color: colors.textSecondary,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
   },
   warning: {
     color: colors.warning,
-    ...typeStyle('footnote'),
-    fontWeight: '600',
+    ...typeStyle('label'),
   },
   fare: {
     color: colors.textPrimary,
     ...typeStyle('fare'),
-    fontVariant: ['tabular-nums'],
   },
   rebookPill: {
     backgroundColor: colors.primary,
@@ -193,11 +185,7 @@ export const layout = StyleSheet.create({
   },
   bigPin: {
     color: colors.textPrimary,
-    fontSize: 48,
-    lineHeight: 56,
-    fontWeight: '700',
-    letterSpacing: 8,
-    fontVariant: ['tabular-nums'],
+    ...typeStyle('digits'),
   },
   actions: {
     flexDirection: 'row',

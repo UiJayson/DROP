@@ -1,4 +1,5 @@
 export { Button, Chevron, DemoBridge, Header, IconButton, Notice, StatusPill } from './controls';
+export { YellowFill } from './yellow';
 export { tapHaptic } from './haptics';
 export type { HapticKind } from './haptics';
 export {
@@ -11,7 +12,10 @@ export {
   SearchField,
   Stars,
 } from './inputs';
+export { CityMap } from './city-map';
 export { MapCanvas, TripMap } from './map';
+export { framePoints, rideFrame, rideMapColors, rideMapStyle } from './ride-map-style';
+export type { RideFrame, RideMapStyle, RidePin, RidePinKind } from './ride-map-style';
 export { enterSpring, pressInSpring, pressOutSpring } from './motion';
 export { prefersStaticMotion, readInitialScreen, readPreview } from './routing';
 export { AppShell, Screen, Sheet, useReduceMotion } from './shell';
@@ -29,6 +33,7 @@ export {
   VantaText,
 } from './vanta-controls';
 export type { VantaTab } from './vanta-controls';
+export { DropFonts } from './fonts';
 export { VantaFontProvider, useVantaFont } from './vanta-font';
 export type { VantaFaces } from './vanta-font';
 export { FeatureChip, InitialAvatar, RideOfferCard, RouteTimeline } from './vanta-ride';

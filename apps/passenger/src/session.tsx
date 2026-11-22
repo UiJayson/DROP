@@ -26,6 +26,7 @@ import { useEffect, useMemo, useReducer, useState, type ReactNode } from 'react'
 
 import { AccountProvider } from './account';
 import { BookingProvider } from './booking';
+import { DemoApp } from './demo/DemoApp';
 
 const previewScreens = ['phone', 'code', 'name', 'app'] as const;
 
@@ -152,28 +153,31 @@ export function PassengerSession({ children }: { children: ReactNode }) {
         />
       );
     }
-    return (
-      <PhoneSignIn
-        audience="Passenger"
-        national={signIn.national}
-        error={signIn.error}
-        busy={false}
-        onChange={(value) => dispatch({ type: 'editPhone', value })}
-        onSubmit={() => {
-          const phone = phoneFromNational(signIn.national);
-          if (!phone) {
-            dispatch({ type: 'fail', message: 'Enter a valid Nigerian mobile number.' });
-            return;
-          }
-          dispatch({
-            type: 'fail',
-            message:
-              'Text messages are not connected yet. Add the Supabase URL and anon key, then restart.',
-          });
-        }}
-        onPreview={() => setLocalPreview('app')}
-      />
-    );
+    if (preview === 'phone') {
+      return (
+        <PhoneSignIn
+          audience="Passenger"
+          national={signIn.national}
+          error={signIn.error}
+          busy={false}
+          onChange={(value) => dispatch({ type: 'editPhone', value })}
+          onSubmit={() => {
+            const phone = phoneFromNational(signIn.national);
+            if (!phone) {
+              dispatch({ type: 'fail', message: 'Enter a valid Nigerian mobile number.' });
+              return;
+            }
+            dispatch({
+              type: 'fail',
+              message:
+                'Text messages are not connected yet. Add the Supabase URL and anon key, then restart.',
+            });
+          }}
+          onPreview={() => setLocalPreview('app')}
+        />
+      );
+    }
+    return <DemoApp />;
   }
 
   if (!ready || (user && !profile && !signIn.error)) {

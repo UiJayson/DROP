@@ -1,3 +1,14 @@
+# Credits
+
+## Type
+
+Passenger and rider screens use two SIL Open Font License families, the same pairing as [Kredete](https://kredete.io/).
+
+- [Bricolage Grotesque](https://fonts.google.com/specimen/Bricolage+Grotesque) by Mathieu Triay. Display, titles, body, labels, buttons, inputs, chips, and fares. Licence: [SIL Open Font License 1.1](https://openfontlicense.org/).
+- [Geist Mono](https://fonts.google.com/specimen/Geist+Mono) by Vercel. PIN and code cells, and the rider decision timer. Licence: [SIL Open Font License 1.1](https://openfontlicense.org/).
+
+The files are loaded with `@expo-google-fonts/bricolage-grotesque` and `@expo-google-fonts/geist-mono`. If a face has not loaded, text falls back to the system sans.
+
 # Image credits
 
 ## Keke photograph

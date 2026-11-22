@@ -6,6 +6,7 @@ import {
   riderRoutes,
   seedRider,
   type RiderAction,
+  type RiderRoute,
   type RiderState,
   type Seats,
 } from './flow';
@@ -20,13 +21,16 @@ const RiderContext = createContext<RiderApi | null>(null);
 export function RiderProvider({
   startOffline = false,
   initialSeats,
+  seedRoute,
   children,
 }: {
   startOffline?: boolean;
   initialSeats?: Seats;
+  /** Demo page only. Production leaves this unset and reads the URL. */
+  seedRoute?: RiderRoute;
   children: ReactNode;
 }) {
-  const initial = startOffline ? 'offline' : readInitialScreen(riderRoutes, 'home');
+  const initial = seedRoute ?? (startOffline ? 'offline' : readInitialScreen(riderRoutes, 'home'));
   const [state, dispatch] = useReducer(
     riderReducer,
     { route: initial, seats: initialSeats },

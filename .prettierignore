@@ -14,3 +14,6 @@ apps/admin/src/app/icon.png
 *.sql
 docs/**
 .cursor/skills
+apps/passenger/public/maplibre-gl.css
+apps/passenger/public/maplibre-gl-worker.js
+apps/rider/public/maplibre-gl-worker.js

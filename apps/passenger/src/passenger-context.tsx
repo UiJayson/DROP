@@ -15,6 +15,7 @@ import {
   passengerRoutes,
   seedPassenger,
   type PassengerAction,
+  type PassengerRoute,
   type PassengerState,
 } from './flow';
 
@@ -25,14 +26,32 @@ type PassengerApi = {
 
 const PassengerContext = createContext<PassengerApi | null>(null);
 
-export function PassengerProvider({ children }: { children: ReactNode }) {
+export function PassengerProvider({
+  children,
+  seedRoute,
+  seedState,
+  suspendAutoOffers = false,
+}: {
+  children: ReactNode;
+  /** Demo page only. Production leaves this unset and reads the URL. */
+  seedRoute?: PassengerRoute;
+  /** Demo page only. A saved trip to resume. Production leaves this unset. */
+  seedState?: PassengerState;
+  /** Demo page only. Production still reveals offers on its own timer. */
+  suspendAutoOffers?: boolean;
+}) {
   const booking = useBooking();
-  const initial = readInitialScreen(passengerRoutes, 'home');
-  const [state, dispatch] = useReducer(passengerReducer, initial, seedPassenger);
+  const initial = seedRoute ?? seedState?.route ?? readInitialScreen(passengerRoutes, 'home');
+  const [state, dispatch] = useReducer(
+    passengerReducer,
+    { route: initial, saved: seedState },
+    (boot: { route: PassengerRoute; saved?: PassengerState }) =>
+      boot.saved ?? seedPassenger(boot.route),
+  );
   const autoTried = useRef<string | null>(null);
 
   useEffect(() => {
-    if (booking.enabled) {
+    if (suspendAutoOffers || booking.enabled) {
       return undefined;
     }
     if (!state.live || state.route !== 'searching') {
@@ -42,7 +61,7 @@ export function PassengerProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'showOffers' });
     }, 1100);
     return () => clearTimeout(timer);
-  }, [booking.enabled, state.live, state.route]);
+  }, [booking.enabled, state.live, state.route, suspendAutoOffers]);
 
   useEffect(() => {
     if (!booking.enabled || !booking.chosen) {

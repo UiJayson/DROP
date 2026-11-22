@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
 import { formatNaira } from './money';
+import { haversineM } from './matching';
 import {
   BOARDING_PIN,
   buildOffers,
+  defaultPlaceId,
   defaultQuote,
   festacFareRule,
   filterPlaces,
+  pickup,
+  placeById,
   quoteForPlace,
 } from './prototype';
 
@@ -39,5 +43,21 @@ describe('prototype scenario', () => {
 
   it('shares one boarding PIN for both prototype apps', () => {
     expect(BOARDING_PIN).toBe('4821');
+  });
+
+  it('pins the Festac story on the real places those names refer to', () => {
+    const drop = placeById(defaultPlaceId);
+    expect(drop?.name).toBe('Alaba International');
+    expect(pickup.lat).toBeGreaterThan(6.4);
+    expect(pickup.lat).toBeLessThan(6.5);
+    expect(pickup.lng).toBeGreaterThan(3.2);
+    expect(pickup.lng).toBeLessThan(3.35);
+    expect(drop).toBeDefined();
+    if (!drop) {
+      return;
+    }
+    const metres = haversineM(pickup, drop);
+    expect(metres).toBeGreaterThan(5_000);
+    expect(metres).toBeLessThan(20_000);
   });
 });

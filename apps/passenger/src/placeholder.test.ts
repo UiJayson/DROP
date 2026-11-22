@@ -6,6 +6,6 @@ describe('passenger placeholder', () => {
   it('uses the DROP name on the dark yellow theme', () => {
     expect(product.name).toBe('DROP');
     expect(colors.bg).toBe('#09090B');
-    expect(colors.primary).toBe('#FFC629');
+    expect(colors.primary).toBe('#FFE14A');
   });
 });

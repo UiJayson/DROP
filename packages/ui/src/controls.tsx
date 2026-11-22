@@ -1,4 +1,4 @@
-import { colors, radii, spacing, tapTarget, typeScale } from '@drop/ui-tokens';
+import { colors, radii, spacing, tapTarget } from '@drop/ui-tokens';
 import { useRef, useState, type ReactNode } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -6,6 +6,7 @@ import { tapHaptic, type HapticKind } from './haptics';
 import { pressInSpring, pressOutSpring } from './motion';
 import { useReduceMotion } from './shell';
 import { typeStyle } from './theme';
+import { YellowFill } from './yellow';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 
@@ -68,18 +69,19 @@ export function Button({
         style={[
           styles.button,
           size === 'compact' && styles.compact,
-          variant === 'primary' && styles.primary,
+          variant === 'primary' && !disabled && styles.primary,
           variant === 'secondary' && styles.secondary,
           variant === 'danger' && styles.danger,
           variant === 'ghost' && styles.ghost,
-          pressed && variant === 'primary' && styles.primaryPressed,
           pressed && variant !== 'primary' && styles.pressedSurface,
           disabled && styles.disabled,
         ]}
       >
+        {variant === 'primary' && !disabled ? <YellowFill style={StyleSheet.absoluteFill} /> : null}
         <Text
           style={[
             styles.buttonLabel,
+            styles.buttonLabelFront,
             variant === 'primary' ? styles.onPrimary : styles.onSurface,
             variant === 'danger' && styles.dangerLabel,
             disabled && styles.disabledLabel,
@@ -212,24 +214,25 @@ export function DemoBridge({
 
 const styles = StyleSheet.create({
   fill: {
-    width: '100%',
+    alignSelf: 'center',
   },
   button: {
-    minHeight: tapTarget.riderPrimaryHeightDp,
-    borderRadius: radii.control,
+    minHeight: 44,
+    borderRadius: radii.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: 22,
+    paddingVertical: 8,
   },
   compact: {
     minHeight: tapTarget.minDp,
   },
   primary: {
-    backgroundColor: colors.primary,
-  },
-  primaryPressed: {
-    backgroundColor: colors.primaryPressed,
+    overflow: 'hidden',
+    shadowColor: '#E09600',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.16,
+    shadowRadius: 4,
   },
   secondary: {
     backgroundColor: colors.surface3,
@@ -247,10 +250,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface3,
   },
   buttonLabel: {
-    fontSize: typeScale.headline.fontSize,
-    lineHeight: typeScale.headline.lineHeight,
-    fontWeight: '600',
+    ...typeStyle('button'),
     textAlign: 'center',
+  },
+  buttonLabelFront: {
+    zIndex: 1,
   },
   onPrimary: {
     color: colors.onPrimary,
@@ -321,9 +325,7 @@ const styles = StyleSheet.create({
   dotNeutral: { backgroundColor: colors.textSecondary },
   pillText: {
     color: colors.textPrimary,
-    fontSize: typeScale.footnote.fontSize,
-    lineHeight: typeScale.footnote.lineHeight,
-    fontWeight: '600',
+    ...typeStyle('label'),
   },
   notice: {
     backgroundColor: colors.surface3,
@@ -334,7 +336,7 @@ const styles = StyleSheet.create({
   },
   noticeText: {
     color: colors.textPrimary,
-    ...typeStyle('callout'),
+    ...typeStyle('body'),
   },
   demo: {
     minHeight: tapTarget.minDp,
@@ -347,7 +349,7 @@ const styles = StyleSheet.create({
   },
   demoText: {
     color: colors.textSecondary,
-    ...typeStyle('footnote'),
+    ...typeStyle('caption'),
     textAlign: 'center',
   },
 });
